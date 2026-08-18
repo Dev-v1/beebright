@@ -1,0 +1,180 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Display&display=swap");
+
+:root {
+  color: #17333a;
+  background: #fbf8ef;
+  font-family: "DM Sans", Arial, sans-serif;
+  font-synthesis: none;
+  --ink: #17333a;
+  --muted: #687a7b;
+  --cream: #fbf8ef;
+  --paper: #fffdf8;
+  --yellow: #f3c64b;
+  --coral: #d85e47;
+  --mint: #dff1e7;
+  --line: #dbe3dd;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--cream); }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+.app-shell { min-height: 100vh; }
+.page-width { width: min(1180px, calc(100% - 44px)); margin: 0 auto; }
+.page-width.narrow { width: min(1040px, calc(100% - 44px)); }
+
+.topbar { height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(22px, 5vw, 76px); background: rgba(255, 253, 248, .94); border-bottom: 1px solid #e7e2d5; }
+.brand { border: 0; background: none; color: var(--ink); font: 700 29px/1 "Libre Caslon Display", Georgia, serif; letter-spacing: -1.7px; }
+.brand span { color: var(--coral); font-style: italic; }
+.top-tag { display: flex; align-items: center; gap: 11px; color: #738285; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; }
+.top-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 0 4px #f7edd0; }
+
+.home-page { position: relative; padding-top: 92px; padding-bottom: 45px; }
+.hero-copy { max-width: 635px; }
+.eyebrow { margin: 0 0 18px; color: #a46f40; font-size: 11px; font-weight: 700; letter-spacing: 1.65px; }
+.hero-copy h1, .setup-page h1, .results-page h1 { margin: 0; font: 400 clamp(48px, 6.3vw, 78px)/.98 "Libre Caslon Display", Georgia, serif; letter-spacing: -3px; }
+.hero-copy h1 em, .setup-page h1 em { color: var(--coral); font-style: italic; }
+.lead { max-width: 590px; margin: 26px 0 29px; color: var(--muted); font-size: 16px; line-height: 1.65; }
+.hero-buttons { display: flex; gap: 11px; flex-wrap: wrap; }
+.primary { display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 19px; border: 0; border-radius: 9px; color: white; background: var(--ink); font-weight: 700; font-size: 13px; }
+.primary svg { color: var(--yellow); }
+.outline { display: inline-flex; align-items: center; gap: 8px; padding: 13px 17px; border: 1px solid var(--ink); border-radius: 9px; background: transparent; color: var(--ink); font-weight: 700; font-size: 13px; }
+.upload-link { display: flex; align-items: center; gap: 7px; width: max-content; margin-top: 25px; color: #596d70; font-size: 13px; cursor: pointer; }
+.upload-link span { text-decoration: underline; text-underline-offset: 3px; }
+.upload-link input { display: none; }
+.status-message { max-width: 600px; margin-top: 14px; color: #9b6638; font-size: 12px; line-height: 1.5; }
+.status-message.centered { margin-left: auto; margin-right: auto; text-align: center; }
+
+.warmup-card { position: absolute; top: 68px; right: 53px; width: 326px; min-height: 385px; padding: 37px 36px; border-radius: 25px; background: var(--yellow); transform: rotate(2.7deg); box-shadow: 14px 17px 0 #e8e1cf; }
+.warmup-spark { color: var(--coral); }
+.warmup-card > p { margin: 30px 0 9px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; }
+.warmup-card h2 { margin: 0; font: 400 40px/1.04 "Libre Caslon Display", Georgia, serif; letter-spacing: -1.6px; }
+.warmup-card > button { display: flex; align-items: center; gap: 10px; margin-top: 30px; padding: 0; border: 0; background: transparent; color: var(--ink); font-weight: 700; font-size: 13px; }
+.warmup-card > div { position: absolute; bottom: 24px; display: flex; gap: 14px; font-size: 10px; }
+.mode-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 112px; }
+.mode-grid button { min-height: 145px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); color: var(--ink); text-align: left; transition: transform .18s ease, border-color .18s ease; }
+.mode-grid button:hover { transform: translateY(-4px); border-color: #9eb0a6; }
+.mode-grid svg { color: var(--coral); margin-bottom: 17px; }
+.mode-grid strong, .mode-grid small { display: block; }
+.mode-grid strong { font-family: "Libre Caslon Display", Georgia, serif; font-size: 18px; }
+.mode-grid small { margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+.setup-page { padding-top: 52px; padding-bottom: 80px; }
+.text-button { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: transparent; color: #68787b; font-size: 12px; }
+.setup-eyebrow { margin-top: 44px; }
+.setup-page h1 { font-size: 57px; }
+.setup-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 33px; margin-top: 37px; }
+.mode-list { display: grid; gap: 11px; }
+.mode-list button { display: flex; align-items: center; gap: 18px; min-height: 88px; padding: 15px 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); text-align: left; }
+.mode-list button.selected { border: 2px solid var(--ink); background: #f7f0dc; }
+.mode-list button > svg { color: var(--coral); }
+.mode-list button > span { flex: 1; }
+.mode-list strong, .mode-list small { display: block; }
+.mode-list strong { font-family: "Libre Caslon Display", Georgia, serif; font-size: 18px; }
+.mode-list small { margin-top: 4px; color: var(--muted); font-size: 11px; }
+.mode-list i { display: grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; background: var(--ink); color: white; }
+.set-panel { align-self: start; padding: 30px; border-radius: 18px; background: var(--mint); }
+.hundred { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: var(--paper); color: var(--coral); font-weight: 700; }
+.set-panel h2 { margin: 18px 0 7px; font: 400 28px "Libre Caslon Display", Georgia, serif; }
+.set-panel > p { margin: 0; color: #5f746b; font-size: 13px; line-height: 1.5; }
+.set-panel label { display: grid; gap: 8px; margin: 25px 0 15px; color: #527066; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+.set-panel select { width: 100%; padding: 12px; border: 1px solid #b5d4c5; border-radius: 8px; background: var(--paper); color: var(--ink); outline: none; }
+.primary.full { width: 100%; }
+.imported-note { display: flex; align-items: center; gap: 6px; margin-top: 13px !important; font-size: 10px !important; }
+
+.practice-page { min-height: calc(100vh - 76px); background: var(--paper); }
+.practice-header { display: flex; align-items: center; gap: 28px; min-height: 78px; padding: 16px clamp(22px, 5vw, 74px); border-bottom: 1px solid #ece7db; }
+.progress-area { flex: 1; max-width: 490px; margin: auto; }
+.progress-area > div:first-child { display: flex; justify-content: space-between; margin-bottom: 8px; color: #708083; font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+.progress-track { height: 6px; border-radius: 10px; background: #efeade; overflow: hidden; }
+.progress-track i { display: block; height: 100%; background: var(--yellow); border-radius: inherit; transition: width .25s ease; }
+.score-pill { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; background: #f7edca; color: #795d25; font-size: 11px; white-space: nowrap; }
+.score-pill > i { height: 18px; border-left: 1px solid #d8c792; }
+.score-pill span { display: flex; align-items: center; gap: 4px; }
+.practice-content { width: min(720px, calc(100% - 44px)); margin: 0 auto; padding: 69px 0 90px; }
+.listen-card { display: inline-flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border: 1px solid var(--line); border-radius: 14px; background: white; color: var(--ink); text-align: left; }
+.listen-card > span { display: grid; place-items: center; width: 39px; height: 39px; border-radius: 50%; background: var(--yellow); }
+.listen-card strong, .listen-card small { display: block; }
+.listen-card strong { font-size: 12px; }
+.listen-card small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.question-title, .prompt-sentence { margin: 30px 0 24px; font: 400 43px/1.12 "Libre Caslon Display", Georgia, serif; letter-spacing: -1.5px; }
+.prompt-sentence { font-size: 36px; line-height: 1.25; }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+.choices button { display: flex; align-items: center; gap: 13px; min-height: 64px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--ink); font-weight: 600; text-align: left; }
+.choices button:hover, .choices button.picked { border: 2px solid var(--ink); background: #f8f2df; }
+.choices button.right { border: 2px solid #5e9c6d; background: #e7f4e9; }
+.choices button.wrong { border: 2px solid var(--coral); background: #fff0eb; }
+.choices b { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid #bac6c0; border-radius: 50%; color: #67777a; font-size: 10px; }
+.check-button { margin-top: 16px; }
+.type-row { display: flex; gap: 10px; }
+.type-row input { flex: 1; min-width: 0; padding: 16px 18px; border: 1px solid #bdc9c3; border-radius: 9px; background: white; color: var(--ink); outline-color: var(--ink); }
+.hint-controls { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 31px; }
+.hint-controls span { display: inline-flex; align-items: center; gap: 5px; color: #6c7c7f; font-size: 11px; }
+.hint-controls button { display: inline-flex; align-items: center; gap: 5px; padding: 7px 10px; border: 1px solid #d5ddd8; border-radius: 99px; background: transparent; color: #496267; font-size: 11px; }
+.hint-box { margin-top: 15px; padding: 13px 16px; border-left: 3px solid var(--yellow); border-radius: 0 8px 8px 0; background: #fff8e3; font-size: 13px; }
+.hint-box p { margin: 5px 0 0; color: #52696c; line-height: 1.5; }
+.feedback { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 31px; padding: 16px 18px; border-radius: 12px; }
+.feedback.correct { background: #e5f3e7; }
+.feedback.incorrect { background: #fff0eb; }
+.feedback-copy { display: flex; align-items: flex-start; gap: 11px; }
+.feedback-copy > span { display: grid; place-items: center; flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%; color: white; background: #4e9661; }
+.feedback.incorrect .feedback-copy > span { background: var(--coral); }
+.feedback-copy strong { font-size: 13px; }
+.feedback-copy p { margin: 5px 0 0; color: #586b6e; font-size: 12px; }
+.feedback-copy em { color: var(--coral); font-style: normal; }
+.feedback > button { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 0; border-radius: 7px; background: var(--ink); color: white; font-weight: 700; font-size: 11px; white-space: nowrap; }
+.flash-card { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 390px; padding: 40px; border: 1px solid #e5dfcc; border-radius: 24px; background: linear-gradient(135deg, #fffdf8, #f6e9ae); box-shadow: 0 15px 35px rgba(41, 53, 43, .06); text-align: center; cursor: pointer; }
+.flash-card.revealed { background: linear-gradient(135deg, #fffdf8, #dbefe4); }
+.flash-card small { color: #a36c3b; font-size: 9px; font-weight: 700; letter-spacing: 1.2px; }
+.flash-card h2 { margin: 22px 0 12px; font: 400 50px/1.05 "Libre Caslon Display", Georgia, serif; letter-spacing: -2px; }
+.flash-card p { max-width: 510px; margin: 0; color: #596c6e; font-size: 15px; line-height: 1.6; }
+.flash-card .primary { margin-top: 22px; }
+
+.results-page { width: min(650px, calc(100% - 44px)); margin: 0 auto; padding: 92px 0; text-align: center; }
+.results-page > svg { color: var(--coral); margin-bottom: 15px; }
+.results-page h1 { font-size: 62px; }
+.results-page .lead { margin: 20px auto 30px; }
+.result-grid { display: flex; margin: 34px 0; border: 1px solid var(--line); border-radius: 12px; background: white; overflow: hidden; }
+.result-grid > div { flex: 1; padding: 20px 8px; }
+.result-grid > div + div { border-left: 1px solid var(--line); }
+.result-grid b, .result-grid span { display: block; }
+.result-grid b { font: 400 30px "Libre Caslon Display", Georgia, serif; }
+.result-grid span { margin-top: 5px; color: var(--muted); font-size: 10px; }
+.center-button { display: flex; margin: 17px auto 0; }
+
+@media (max-width: 930px) {
+  .warmup-card { position: relative; top: auto; right: auto; margin: 46px auto 0; }
+  .mode-grid { margin-top: 60px; }
+  .setup-layout { grid-template-columns: 1fr; }
+  .set-panel { max-width: 520px; }
+}
+
+@media (max-width: 620px) {
+  .topbar { height: 64px; padding: 0 18px; }
+  .top-tag { display: none; }
+  .home-page { padding-top: 58px; }
+  .hero-copy h1 { font-size: 52px; letter-spacing: -2.4px; }
+  .warmup-card { width: 100%; transform: rotate(1deg); }
+  .mode-grid { grid-template-columns: 1fr 1fr; }
+  .mode-grid button { min-height: 137px; }
+  .setup-page { padding-top: 35px; }
+  .setup-page h1 { font-size: 44px; }
+  .practice-header { gap: 12px; min-height: 71px; padding: 13px 17px; }
+  .practice-header > .text-button { white-space: nowrap; font-size: 10px; }
+  .score-pill { gap: 6px; padding: 7px; font-size: 9px; }
+  .progress-area > div:first-child { font-size: 7px; }
+  .practice-content { width: calc(100% - 36px); padding-top: 42px; }
+  .question-title { font-size: 36px; }
+  .prompt-sentence { font-size: 30px; }
+  .choices { grid-template-columns: 1fr; }
+  .type-row { display: grid; }
+  .type-row .primary { width: 100%; }
+  .hint-controls > span { width: 100%; }
+  .feedback { align-items: flex-start; flex-direction: column; }
+  .flash-card { min-height: 360px; padding: 25px; }
+  .flash-card h2 { font-size: 41px; }
+  .results-page { padding-top: 65px; }
+  .results-page h1 { font-size: 48px; }
+}
+

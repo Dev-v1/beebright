@@ -1,0 +1,2 @@
+"""BeeBright FastAPI application package."""
+
