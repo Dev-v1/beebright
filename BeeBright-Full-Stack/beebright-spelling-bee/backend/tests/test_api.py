@@ -21,6 +21,27 @@ def test_levels_are_available():
     assert {"one_bee", "two_bee", "three_bee"}.issubset(keys)
 
 
+def test_built_in_word_list_is_published():
+    response = client.get("/api/word-lists")
+    assert response.status_code == 200
+    assert response.json()[0]["id"] == "champions-2024"
+    assert response.json()[0]["built_in"] is True
+
+
+def test_access_status_requires_a_clerk_session():
+    response = client.get("/api/access")
+    assert response.status_code == 401
+
+
+def test_pdf_import_requires_an_admin_session():
+    response = client.post(
+        "/api/admin/word-lists/import",
+        data={"title": "Unauthorized list"},
+        files={"file": ("words.pdf", b"not-a-pdf", "application/pdf")},
+    )
+    assert response.status_code == 401
+
+
 def test_practice_is_limited_to_100():
     response = client.get("/api/practice?level=one_bee&limit=100")
     assert response.status_code == 200

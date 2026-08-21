@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { ClerkLoaded, ClerkLoading, SignIn, SignUp, useAuth } from "@clerk/react";
 
 import App from "../App.jsx";
+import AdminPage from "../admin/AdminPage.jsx";
+import { getAccess } from "../api.js";
+import RequestWordListPage from "./RequestWordListPage.jsx";
 import SettingsPage from "./SettingsPage.jsx";
 
 const THEME_KEY = "beebright-theme-v1";
@@ -28,11 +31,35 @@ function RoutedApp() {
   const { isLoaded, isSignedIn, userId, getToken } = useAuth();
   const [path, navigate] = useBrowserPath();
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [accessLoaded, setAccessLoaded] = useState(false);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) {
+      setIsAdmin(false);
+      setAccessLoaded(Boolean(isLoaded));
+      return;
+    }
+    let cancelled = false;
+    setAccessLoaded(false);
+    getToken()
+      .then((token) => token && getAccess(token))
+      .then((result) => {
+        if (!cancelled) setIsAdmin(Boolean(result?.is_admin));
+      })
+      .catch(() => {
+        if (!cancelled) setIsAdmin(false);
+      })
+      .finally(() => {
+        if (!cancelled) setAccessLoaded(true);
+      });
+    return () => { cancelled = true; };
+  }, [getToken, isLoaded, isSignedIn, userId]);
 
   if (!isLoaded) return <main className="auth-loading">Preparing your spelling studio…</main>;
 
@@ -62,7 +89,19 @@ function RoutedApp() {
   }
 
   if (path === "/settings") {
-    return <SettingsPage theme={theme} setTheme={setTheme} getToken={getToken} onBack={() => navigate("/")} />;
+    return <SettingsPage theme={theme} setTheme={setTheme} getToken={getToken} isAdmin={isAdmin} onAdmin={() => navigate("/admin")} onBack={() => navigate("/")} />;
+  }
+
+  if (path === "/request-word-list") {
+    return <RequestWordListPage getToken={getToken} onBack={() => navigate("/")} />;
+  }
+
+  if (path === "/admin") {
+    if (!accessLoaded) return <main className="auth-loading">Checking administrator access…</main>;
+    if (!isAdmin) {
+      return <main className="configuration-page"><div><h1>Administrator access required.</h1><p>This area is only available to the configured BeeBright administrator.</p><button className="primary" onClick={() => navigate("/")}>Back to BeeBright</button></div></main>;
+    }
+    return <AdminPage getToken={getToken} onBack={() => navigate("/")} onSettings={() => navigate("/settings")} />;
   }
 
   if (path !== "/") window.history.replaceState({}, "", "/");
@@ -72,7 +111,9 @@ function RoutedApp() {
       userId={userId}
       getToken={getToken}
       theme={theme}
+      isAdmin={isAdmin}
       onToggleTheme={() => setTheme((value) => (value === "dark" ? "light" : "dark"))}
+      onRequestList={() => navigate("/request-word-list")}
       onOpenSettings={() => navigate("/settings")}
     />
   );

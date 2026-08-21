@@ -101,8 +101,11 @@ FRONTEND_URL=https://beebright.vercel.app
 DATABASE_URL=YOUR_NEON_POOLED_CONNECTION_STRING
 CLERK_ISSUER_URL=YOUR_CLERK_FRONTEND_API_URL
 CLERK_JWT_KEY=YOUR_COMPLETE_PEM_PUBLIC_KEY
+ADMIN_CLERK_USER_IDS=YOUR_CLERK_USER_ID
 MERRIAM_WEBSTER_API_KEY=YOUR_MERRIAM_WEBSTER_KEY
 ```
+
+To obtain the admin value, open Clerk **Users**, select your own BeeBright account, and copy its ID beginning with `user_`. Paste that exact value into Render as `ADMIN_CLERK_USER_IDS`. To authorize more than one administrator later, separate their Clerk user IDs with commas. Never use an email address or the application/instance ID for this variable.
 
 Important rules:
 
@@ -111,6 +114,7 @@ Important rules:
 - Use the pooled Neon connection string containing `-pooler` and `sslmode=require`.
 - Do not add `VITE_CLERK_PUBLISHABLE_KEY` to Render.
 - No `CLERK_SECRET_KEY` is required by this implementation.
+- `ADMIN_CLERK_USER_IDS` belongs only on Render. Do not add it to Vercel or source code.
 
 Confirm Render's service settings:
 
@@ -133,11 +137,12 @@ The JSON should include:
 {
   "status": "ok",
   "clerk_configured": true,
-  "database_configured": true
+  "database_configured": true,
+  "admin_configured": true
 }
 ```
 
-The first start also creates the Neon table.
+The first start also creates the Neon progress, custom word-list, and request tables automatically. No manual SQL is required.
 
 ## 5. Update the Vercel frontend
 
@@ -172,6 +177,8 @@ The included `vercel.json` rewrites all routes to `index.html`, so these direct 
 https://beebright.vercel.app/sign-in
 https://beebright.vercel.app/sign-up
 https://beebright.vercel.app/settings
+https://beebright.vercel.app/admin
+https://beebright.vercel.app/request-word-list
 ```
 
 ## 6. Complete end-to-end test
@@ -265,6 +272,7 @@ FRONTEND_URL=http://localhost:5173
 DATABASE_URL=your_neon_pooled_connection_string
 CLERK_ISSUER_URL=your_clerk_frontend_api_url
 CLERK_JWT_KEY="-----BEGIN PUBLIC KEY-----\nYOUR_KEY\n-----END PUBLIC KEY-----"
+ADMIN_CLERK_USER_IDS=your_clerk_user_id
 ```
 
 Frontend `.env`:

@@ -7,6 +7,7 @@ import {
   LogOut,
   Moon,
   Save,
+  ShieldCheck,
   Sun,
   Trash2,
   UserRound,
@@ -18,7 +19,7 @@ function clerkError(error) {
   return error?.errors?.[0]?.longMessage || error?.errors?.[0]?.message || error?.message || "That change could not be saved.";
 }
 
-export default function SettingsPage({ theme, setTheme, getToken, onBack }) {
+export default function SettingsPage({ theme, setTheme, getToken, isAdmin, onAdmin, onBack }) {
   const { user } = useUser();
   const { signOut } = useClerk();
   const avatarRef = useRef(null);
@@ -90,14 +91,16 @@ export default function SettingsPage({ theme, setTheme, getToken, onBack }) {
         <button className="outline" onClick={onBack}><ArrowLeft size={15} /> Back to practice</button>
       </header>
 
-      <section className="settings-content">
-        <p className="eyebrow">ACCOUNT & APPEARANCE</p>
-        <h1>Settings</h1>
-        <p className="settings-intro">Update your BeeBright account and choose how your spelling studio looks.</p>
+      <section className={`settings-content ${isAdmin ? "with-sidebar" : ""}`}>
+        {isAdmin && <aside className="settings-sidebar"><button className="active">Me</button><button onClick={onAdmin}><ShieldCheck size={15} /> Admin</button></aside>}
+        <div className="settings-main">
+          <p className="eyebrow">ACCOUNT & APPEARANCE</p>
+          <h1>Settings</h1>
+          <p className="settings-intro">Update your BeeBright account and choose how your spelling studio looks.</p>
 
-        {(notice || error) && <div className={`settings-notice ${error ? "error" : ""}`}>{error || notice}</div>}
+          {(notice || error) && <div className={`settings-notice ${error ? "error" : ""}`}>{error || notice}</div>}
 
-        <div className="settings-grid">
+          <div className="settings-grid">
           <article className="settings-card avatar-card">
             <div className="settings-icon"><Camera size={19} /></div>
             <div><h2>Avatar</h2><p>Choose the picture shown with your account.</p></div>
@@ -147,6 +150,7 @@ export default function SettingsPage({ theme, setTheme, getToken, onBack }) {
             <div><h2>Delete account</h2><p>Permanently removes your Clerk account and saved Neon progress.</p></div>
             <button className="danger-button" disabled={Boolean(busy)} onClick={confirmDelete}><Trash2 size={15} /> {busy === "delete" ? "Deleting…" : "Delete account"}</button>
           </article>
+          </div>
         </div>
       </section>
     </main>

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -20,6 +21,7 @@ class LevelInfo(BaseModel):
 
 
 class PracticeResponse(BaseModel):
+    word_list_id: str = "champions-2024"
     level: LevelKey
     label: str
     offset: int
@@ -53,3 +55,49 @@ class ProgressPayload(BaseModel):
 
 class ProgressResponse(BaseModel):
     session: dict | None = None
+
+
+class AccessResponse(BaseModel):
+    is_admin: bool = False
+
+
+class WordListSummary(BaseModel):
+    id: str
+    title: str
+    filename: str
+    levels: list[LevelInfo]
+    word_count: int
+    published: bool = True
+    built_in: bool = False
+    created_at: datetime | None = None
+
+
+class AdminWordListUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=2, max_length=120)
+    published: bool | None = None
+
+
+class WordListRequestCreate(BaseModel):
+    title: str = Field(min_length=2, max_length=120)
+    details: str = Field(default="", max_length=1000)
+
+
+class WordListRequestResponse(BaseModel):
+    id: str
+    clerk_user_id: str
+    title: str
+    details: str
+    status: Literal["pending", "approved", "declined"]
+    created_at: datetime
+    updated_at: datetime
+
+
+class WordListRequestStatusUpdate(BaseModel):
+    status: Literal["pending", "approved", "declined"]
+
+
+class AdminOverview(BaseModel):
+    saved_user_count: int = 0
+    custom_list_count: int = 0
+    published_list_count: int = 0
+    pending_request_count: int = 0

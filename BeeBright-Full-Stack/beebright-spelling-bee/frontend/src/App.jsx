@@ -4,14 +4,15 @@ import {
   ArrowRight,
   BookOpen,
   Check,
+  ClipboardList,
   Flame,
   Headphones,
   Keyboard,
   Lightbulb,
   RotateCcw,
   Settings,
+  ShieldCheck,
   Sparkles,
-  Upload,
   Volume2,
   X,
 } from "lucide-react";
@@ -19,11 +20,10 @@ import {
 import {
   deleteSavedProgress,
   getDictionary,
-  getLevels,
   getPracticeSet,
   getSavedProgress,
+  getWordLists,
   saveProgress,
-  uploadWordPdf,
 } from "./api.js";
 
 const SESSION_KEY = "beebright-session-v2";
@@ -62,11 +62,13 @@ function speakWithBrowser(word) {
   window.speechSynthesis.speak(utterance);
 }
 
-function App({ userId, getToken, onOpenSettings }) {
+function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
   const [screen, setScreen] = useState("home");
   const [mode, setMode] = useState("choice");
   const [levels, setLevels] = useState([]);
   const [level, setLevel] = useState("one_bee");
+  const [wordLists, setWordLists] = useState([]);
+  const [wordListId, setWordListId] = useState("champions-2024");
   const [setOffset, setSetOffset] = useState(0);
   const [words, setWords] = useState([]);
   const [index, setIndex] = useState(0);
@@ -82,7 +84,6 @@ function App({ userId, getToken, onOpenSettings }) {
   const [message, setMessage] = useState("");
   const [resumeAvailable, setResumeAvailable] = useState(false);
   const [savedSession, setSavedSession] = useState(null);
-  const [imported, setImported] = useState(null);
   const audioRef = useRef(null);
   const saveTimerRef = useRef(null);
   const sessionKey = `${SESSION_KEY}:${userId}`;
@@ -93,7 +94,17 @@ function App({ userId, getToken, onOpenSettings }) {
   const activeMode = MODES.find((item) => item.key === mode) || MODES[2];
 
   useEffect(() => {
-    getLevels().then(setLevels).catch(() => setMessage("Backend is not connected yet. Check VITE_API_BASE_URL."));
+    getWordLists()
+      .then((items) => {
+        setWordLists(items);
+        const selected = items.find((item) => item.id === wordListId) || items[0];
+        if (selected) {
+          setWordListId(selected.id);
+          setLevels(selected.levels);
+          setLevel((currentLevel) => selected.levels.some((item) => item.key === currentLevel) ? currentLevel : selected.levels[0]?.key || "random");
+        }
+      })
+      .catch(() => setMessage("Backend is not connected yet. Check VITE_API_BASE_URL."));
     const local = localStorage.getItem(sessionKey);
     if (local) setResumeAvailable(true);
 
@@ -125,7 +136,7 @@ function App({ userId, getToken, onOpenSettings }) {
   useEffect(() => {
     if (screen !== "practice" || !words.length) return;
     const session = {
-      mode, level, setOffset, words, index, correct, streak, bestStreak,
+      mode, level, wordListId, setOffset, words, index, correct, streak, bestStreak,
     };
     localStorage.setItem(sessionKey, JSON.stringify(session));
     setSavedSession(session);
@@ -140,7 +151,7 @@ function App({ userId, getToken, onOpenSettings }) {
       }
     }, 350);
     return () => window.clearTimeout(saveTimerRef.current);
-  }, [screen, mode, level, setOffset, words, index, correct, streak, bestStreak, getToken, sessionKey]);
+  }, [screen, mode, level, wordListId, setOffset, words, index, correct, streak, bestStreak, getToken, sessionKey]);
 
   function playWord() {
     if (dictionary.audio_url) {
@@ -157,16 +168,8 @@ function App({ userId, getToken, onOpenSettings }) {
     setBusy(true);
     setMessage("");
     try {
-      let selectedWords;
-      if (imported) {
-        const matching = imported.words.filter((item) => item.level === level);
-        const source = matching.length ? matching : imported.words;
-        selectedWords = source.slice(nextOffset, nextOffset + 100);
-        if (!selectedWords.length) selectedWords = source.slice(0, 100);
-      } else {
-        const response = await getPracticeSet(level, nextOffset, false);
-        selectedWords = response.words;
-      }
+      const response = await getPracticeSet(level, nextOffset, false, wordListId);
+      const selectedWords = response.words;
       setWords(selectedWords);
       setSetOffset(nextOffset);
       setIndex(0);
@@ -191,6 +194,10 @@ function App({ userId, getToken, onOpenSettings }) {
       if (!saved?.words?.length) return;
       setMode(saved.mode);
       setLevel(saved.level);
+      const savedWordListId = saved.wordListId || "champions-2024";
+      setWordListId(savedWordListId);
+      const savedWordList = wordLists.find((item) => item.id === savedWordListId);
+      if (savedWordList) setLevels(savedWordList.levels);
       setSetOffset(saved.setOffset || 0);
       setWords(saved.words);
       setIndex(saved.index || 0);
@@ -237,25 +244,13 @@ function App({ userId, getToken, onOpenSettings }) {
     setHint(null);
   }
 
-  async function importPdf(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setBusy(true);
-    setMessage("Reading levels and words from your PDF...");
-    try {
-      const result = await uploadWordPdf(file);
-      setImported(result);
-      setLevels(result.levels);
-      setLevel(result.levels[0]?.key || "random");
-      localStorage.setItem("beebright-imported-list-v1", JSON.stringify(result));
-      setMessage(`Loaded ${result.words.length.toLocaleString()} words from ${result.filename}.`);
-      setScreen("setup");
-    } catch (error) {
-      setMessage(error.message);
-    } finally {
-      setBusy(false);
-      event.target.value = "";
-    }
+  function chooseWordList(nextId) {
+    const selected = wordLists.find((item) => item.id === nextId);
+    if (!selected) return;
+    setWordListId(nextId);
+    setLevels(selected.levels);
+    setLevel(selected.levels[0]?.key || "random");
+    setSetOffset(0);
   }
 
   const progress = words.length ? ((index + 1) / words.length) * 100 : 0;
@@ -271,7 +266,7 @@ function App({ userId, getToken, onOpenSettings }) {
     <main className="app-shell">
       <header className="topbar">
         <button className="brand" onClick={() => setScreen("home")}><span>bee</span>bright</button>
-        <div className="top-actions"><div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div><button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
+        <div className="top-actions"><div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
       </header>
 
       {screen === "home" && (
@@ -284,7 +279,7 @@ function App({ userId, getToken, onOpenSettings }) {
               <button className="primary" onClick={() => setScreen("setup")}>Start a practice set <ArrowRight size={17} /></button>
               {resumeAvailable && <button className="outline" onClick={resume}><RotateCcw size={15} /> Resume where I left off</button>}
             </div>
-            <label className="upload-link"><Upload size={16} /><span>Import a PDF word list</span><input type="file" accept="application/pdf" onChange={importPdf} /></label>
+            <button className="request-list-link" onClick={onRequestList}><ClipboardList size={16} /><span>Request another word list</span></button>
             {message && <p className="status-message">{message}</p>}
           </div>
 
@@ -323,9 +318,9 @@ function App({ userId, getToken, onOpenSettings }) {
               <div className="hundred">100</div>
               <h2>One focused set</h2>
               <p>Your score and winning streak stay visible without taking over the screen.</p>
+              <div className="word-list-picker"><span>WORD LIST</span><select value={wordListId} onChange={(event) => chooseWordList(event.target.value)}>{wordLists.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select></div>
               <div className="level-picker"><span>WORD LIST LEVEL</span><div className="level-buttons">{levels.map((item) => <button key={item.key} className={level === item.key ? "selected" : ""} onClick={() => setLevel(item.key)}>{item.label}<small>{item.count.toLocaleString()} words</small></button>)}</div></div>
               <button className="primary full" disabled={busy || !levels.length} onClick={() => startPractice(0)}>{busy ? "Loading..." : "Start 100 questions"}<ArrowRight size={17} /></button>
-              {imported && <p className="imported-note"><Check size={13} /> Using {imported.filename}</p>}
             </aside>
           </div>
           {message && <p className="status-message centered">{message}</p>}
@@ -338,6 +333,7 @@ function App({ userId, getToken, onOpenSettings }) {
             <button className="text-button" onClick={() => setScreen("home")}><ArrowLeft size={14} /> Save & exit</button>
             <div className="progress-area"><div><span>QUESTION {index + 1} OF {words.length}</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><i style={{ width: `${progress}%` }} /></div></div>
             <div className="score-pill"><span><b>{correct}</b> correct</span><i /><span><Flame size={13} fill="currentColor" /> <b>{streak}</b> streak</span></div>
+            {isAdmin && <span className="admin-badge compact"><ShieldCheck size={13} /> Admin</span>}
             <button className="icon-button" aria-label="Open settings" onClick={onOpenSettings}><Settings size={17} /></button>
           </div>
 

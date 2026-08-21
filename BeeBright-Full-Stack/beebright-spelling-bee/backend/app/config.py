@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     database_url: str = ""
     clerk_jwt_key: str = ""
     clerk_issuer_url: str = ""
+    admin_clerk_user_ids: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",

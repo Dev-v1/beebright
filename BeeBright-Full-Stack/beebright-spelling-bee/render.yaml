@@ -19,3 +19,5 @@ services:
         sync: false
       - key: CLERK_ISSUER_URL
         sync: false
+      - key: ADMIN_CLERK_USER_IDS
+        sync: false

@@ -27,10 +27,15 @@ The included generated word data contains the three difficulty sections found in
 - Clerk sign-in and sign-up pages with a protected practice experience.
 - Neon-backed resume across tabs, browsers, and devices, plus a per-user local fallback.
 - `/settings` page for avatar, light/dark mode, username, password, logout, and account deletion.
+- Server-enforced administrator role configured by Clerk user ID.
+- Admin-only `/admin` panel for PDF imports, publishing, hiding/deleting custom lists, request moderation, and lightweight usage totals.
+- Neon-backed shared custom word lists that become available to every user after publication.
+- User word-list request form with request-status history.
+- Admin-only metallic rainbow badge and settings navigation.
 - Yellow clickable One Bee, Two Bee, and Three Bee level buttons.
 - Hints hide the target spelling and sentence hints are complete short sentences.
 - Bee favicon in the browser tab.
-- PDF import: a user can upload the same Scripps-format PDF or a simple word-list PDF and practice it for that browser session.
+- Admin-only PDF import for Scripps-format or simple word-list PDFs. The parsed words are stored in Neon; uploaded PDF files are not retained.
 - Responsive layout for desktop, tablet, and phone.
 
 ## Project directory
@@ -54,6 +59,7 @@ beebright-spelling-bee/
 |       |-- main.jsx
 |       |-- App.jsx
 |       |-- api.js               # Render API URL is read here
+|       |-- admin/               # protected admin dashboard
 |       |-- clerk/               # Clerk routing and account settings
 |       `-- styles.css
 |
@@ -105,6 +111,7 @@ Create these Render environment variables:
 ```text
 MERRIAM_WEBSTER_API_KEY=YOUR_REAL_MERRIAM_WEBSTER_KEY
 FRONTEND_URL=https://YOUR-VERCEL-PROJECT.vercel.app
+ADMIN_CLERK_USER_IDS=YOUR_CLERK_USER_ID
 ```
 
 Never put the Merriam-Webster API key into the Vercel frontend. Vite variables are shipped to the browser and are not secret. The API key stays only on Render.
@@ -355,7 +362,7 @@ python scripts/build_word_data.py "/path/to/new-words.pdf"
 
 That regenerates `backend/data/words.json`. Commit the changed JSON file and push it to GitHub. Render will then redeploy the new backend data.
 
-The website's `Import a PDF word list` button is separate. It lets a user upload a PDF for a practice session without changing the permanent server data.
+Additional PDFs are imported only from the protected `/admin` page. Parsed lists are stored in Neon and can be published, hidden, or deleted by an administrator. Regular users can submit a request from `/request-word-list` but cannot call the import endpoint.
 
 ## Backend API routes
 
@@ -363,9 +370,14 @@ The website's `Import a PDF word list` button is separate. It lets a user upload
 | --- | --- | --- |
 | GET | `/api/health` | Health check and configuration status |
 | GET | `/api/levels` | Available PDF levels and word counts |
+| GET | `/api/word-lists` | Built-in and published shared word lists |
 | GET | `/api/practice` | Return up to 100 words for a level/set |
 | GET | `/api/dictionary/{word}` | Merriam-Webster definition, origin, example, pronunciation, audio |
-| POST | `/api/import-pdf` | Parse an uploaded word-list PDF for the current client session |
+| GET | `/api/access` | Return the signed-in user's admin status |
+| POST | `/api/word-list-requests` | Submit a signed-in user's list request |
+| POST | `/api/admin/word-lists/import` | Admin-only PDF import and publication |
+| GET/PATCH/DELETE | `/api/admin/word-lists` | Admin-only custom-list management |
+| GET/PATCH | `/api/admin/word-list-requests` | Admin-only request moderation |
 
 ## Common deployment problems
 
@@ -398,8 +410,9 @@ Some Render plans can spin down when idle. The first request after inactivity ca
 - Never commit a real `.env` file.
 - Never put `MERRIAM_WEBSTER_API_KEY` into `VITE_*` variables.
 - Keep Merriam-Webster requests on the backend so the key is not exposed in browser source code.
-- The uploaded PDF endpoint limits files to 15 MB.
-- If you make the site widely public, consider adding rate limiting to `/api/dictionary/{word}` and `/api/import-pdf`.
+- The admin-only uploaded PDF endpoint limits files to 15 MB and does not retain original PDF files.
+- Administrator access is checked again by Render on every admin API request. Hiding the button is not the security boundary.
+- If you make the site widely public, consider adding rate limiting to `/api/dictionary/{word}` and `/api/word-list-requests`.
 
 ## Merriam-Webster API note
 
@@ -412,6 +425,7 @@ https://dictionaryapi.com/
 - [ ] Code pushed to GitHub
 - [ ] Render Root Directory = `backend`
 - [ ] Render `MERRIAM_WEBSTER_API_KEY` added
+- [ ] Render `ADMIN_CLERK_USER_IDS` contains your exact Clerk `user_...` ID
 - [ ] Render backend deployed and `/api/health` works
 - [ ] Vercel Root Directory = `frontend`
 - [ ] Vercel `VITE_API_BASE_URL` points to Render

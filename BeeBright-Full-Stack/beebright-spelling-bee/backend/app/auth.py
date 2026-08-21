@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 
 import jwt
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException
 
 from app.config import get_settings
 
@@ -42,4 +42,16 @@ def get_current_user_id(authorization: str | None = Header(default=None)) -> str
     user_id = claims.get("sub")
     if not isinstance(user_id, str) or not user_id:
         raise HTTPException(status_code=401, detail="The session does not contain a Clerk user ID.")
+    return user_id
+
+
+def is_admin_user(user_id: str) -> bool:
+    configured = get_settings().admin_clerk_user_ids
+    admin_ids = {value.strip() for value in configured.split(",") if value.strip()}
+    return user_id in admin_ids
+
+
+def get_current_admin_user_id(user_id: str = Depends(get_current_user_id)) -> str:
+    if not is_admin_user(user_id):
+        raise HTTPException(status_code=403, detail="Administrator access is required.")
     return user_id
