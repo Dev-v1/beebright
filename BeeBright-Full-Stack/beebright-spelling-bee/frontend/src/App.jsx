@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,15 +9,24 @@ import {
   Keyboard,
   Lightbulb,
   RotateCcw,
+  Settings,
   Sparkles,
   Upload,
   Volume2,
   X,
 } from "lucide-react";
 
-import { getDictionary, getLevels, getPracticeSet, uploadWordPdf } from "./api.js";
+import {
+  deleteSavedProgress,
+  getDictionary,
+  getLevels,
+  getPracticeSet,
+  getSavedProgress,
+  saveProgress,
+  uploadWordPdf,
+} from "./api.js";
 
-const SESSION_KEY = "beebright-session-v1";
+const SESSION_KEY = "beebright-session-v2";
 
 const MODES = [
   { key: "flash", name: "Flash Cards", description: "Reveal the word, then move forward.", icon: Sparkles },
@@ -39,35 +48,10 @@ function labelForLevel(key) {
   return ({ one_bee: "One Bee", two_bee: "Two Bee", three_bee: "Three Bee", random: "Random" })[key] || key;
 }
 
-function seedNumber(text) {
-  return [...text].reduce((total, char) => total + char.charCodeAt(0), 0);
-}
-
-function distractors(word) {
-  const lower = word.toLowerCase();
-  const variants = new Set();
-  const vowels = ["a", "e", "i", "o", "u"];
-  const vowelIndex = [...lower].findIndex((char) => vowels.includes(char));
-
-  if (vowelIndex >= 0) {
-    const nextVowel = vowels[(vowels.indexOf(lower[vowelIndex]) + 1) % vowels.length];
-    variants.add(lower.slice(0, vowelIndex) + nextVowel + lower.slice(vowelIndex + 1));
-  }
-  if (lower.length > 4) {
-    const index = Math.max(1, Math.min(lower.length - 2, seedNumber(lower) % (lower.length - 1)));
-    variants.add(lower.slice(0, index) + lower[index] + lower.slice(index));
-    variants.add(lower.slice(0, index) + lower.slice(index + 1));
-    variants.add(lower.slice(0, index) + lower[index + 1] + lower[index] + lower.slice(index + 2));
-  }
-  variants.delete(lower);
-  while (variants.size < 3) variants.add(`${lower}${"s".repeat(variants.size + 1)}`);
-  return [...variants].slice(0, 3);
-}
-
-function choiceList(word) {
-  const all = [word, ...distractors(word)];
-  const rotate = seedNumber(word) % all.length;
-  return [...all.slice(rotate), ...all.slice(0, rotate)];
+function hideSpelling(text, word, replacement) {
+  if (!text || !word) return text;
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return text.replace(new RegExp(`\\b${escaped}(?:s|es|ed|ing|ly)?\\b`, "gi"), replacement);
 }
 
 function speakWithBrowser(word) {
@@ -78,7 +62,7 @@ function speakWithBrowser(word) {
   window.speechSynthesis.speak(utterance);
 }
 
-function App() {
+function App({ userId, getToken, onOpenSettings }) {
   const [screen, setScreen] = useState("home");
   const [mode, setMode] = useState("choice");
   const [levels, setLevels] = useState([]);
@@ -97,18 +81,36 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [resumeAvailable, setResumeAvailable] = useState(false);
+  const [savedSession, setSavedSession] = useState(null);
   const [imported, setImported] = useState(null);
   const audioRef = useRef(null);
+  const saveTimerRef = useRef(null);
+  const sessionKey = `${SESSION_KEY}:${userId}`;
 
   const current = words[index];
   const currentWord = current?.word || "";
-  const choices = useMemo(() => (currentWord ? choiceList(currentWord) : []), [currentWord]);
+  const choices = current?.options || [];
   const activeMode = MODES.find((item) => item.key === mode) || MODES[2];
 
   useEffect(() => {
     getLevels().then(setLevels).catch(() => setMessage("Backend is not connected yet. Check VITE_API_BASE_URL."));
-    setResumeAvailable(Boolean(localStorage.getItem(SESSION_KEY)));
-  }, []);
+    const local = localStorage.getItem(sessionKey);
+    if (local) setResumeAvailable(true);
+
+    let cancelled = false;
+    getToken()
+      .then((token) => token && getSavedProgress(token))
+      .then((result) => {
+        if (!cancelled && result?.session?.words?.length) {
+          setSavedSession(result.session);
+          setResumeAvailable(true);
+        }
+      })
+      .catch(() => {
+        // A local per-user copy remains available when Neon is waking up.
+      });
+    return () => { cancelled = true; };
+  }, [getToken, sessionKey]);
 
   useEffect(() => {
     if (!currentWord || screen !== "practice") return;
@@ -122,11 +124,23 @@ function App() {
 
   useEffect(() => {
     if (screen !== "practice" || !words.length) return;
-    localStorage.setItem(SESSION_KEY, JSON.stringify({
+    const session = {
       mode, level, setOffset, words, index, correct, streak, bestStreak,
-    }));
+    };
+    localStorage.setItem(sessionKey, JSON.stringify(session));
+    setSavedSession(session);
     setResumeAvailable(true);
-  }, [screen, mode, level, setOffset, words, index, correct, streak, bestStreak]);
+    window.clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = window.setTimeout(async () => {
+      try {
+        const token = await getToken();
+        if (token) await saveProgress(token, session);
+      } catch {
+        // Local storage remains a same-device fallback.
+      }
+    }, 350);
+    return () => window.clearTimeout(saveTimerRef.current);
+  }, [screen, mode, level, setOffset, words, index, correct, streak, bestStreak, getToken, sessionKey]);
 
   function playWord() {
     if (dictionary.audio_url) {
@@ -173,7 +187,7 @@ function App() {
 
   function resume() {
     try {
-      const saved = JSON.parse(localStorage.getItem(SESSION_KEY));
+      const saved = savedSession || JSON.parse(localStorage.getItem(sessionKey));
       if (!saved?.words?.length) return;
       setMode(saved.mode);
       setLevel(saved.level);
@@ -185,7 +199,7 @@ function App() {
       setBestStreak(saved.bestStreak || 0);
       setScreen("practice");
     } catch {
-      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(sessionKey);
       setResumeAvailable(false);
     }
   }
@@ -209,8 +223,10 @@ function App() {
 
   function nextQuestion() {
     if (index >= words.length - 1) {
-      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(sessionKey);
       setResumeAvailable(false);
+      setSavedSession(null);
+      getToken().then((token) => token && deleteSavedProgress(token)).catch(() => {});
       setScreen("results");
       return;
     }
@@ -244,14 +260,18 @@ function App() {
 
   const progress = words.length ? ((index + 1) / words.length) * 100 : 0;
   const fillSentence = dictionary.sentence && dictionary.sentence !== "Example sentence unavailable."
-    ? dictionary.sentence.replace(new RegExp(currentWord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), "__________")
-    : "Spell the word that correctly completes this prompt: __________";
+    ? hideSpelling(dictionary.sentence, currentWord, "__________")
+    : "Complete this short sentence with the word you hear: __________.";
+  const safeDefinition = hideSpelling(dictionary.definition, currentWord, "this word");
+  const safeOrigin = hideSpelling(dictionary.origin, currentWord, "this word");
+  const safeSentence = hideSpelling(dictionary.sentence, currentWord, "__________");
+  const safeHints = { definition: safeDefinition, origin: safeOrigin, sentence: safeSentence };
 
   return (
     <main className="app-shell">
       <header className="topbar">
         <button className="brand" onClick={() => setScreen("home")}><span>bee</span>bright</button>
-        <div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>
+        <div className="top-actions"><div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div><button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
       </header>
 
       {screen === "home" && (
@@ -303,11 +323,7 @@ function App() {
               <div className="hundred">100</div>
               <h2>One focused set</h2>
               <p>Your score and winning streak stay visible without taking over the screen.</p>
-              <label>WORD LIST LEVEL
-                <select value={level} onChange={(event) => setLevel(event.target.value)}>
-                  {levels.map((item) => <option key={item.key} value={item.key}>{item.label} · {item.count.toLocaleString()} words</option>)}
-                </select>
-              </label>
+              <div className="level-picker"><span>WORD LIST LEVEL</span><div className="level-buttons">{levels.map((item) => <button key={item.key} className={level === item.key ? "selected" : ""} onClick={() => setLevel(item.key)}>{item.label}<small>{item.count.toLocaleString()} words</small></button>)}</div></div>
               <button className="primary full" disabled={busy || !levels.length} onClick={() => startPractice(0)}>{busy ? "Loading..." : "Start 100 questions"}<ArrowRight size={17} /></button>
               {imported && <p className="imported-note"><Check size={13} /> Using {imported.filename}</p>}
             </aside>
@@ -322,6 +338,7 @@ function App() {
             <button className="text-button" onClick={() => setScreen("home")}><ArrowLeft size={14} /> Save & exit</button>
             <div className="progress-area"><div><span>QUESTION {index + 1} OF {words.length}</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><i style={{ width: `${progress}%` }} /></div></div>
             <div className="score-pill"><span><b>{correct}</b> correct</span><i /><span><Flame size={13} fill="currentColor" /> <b>{streak}</b> streak</span></div>
+            <button className="icon-button" aria-label="Open settings" onClick={onOpenSettings}><Settings size={17} /></button>
           </div>
 
           <div className="practice-content">
@@ -330,8 +347,8 @@ function App() {
             {mode === "flash" ? (
               <div className={`flash-card ${revealed ? "revealed" : ""}`} onDoubleClick={() => setRevealed(true)} tabIndex="0" onKeyDown={(event) => event.key === "Enter" && setRevealed(true)}>
                 <small>DOUBLE CLICK OR PRESS ENTER TO {revealed ? "REVIEW" : "REVEAL"}</small>
-                <h2>{revealed ? currentWord : dictionary.definition}</h2>
-                <p>{revealed ? dictionary.definition : dictionary.sentence}</p>
+                <h2>{revealed ? currentWord : safeDefinition}</h2>
+                <p>{revealed ? safeDefinition : safeSentence}</p>
                 {revealed && <button className="primary" onClick={nextQuestion}>Next word <ArrowRight size={16} /></button>}
               </div>
             ) : (
@@ -360,7 +377,7 @@ function App() {
                   <div className="hint-controls"><span><Lightbulb size={14} /> Need a hint?</span><button onClick={() => setHint("definition")}>Definition</button><button onClick={() => setHint("origin")}>Word origin</button><button onClick={() => setHint("sentence")}>In a sentence</button><button onClick={playWord}><Volume2 size={13} /> Say again</button></div>
                 )}
 
-                {hint && <div className="hint-box"><b>{hint === "definition" ? "Definition" : hint === "origin" ? "Word origin" : "In a sentence"}</b><p>{dictionary[hint]}</p></div>}
+                {hint && <div className="hint-box"><b>{hint === "definition" ? "Definition" : hint === "origin" ? "Word origin" : "In a sentence"}</b><p>{safeHints[hint]}</p></div>}
 
                 {feedback && (
                   <div className={`feedback ${feedback}`}>

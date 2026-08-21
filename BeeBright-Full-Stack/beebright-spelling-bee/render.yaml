@@ -13,4 +13,9 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
-
+      - key: DATABASE_URL
+        sync: false
+      - key: CLERK_JWT_KEY
+        sync: false
+      - key: CLERK_ISSUER_URL
+        sync: false

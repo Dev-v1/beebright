@@ -10,6 +10,7 @@ class WordItem(BaseModel):
     word: str
     level: LevelKey
     source: str = "2024 Words of the Champions"
+    options: list[str] = Field(default_factory=list)
 
 
 class LevelInfo(BaseModel):
@@ -45,3 +46,10 @@ class ImportedPdf(BaseModel):
     levels: list[LevelInfo]
     words: list[WordItem]
 
+
+class ProgressPayload(BaseModel):
+    session: dict = Field(default_factory=dict)
+
+
+class ProgressResponse(BaseModel):
+    session: dict | None = None

@@ -17,7 +17,18 @@ async function request(path, options = {}) {
     }
     throw new Error(message);
   }
+  if (response.status === 204) return null;
   return response.json();
+}
+
+function authorizedOptions(token, options = {}) {
+  return {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${token}`,
+    },
+  };
 }
 
 export function getLevels() {
@@ -44,3 +55,18 @@ export function uploadWordPdf(file) {
   return request("/api/import-pdf", { method: "POST", body });
 }
 
+export function getSavedProgress(token) {
+  return request("/api/progress", authorizedOptions(token));
+}
+
+export function saveProgress(token, session) {
+  return request("/api/progress", authorizedOptions(token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session }),
+  }));
+}
+
+export function deleteSavedProgress(token) {
+  return request("/api/progress", authorizedOptions(token, { method: "DELETE" }));
+}

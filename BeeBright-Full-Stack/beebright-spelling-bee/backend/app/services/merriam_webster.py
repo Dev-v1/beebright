@@ -11,6 +11,41 @@ from app.config import get_settings
 API_URL = "https://www.dictionaryapi.com/api/v3/references/collegiate/json/{word}"
 
 
+def _hide_spelling(text: str, word: str, replacement: str) -> str:
+    if not text:
+        return text
+    # Also hides common inflections so a hint cannot expose the target spelling.
+    pattern = re.compile(rf"\b{re.escape(word)}(?:s|es|ed|ing|ly)?\b", re.IGNORECASE)
+    return pattern.sub(replacement, text)
+
+
+def _short_complete_sentence(text: str, word: str) -> str:
+    unavailable = not text or text == "Example sentence unavailable."
+    if unavailable:
+        return "The correct word completes this short sentence: __________."
+
+    hidden = _hide_spelling(text, word, "__________").strip()
+    # Keep the first complete sentence and limit unusually long dictionary examples.
+    match = re.match(r"^(.{1,180}?[.!?])(?:\s|$)", hidden)
+    sentence = match.group(1) if match else hidden[:177].rstrip(" ,;:")
+    if not sentence.endswith((".", "!", "?")):
+        sentence += "."
+    if "__________" not in sentence:
+        sentence = f"Complete this sentence with the word you hear: __________. {sentence}"
+    return sentence
+
+
+def _safe_dictionary_result(result: dict, word: str) -> dict:
+    result["definition"] = _hide_spelling(
+        result.get("definition", "Definition unavailable."), word, "this word"
+    )
+    result["origin"] = _hide_spelling(
+        result.get("origin", "Word origin unavailable."), word, "this word"
+    )
+    result["sentence"] = _short_complete_sentence(result.get("sentence", ""), word)
+    return result
+
+
 def _strip_mw_markup(text: str) -> str:
     replacements = {
         "{bc}": "",
@@ -94,7 +129,7 @@ def _pronunciation(entry: dict) -> tuple[str, str]:
 def lookup_word(word: str) -> dict:
     key = get_settings().merriam_webster_api_key.strip()
     if not key:
-        return {
+        return _safe_dictionary_result({
             "word": word,
             "found": False,
             "definition": "Add MERRIAM_WEBSTER_API_KEY on the backend to load the definition.",
@@ -103,7 +138,7 @@ def lookup_word(word: str) -> dict:
             "pronunciation": "",
             "audio_url": "",
             "suggestions": [],
-        }
+        }, word)
 
     with httpx.Client(timeout=10.0) as client:
         response = client.get(API_URL.format(word=word), params={"key": key})
@@ -111,9 +146,11 @@ def lookup_word(word: str) -> dict:
         payload = response.json()
 
     if not payload:
-        return {"word": word, "found": False, "suggestions": []}
+        return _safe_dictionary_result({"word": word, "found": False, "suggestions": []}, word)
     if isinstance(payload[0], str):
-        return {"word": word, "found": False, "suggestions": payload[:8]}
+        return _safe_dictionary_result(
+            {"word": word, "found": False, "suggestions": payload[:8]}, word
+        )
 
     entry = payload[0]
     pronunciation, audio_url = _pronunciation(entry)
@@ -124,7 +161,7 @@ def lookup_word(word: str) -> dict:
         if isinstance(first, list) and len(first) > 1:
             origin = _strip_mw_markup(str(first[1]))
 
-    return {
+    return _safe_dictionary_result({
         "word": word,
         "found": True,
         "definition": _first_definition(entry),
@@ -133,5 +170,4 @@ def lookup_word(word: str) -> dict:
         "pronunciation": pronunciation,
         "audio_url": audio_url,
         "suggestions": [],
-    }
-
+    }, word)

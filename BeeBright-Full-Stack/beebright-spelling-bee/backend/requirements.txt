@@ -4,5 +4,6 @@ httpx==0.28.1
 pdfplumber==0.11.7
 python-multipart==0.0.20
 pydantic-settings==2.10.1
+psycopg[binary]==3.2.9
+PyJWT[crypto]==2.10.1
 pytest==8.4.1
-

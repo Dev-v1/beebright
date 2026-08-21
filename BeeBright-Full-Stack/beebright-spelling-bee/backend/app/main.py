@@ -1,26 +1,51 @@
 from __future__ import annotations
 
 import json
+import logging
 import random
+from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.models import DictionaryResult, ImportedPdf, LevelInfo, PracticeResponse, WordItem
+from app.auth import get_current_user_id
+from app.database import delete_progress, initialize_database, read_progress, save_progress
+from app.models import (
+    DictionaryResult,
+    ImportedPdf,
+    LevelInfo,
+    PracticeResponse,
+    ProgressPayload,
+    ProgressResponse,
+    WordItem,
+)
+from app.services.distractors import generate_distractors, shuffled_options
 from app.services.merriam_webster import lookup_word
 from app.services.pdf_parser import LEVEL_LABELS, parse_pdf
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 DATA_FILE = BASE_DIR / "data" / "words.json"
+DISTRACTORS_FILE = BASE_DIR / "data" / "distractors.json"
 settings = get_settings()
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    try:
+        initialize_database()
+    except Exception:
+        logger.exception("Neon database initialization failed; public practice routes remain available.")
+    yield
 
 app = FastAPI(
     title=settings.app_name,
     version="1.0.0",
     description="Backend API for the BeeBright spelling bee practice site.",
+    lifespan=lifespan,
 )
 
 allowed_origins = [
@@ -45,6 +70,29 @@ def load_words() -> dict[str, list[str]]:
 WORD_LEVELS = load_words()
 
 
+def load_distractors() -> dict[str, list[str]]:
+    if not DISTRACTORS_FILE.exists():
+        return {
+            word: generate_distractors(word)
+            for words in WORD_LEVELS.values()
+            for word in words
+        }
+    return json.loads(DISTRACTORS_FILE.read_text(encoding="utf-8"))
+
+
+WORD_DISTRACTORS = load_distractors()
+
+
+def word_item(word: str, level: str, source: str = "2024 Words of the Champions") -> WordItem:
+    wrong = WORD_DISTRACTORS.get(word) or generate_distractors(word)
+    return WordItem(
+        word=word,
+        level=level,
+        source=source,
+        options=shuffled_options(word, wrong),
+    )
+
+
 @app.get("/")
 def root():
     return {"name": "BeeBright API", "docs": "/docs", "health": "/api/health"}
@@ -56,6 +104,8 @@ def health():
         "status": "ok",
         "word_count": sum(len(words) for words in WORD_LEVELS.values()),
         "merriam_webster_configured": bool(settings.merriam_webster_api_key.strip()),
+        "clerk_configured": bool(settings.clerk_jwt_key.strip()),
+        "database_configured": bool(settings.database_url.strip()),
     }
 
 
@@ -99,7 +149,7 @@ def practice_set(
         limit=limit,
         total=len(source),
         has_more=response_offset + len(selected) < len(source),
-        words=[WordItem(word=word, level=level) for word in selected],
+        words=[word_item(word, level) for word in selected],
     )
 
 
@@ -131,9 +181,43 @@ async def import_pdf(file: UploadFile = File(...)):
         for key, words in parsed.items()
     ]
     items = [
-        WordItem(word=word, level=level, source=file.filename or "Imported PDF")
+        word_item(word, level, file.filename or "Imported PDF")
         for level, words in parsed.items()
         for word in words
     ]
     return ImportedPdf(filename=file.filename or "uploaded.pdf", levels=level_info, words=items)
 
+
+@app.get("/api/progress", response_model=ProgressResponse)
+def get_progress(user_id: str = Depends(get_current_user_id)):
+    try:
+        return ProgressResponse(session=read_progress(user_id))
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Saved progress is temporarily unavailable.") from exc
+
+
+@app.put("/api/progress", status_code=204)
+def put_progress(payload: ProgressPayload, user_id: str = Depends(get_current_user_id)):
+    serialized = json.dumps(payload.session)
+    if len(serialized.encode("utf-8")) > 150_000:
+        raise HTTPException(status_code=413, detail="Saved practice data is too large.")
+    try:
+        save_progress(user_id, payload.session)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Progress could not be saved.") from exc
+    return Response(status_code=204)
+
+
+@app.delete("/api/progress", status_code=204)
+def remove_progress(user_id: str = Depends(get_current_user_id)):
+    try:
+        delete_progress(user_id)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Progress could not be deleted.") from exc
+    return Response(status_code=204)

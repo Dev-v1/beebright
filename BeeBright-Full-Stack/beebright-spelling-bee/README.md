@@ -1,5 +1,7 @@
 # BeeBright Spelling Bee Practice
 
+> The complete Clerk, Neon, Render, and Vercel setup walkthrough is in [`CLERK_NEON_DEPLOYMENT.md`](CLERK_NEON_DEPLOYMENT.md).
+
 BeeBright is a full-stack spelling-bee practice website built from the 2024 *Words of the Champions* PDF supplied with this project.
 
 The project is intentionally split into two deployable applications:
@@ -14,6 +16,7 @@ The included generated word data contains the three difficulty sections found in
 - Flash Cards: definition and sentence first, then double-click or press Enter to reveal the word.
 - Fill in the Blank: type the missing word from a Merriam-Webster example sentence.
 - Multiple Choice: hear the word, choose one of four spellings, then see immediate feedback.
+- Three pre-generated pronunciation-style wrong spellings for every word in all three PDF levels.
 - Type the Word: hear the word and type the complete spelling.
 - Merriam-Webster controls for pronunciation, definition, word origin, and example sentence.
 - One Bee, Two Bee, and Three Bee levels from the supplied 2024 PDF.
@@ -21,7 +24,12 @@ The included generated word data contains the three difficulty sections found in
 - Next-set support so the next 100 words can be practiced after finishing a set.
 - Compact correct-answer and current-streak display.
 - Wrong answers show your answer and the correct spelling side by side.
-- Browser resume: current set, question number, score, and streak are saved in `localStorage`.
+- Clerk sign-in and sign-up pages with a protected practice experience.
+- Neon-backed resume across tabs, browsers, and devices, plus a per-user local fallback.
+- `/settings` page for avatar, light/dark mode, username, password, logout, and account deletion.
+- Yellow clickable One Bee, Two Bee, and Three Bee level buttons.
+- Hints hide the target spelling and sentence hints are complete short sentences.
+- Bee favicon in the browser tab.
 - PDF import: a user can upload the same Scripps-format PDF or a simple word-list PDF and practice it for that browser session.
 - Responsive layout for desktop, tablet, and phone.
 
@@ -31,6 +39,7 @@ The included generated word data contains the three difficulty sections found in
 beebright-spelling-bee/
 |
 |-- README.md
+|-- CLERK_NEON_DEPLOYMENT.md     # complete production setup and troubleshooting
 |-- .gitignore
 |-- render.yaml                  # optional Render Blueprint configuration
 |
@@ -45,6 +54,7 @@ beebright-spelling-bee/
 |       |-- main.jsx
 |       |-- App.jsx
 |       |-- api.js               # Render API URL is read here
+|       |-- clerk/               # Clerk routing and account settings
 |       `-- styles.css
 |
 `-- backend/                     # deploy THIS folder to Render
@@ -61,6 +71,7 @@ beebright-spelling-bee/
     |       `-- pdf_parser.py
     |-- data/
     |   `-- words.json           # generated from the supplied 2024 PDF
+    |   `-- distractors.json     # three wrong spellings for all 3,997 words
     |-- scripts/
     |   `-- build_word_data.py   # regenerate words.json from a future PDF
     `-- tests/
@@ -410,4 +421,3 @@ https://dictionaryapi.com/
 - [ ] Multiple Choice pronunciation tested
 - [ ] Wrong-answer comparison tested
 - [ ] Resume tested after refresh/closing the tab
-
