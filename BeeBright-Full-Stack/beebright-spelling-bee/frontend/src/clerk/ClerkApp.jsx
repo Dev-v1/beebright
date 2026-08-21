@@ -37,10 +37,13 @@ function RoutedApp() {
   if (!isLoaded) return <main className="auth-loading">Preparing your spelling studio…</main>;
 
   if (!isSignedIn) {
-    const signingUp = path.startsWith("/sign-up");
+    // The public BeeBright URL is the sign-up entry point. Clerk restores an
+    // existing session before this branch runs, so returning users still go
+    // directly to their practice dashboard without seeing an auth form.
+    const signingUp = path === "/" || path.startsWith("/sign-up");
     return (
       <main className="auth-page">
-        <button className="brand auth-brand" onClick={() => navigate("/sign-in")}><span>bee</span>bright</button>
+        <button className="brand auth-brand" onClick={() => navigate("/")}><span>bee</span>bright</button>
         <div className="auth-copy">
           <span className="bee-mark">🐝</span>
           <p className="eyebrow">YOUR PERSONAL SPELLING STUDIO</p>
@@ -49,9 +52,9 @@ function RoutedApp() {
         </div>
         <div className="clerk-card">
           {signingUp ? (
-            <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" fallbackRedirectUrl="/" />
+            <SignUp routing="virtual" signInUrl="/sign-in" fallbackRedirectUrl="/" />
           ) : (
-            <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" fallbackRedirectUrl="/" />
+            <SignIn routing="virtual" signUpUrl="/sign-up" fallbackRedirectUrl="/" />
           )}
         </div>
       </main>
