@@ -94,7 +94,7 @@ def test_sky_sentence_uses_a_three_character_blank():
     assert result["sentence"] == "The ___ was clear today."
 
 
-def test_missing_example_uses_word_specific_definition_sentence():
+def test_missing_example_uses_contextual_sentence_not_a_definition():
     result = _safe_dictionary_result(
         {
             "definition": "A large gray animal with a trunk.",
@@ -103,5 +103,18 @@ def test_missing_example_uses_word_specific_definition_sentence():
         },
         "elephant",
     )
-    assert result["sentence"] == "___ means a large gray animal with a trunk."
+    assert result["sentence"] == "The ___ moved quietly through its natural habitat."
     assert "elephant" not in result["sentence"].lower()
+    assert "means" not in result["sentence"].lower()
+
+
+def test_missing_instrument_example_uses_musical_context():
+    result = _safe_dictionary_result(
+        {
+            "definition": "A single-reed musical instrument.",
+            "origin": "French origin.",
+            "sentence": "Example sentence unavailable.",
+        },
+        "clarinet",
+    )
+    assert result["sentence"] == "The musician played the ___ during the concert."

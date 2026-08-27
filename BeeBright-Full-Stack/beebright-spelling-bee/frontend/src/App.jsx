@@ -259,7 +259,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
   const maskedSentence = hideSpelling(dictionary.sentence, currentWord, "___");
   const safeSentence = maskedSentence?.includes("___")
     ? maskedSentence
-    : `___ means ${safeDefinition || "the word you hear"}.`;
+    : "The class practiced using ___ in a complete sentence.";
   const fillSentence = safeSentence;
   const safeHints = { definition: safeDefinition, origin: safeOrigin, sentence: safeSentence };
 

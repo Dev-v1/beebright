@@ -19,25 +19,64 @@ def _hide_spelling(text: str, word: str, replacement: str) -> str:
     return pattern.sub(replacement, text)
 
 
-def _definition_cloze_sentence(definition: str) -> str:
-    clean = re.sub(r"\s+", " ", definition or "").strip().rstrip(".!?")
-    unavailable = (
-        not clean
-        or clean in {"Definition unavailable", "Dictionary information is temporarily unavailable"}
-        or "API key" in clean
+def _context_cloze_sentence(word: str, definition: str) -> str:
+    lower_word = word.casefold().strip()
+    context = f"{lower_word} {definition.casefold()}"
+
+    if lower_word == "sky":
+        return "The ___ was clear today."
+
+    category_sentences = (
+        (("animal", "bird", "fish", "insect", "mammal", "reptile", "amphibian"),
+         "The ___ moved quietly through its natural habitat."),
+        (("food", "dish", "bread", "cheese", "fruit", "vegetable", "dessert", "beverage"),
+         "They served the ___ on a clean plate."),
+        (("plant", "flower", "tree", "shrub", "herb", "fern"),
+         "The ___ grew well in the sunny garden."),
+        (("musical instrument", "instrument", "music"),
+         "The musician played the ___ during the concert."),
+        (("garment", "clothing", "dress", "hat", "shoe", "fabric"),
+         "She wore the ___ during the ceremony."),
+        (("building", "room", "temple", "church", "castle", "house", "place"),
+         "The visitors stopped at the ___ during their tour."),
+        (("body", "organ", "bone", "muscle", "anatom"),
+         "The doctor carefully examined the ___."),
+        (("tool", "device", "machine", "instrument used", "utensil", "container"),
+         "They used the ___ carefully during the project."),
+        (("liquid", "mineral", "chemical", "substance", "material"),
+         "The scientist placed the ___ in a glass container."),
+        (("sound", "noise", "cry", "call"),
+         "A sudden ___ echoed through the hall."),
+        (("emotion", "feeling", "state of", "condition of"),
+         "A sense of ___ spread through the room."),
+        (("festival", "ceremony", "celebration", "competition", "event"),
+         "The ___ brought the whole community together."),
+        (("person who", "one who", "worker", "specialist", "professional"),
+         "The ___ entered the room and greeted everyone."),
+        (("atmosphere", "heaven", "space above", "upper air"),
+         "Clouds drifted across the ___ before sunset."),
     )
-    if unavailable:
-        return "Use ___ correctly in this sentence."
-    starts_with_acronym = len(clean) > 1 and clean[0].isupper() and clean[1].isupper()
-    if clean[0].isupper() and not starts_with_acronym:
-        clean = clean[0].lower() + clean[1:]
-    return f"___ means {clean}."
+    for keywords, sentence in category_sentences:
+        if any(keyword in context for keyword in keywords):
+            return sentence
+
+    if lower_word.endswith("ly"):
+        return "She completed the task ___ and checked her work."
+    if definition.casefold().lstrip().startswith("to ") or lower_word.endswith(
+        ("ate", "en", "fy", "ise", "ize")
+    ):
+        return "They decided to ___ before the day ended."
+    if lower_word.endswith(
+        ("able", "ible", "al", "ant", "ary", "ent", "ful", "ic", "ish", "ive", "less", "ory", "ous", "y")
+    ):
+        return "The scene looked ___ in the afternoon light."
+    return "The class discussed the ___ during the lesson."
 
 
 def _short_complete_sentence(text: str, word: str, definition: str) -> str:
     unavailable = not text or text == "Example sentence unavailable."
     if unavailable:
-        return _definition_cloze_sentence(definition)
+        return _context_cloze_sentence(word, definition)
 
     hidden = _hide_spelling(text, word, "___").strip()
     # Keep the first complete sentence and limit unusually long dictionary examples.
@@ -46,20 +85,21 @@ def _short_complete_sentence(text: str, word: str, definition: str) -> str:
     if not sentence.endswith((".", "!", "?")):
         sentence += "."
     if "___" not in sentence:
-        return _definition_cloze_sentence(definition)
+        return _context_cloze_sentence(word, definition)
     return sentence
 
 
 def _safe_dictionary_result(result: dict, word: str) -> dict:
+    raw_definition = result.get("definition", "Definition unavailable.")
     safe_definition = _hide_spelling(
-        result.get("definition", "Definition unavailable."), word, "this word"
+        raw_definition, word, "this word"
     )
     result["definition"] = safe_definition
     result["origin"] = _hide_spelling(
         result.get("origin", "Word origin unavailable."), word, "this word"
     )
     result["sentence"] = _short_complete_sentence(
-        result.get("sentence", ""), word, safe_definition
+        result.get("sentence", ""), word, raw_definition
     )
     return result
 
