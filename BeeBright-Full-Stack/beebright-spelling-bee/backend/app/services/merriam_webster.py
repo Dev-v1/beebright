@@ -19,30 +19,48 @@ def _hide_spelling(text: str, word: str, replacement: str) -> str:
     return pattern.sub(replacement, text)
 
 
-def _short_complete_sentence(text: str, word: str) -> str:
+def _definition_cloze_sentence(definition: str) -> str:
+    clean = re.sub(r"\s+", " ", definition or "").strip().rstrip(".!?")
+    unavailable = (
+        not clean
+        or clean in {"Definition unavailable", "Dictionary information is temporarily unavailable"}
+        or "API key" in clean
+    )
+    if unavailable:
+        return "Use ___ correctly in this sentence."
+    starts_with_acronym = len(clean) > 1 and clean[0].isupper() and clean[1].isupper()
+    if clean[0].isupper() and not starts_with_acronym:
+        clean = clean[0].lower() + clean[1:]
+    return f"___ means {clean}."
+
+
+def _short_complete_sentence(text: str, word: str, definition: str) -> str:
     unavailable = not text or text == "Example sentence unavailable."
     if unavailable:
-        return "The correct word completes this short sentence: __________."
+        return _definition_cloze_sentence(definition)
 
-    hidden = _hide_spelling(text, word, "__________").strip()
+    hidden = _hide_spelling(text, word, "___").strip()
     # Keep the first complete sentence and limit unusually long dictionary examples.
     match = re.match(r"^(.{1,180}?[.!?])(?:\s|$)", hidden)
     sentence = match.group(1) if match else hidden[:177].rstrip(" ,;:")
     if not sentence.endswith((".", "!", "?")):
         sentence += "."
-    if "__________" not in sentence:
-        sentence = f"Complete this sentence with the word you hear: __________. {sentence}"
+    if "___" not in sentence:
+        return _definition_cloze_sentence(definition)
     return sentence
 
 
 def _safe_dictionary_result(result: dict, word: str) -> dict:
-    result["definition"] = _hide_spelling(
+    safe_definition = _hide_spelling(
         result.get("definition", "Definition unavailable."), word, "this word"
     )
+    result["definition"] = safe_definition
     result["origin"] = _hide_spelling(
         result.get("origin", "Word origin unavailable."), word, "this word"
     )
-    result["sentence"] = _short_complete_sentence(result.get("sentence", ""), word)
+    result["sentence"] = _short_complete_sentence(
+        result.get("sentence", ""), word, safe_definition
+    )
     return result
 
 

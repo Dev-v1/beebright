@@ -254,12 +254,13 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
   }
 
   const progress = words.length ? ((index + 1) / words.length) * 100 : 0;
-  const fillSentence = dictionary.sentence && dictionary.sentence !== "Example sentence unavailable."
-    ? hideSpelling(dictionary.sentence, currentWord, "__________")
-    : "Complete this short sentence with the word you hear: __________.";
   const safeDefinition = hideSpelling(dictionary.definition, currentWord, "this word");
   const safeOrigin = hideSpelling(dictionary.origin, currentWord, "this word");
-  const safeSentence = hideSpelling(dictionary.sentence, currentWord, "__________");
+  const maskedSentence = hideSpelling(dictionary.sentence, currentWord, "___");
+  const safeSentence = maskedSentence?.includes("___")
+    ? maskedSentence
+    : `___ means ${safeDefinition || "the word you hear"}.`;
+  const fillSentence = safeSentence;
   const safeHints = { definition: safeDefinition, origin: safeOrigin, sentence: safeSentence };
 
   return (

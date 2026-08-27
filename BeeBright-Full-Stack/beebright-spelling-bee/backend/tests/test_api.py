@@ -78,5 +78,30 @@ def test_dictionary_hints_hide_the_target_and_use_a_complete_sentence():
     assert "equestrian" not in result["definition"].lower()
     assert "equestrian" not in result["origin"].lower()
     assert "equestrian" not in result["sentence"].lower()
-    assert "__________" in result["sentence"]
+    assert "___" in result["sentence"]
     assert result["sentence"].endswith(".")
+
+
+def test_sky_sentence_uses_a_three_character_blank():
+    result = _safe_dictionary_result(
+        {
+            "definition": "The region visible above the earth.",
+            "origin": "Old Norse origin.",
+            "sentence": "The sky was clear today.",
+        },
+        "sky",
+    )
+    assert result["sentence"] == "The ___ was clear today."
+
+
+def test_missing_example_uses_word_specific_definition_sentence():
+    result = _safe_dictionary_result(
+        {
+            "definition": "A large gray animal with a trunk.",
+            "origin": "Greek origin.",
+            "sentence": "Example sentence unavailable.",
+        },
+        "elephant",
+    )
+    assert result["sentence"] == "___ means a large gray animal with a trunk."
+    assert "elephant" not in result["sentence"].lower()
