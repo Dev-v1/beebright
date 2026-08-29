@@ -1,7 +1,5 @@
 # BeeBright Spelling Bee Practice
 
-> The complete Clerk, Neon, Render, and Vercel setup walkthrough is in [`CLERK_NEON_DEPLOYMENT.md`](CLERK_NEON_DEPLOYMENT.md).
-
 BeeBright is a full-stack spelling-bee practice website built from the 2024 *Words of the Champions* PDF supplied with this project.
 
 The project is intentionally split into two deployable applications:
