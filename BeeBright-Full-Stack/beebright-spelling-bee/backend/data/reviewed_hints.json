@@ -1,0 +1,70 @@
+{
+  "bronze": {
+    "definition": "An alloy made chiefly of copper and tin, used for objects such as statues, tools, and bells.",
+    "part_of_speech": "noun",
+    "origin": "Borrowed from French, which took it from Italian bronzo. The earlier origin of the Italian term is uncertain.",
+    "sentence": "The sculptor cast the statue in bronze.",
+    "sentence_reference": "Original example written for BeeBright",
+    "source": "BeeBright, based on Wiktionary",
+    "source_url": "https://en.wiktionary.org/wiki/bronze",
+    "license": "CC BY-SA 4.0"
+  },
+  "sky": {
+    "definition": "The open space above the earth where the sun, stars, and clouds appear.",
+    "part_of_speech": "noun",
+    "sentence": "The sky was clear today.",
+    "sentence_reference": "Original example requested by the user"
+  },
+  "clarinet": {
+    "definition": "A woodwind instrument with a single reed and a cylindrical tube.",
+    "part_of_speech": "noun",
+    "sentence": "She played a low, mellow note on her clarinet.",
+    "sentence_reference": "Original example written for BeeBright"
+  },
+  "elephant": {
+    "definition": "A very large mammal with a long trunk, broad ears, and thick legs.",
+    "part_of_speech": "noun",
+    "sentence": "The elephant lifted a branch with its trunk.",
+    "sentence_reference": "Original example written for BeeBright"
+  },
+  "bango": {
+    "definition": "An East African reed used as roofing material.",
+    "part_of_speech": "noun",
+    "origin": "Borrowed from a local East African name for the plant; the dictionary does not identify the language.",
+    "sentence": "The builders thatched the roof with bango reeds.",
+    "source": "BeeBright, based on Merriam-Webster",
+    "source_url": "https://www.merriam-webster.com/dictionary/bango",
+    "license": "",
+    "sentence_reference": "Original example written for BeeBright"
+  },
+  "pillor": {
+    "definition": "To expose someone to public punishment or ridicule.",
+    "part_of_speech": "verb",
+    "origin": "Formed by shortening the English word pillory.",
+    "sentence": "The townspeople threatened to pillor the dishonest official.",
+    "source": "BeeBright, based on Merriam-Webster",
+    "source_url": "https://www.merriam-webster.com/dictionary/pillor",
+    "license": "",
+    "sentence_reference": "Original example written for BeeBright"
+  },
+  "cameist": {
+    "definition": "An artist who makes cameos.",
+    "part_of_speech": "noun",
+    "origin": "Formed from cameo and the suffix -ist, which denotes a person practicing an activity.",
+    "sentence": "The skilled cameist carved a tiny portrait in shell.",
+    "source": "BeeBright, based on Merriam-Webster",
+    "source_url": "https://www.merriam-webster.com/dictionary/cameist",
+    "license": "",
+    "sentence_reference": "Original example written for BeeBright"
+  },
+  "con forza": {
+    "definition": "With force or strength, as a musical direction.",
+    "part_of_speech": "adverb",
+    "origin": "Borrowed from Italian, literally meaning 'with force'.",
+    "sentence": "The pianist played the passage con forza for a powerful effect.",
+    "source": "BeeBright, based on Merriam-Webster",
+    "source_url": "https://www.merriam-webster.com/dictionary/con%20forza",
+    "license": "",
+    "sentence_reference": "Original example written for BeeBright"
+  }
+}

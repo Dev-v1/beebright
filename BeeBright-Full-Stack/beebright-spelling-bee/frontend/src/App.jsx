@@ -369,7 +369,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
 
                 {hint && <div className="hint-box"><b>{hint === "definition" ? "Definition" : hint === "origin" ? "Word origin" : "In a sentence"}</b><p>{hint === "definition" && visibleDictionary.part_of_speech && <em>{visibleDictionary.part_of_speech}: </em>}{safeHints[hint]}</p></div>}
 
-                {visibleDictionary.source_url && <p className="hint-attribution"><a href={visibleDictionary.source_url} target="_blank" rel="noreferrer">{visibleDictionary.source}</a>{visibleDictionary.license && <> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">{visibleDictionary.license}</a> · Adapted for spelling practice</>}</p>}
+                {visibleDictionary.source_url && <p className="hint-attribution"><a href={visibleDictionary.source_url} target="_blank" rel="noreferrer">{visibleDictionary.source}</a>{visibleDictionary.license && <> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">{visibleDictionary.license}</a> · Adapted for spelling practice</>}{visibleDictionary.sentence_reference && <> · Example: {hideSpelling(visibleDictionary.sentence_reference, currentWord)}</>}</p>}
 
                 {feedback && (
                   <div className={`feedback ${feedback}`}>
