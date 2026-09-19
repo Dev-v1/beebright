@@ -14,82 +14,24 @@ API_URL = "https://www.dictionaryapi.com/api/v3/references/collegiate/json/{word
 def _hide_spelling(text: str, word: str, replacement: str) -> str:
     if not text:
         return text
-    # Also hides common inflections so a hint cannot expose the target spelling.
-    pattern = re.compile(rf"\b{re.escape(word)}(?:s|es|ed|ing|ly)?\b", re.IGNORECASE)
+    # Match the exact word, including Unicode and multiword entries.
+    pattern = re.compile(rf"(?<!\w){re.escape(word)}(?!\w)", re.IGNORECASE)
     return pattern.sub(replacement, text)
 
 
-def _context_cloze_sentence(word: str, definition: str) -> str:
-    lower_word = word.casefold().strip()
-    context = f"{lower_word} {definition.casefold()}"
-
-    if lower_word == "sky":
-        return "The ___ was clear today."
-
-    category_sentences = (
-        (("animal", "bird", "fish", "insect", "mammal", "reptile", "amphibian"),
-         "The ___ moved quietly through its natural habitat."),
-        (("food", "dish", "bread", "cheese", "fruit", "vegetable", "dessert", "beverage"),
-         "They served the ___ on a clean plate."),
-        (("plant", "flower", "tree", "shrub", "herb", "fern"),
-         "The ___ grew well in the sunny garden."),
-        (("musical instrument", "instrument", "music"),
-         "The musician played the ___ during the concert."),
-        (("garment", "clothing", "dress", "hat", "shoe", "fabric"),
-         "She wore the ___ during the ceremony."),
-        (("building", "room", "temple", "church", "castle", "house", "place"),
-         "The visitors stopped at the ___ during their tour."),
-        (("body", "organ", "bone", "muscle", "anatom"),
-         "The doctor carefully examined the ___."),
-        (("tool", "device", "machine", "instrument used", "utensil", "container"),
-         "They used the ___ carefully during the project."),
-        (("liquid", "mineral", "chemical", "substance", "material"),
-         "The scientist placed the ___ in a glass container."),
-        (("sound", "noise", "cry", "call"),
-         "A sudden ___ echoed through the hall."),
-        (("emotion", "feeling", "state of", "condition of"),
-         "A sense of ___ spread through the room."),
-        (("festival", "ceremony", "celebration", "competition", "event"),
-         "The ___ brought the whole community together."),
-        (("person who", "one who", "worker", "specialist", "professional"),
-         "The ___ entered the room and greeted everyone."),
-        (("atmosphere", "heaven", "space above", "upper air"),
-         "Clouds drifted across the ___ before sunset."),
-    )
-    for keywords, sentence in category_sentences:
-        if any(keyword in context for keyword in keywords):
-            return sentence
-
-    if lower_word.endswith("ly"):
-        return "She completed the task ___ and checked her work."
-    if definition.casefold().lstrip().startswith("to ") or lower_word.endswith(
-        ("ate", "en", "fy", "ise", "ize")
-    ):
-        return "They decided to ___ before the day ended."
-    if lower_word.endswith(
-        ("able", "ible", "al", "ant", "ary", "ent", "ful", "ic", "ish", "ive", "less", "ory", "ous", "y")
-    ):
-        return "The scene looked ___ in the afternoon light."
-    return "The class discussed the ___ during the lesson."
+MISSING_SENTENCE = "A checked example sentence is not yet available for this word."
 
 
-def _short_complete_sentence(text: str, word: str, definition: str) -> str:
-    unavailable = not text or text == "Example sentence unavailable."
-    if unavailable:
-        return _context_cloze_sentence(word, definition)
-
-    hidden = _hide_spelling(text, word, "___").strip()
-    # Keep the first complete sentence and limit unusually long dictionary examples.
-    match = re.match(r"^(.{1,180}?[.!?])(?:\s|$)", hidden)
-    sentence = match.group(1) if match else hidden[:177].rstrip(" ,;:")
-    if not sentence.endswith((".", "!", "?")):
-        sentence += "."
-    if "___" not in sentence:
-        return _context_cloze_sentence(word, definition)
-    return sentence
+def _short_complete_sentence(text: str, word: str, definition: str = "") -> str:
+    text = (text or "").strip()
+    if not text or len(text) > 500 or not re.search(r'[.!?][\"”\')]*$', text):
+        return MISSING_SENTENCE
+    hidden = _hide_spelling(text, word, "___")
+    return hidden if hidden != text else MISSING_SENTENCE
 
 
 def _safe_dictionary_result(result: dict, word: str) -> dict:
+    result = dict(result)
     raw_definition = result.get("definition", "Definition unavailable.")
     safe_definition = _hide_spelling(
         raw_definition, word, "this word"
@@ -115,7 +57,7 @@ def _strip_mw_markup(text: str) -> str:
     for old, new in replacements.items():
         text = text.replace(old, new)
     text = re.sub(r"\{/?(?:it|wi|sc|sup|inf)\}", "", text)
-    text = re.sub(r"\{(?:a_link|d_link|i_link|mat|sx)\|([^|}]+)(?:\|[^}]*)?\}", r"\1", text)
+    text = re.sub(r"\{(?:a_link|d_link|i_link|et_link|dxt|mat|sx)\|([^|}]+)(?:\|[^}]*)?\}", r"\1", text)
     text = re.sub(r"\{[^}]+\}", "", text)
     return re.sub(r"\s+", " ", text).strip(" :")
 
@@ -183,49 +125,60 @@ def _pronunciation(entry: dict) -> tuple[str, str]:
     return "", ""
 
 
-@lru_cache(maxsize=2048)
+def _entry_word(entry: dict) -> str:
+    return re.sub(r':\d+$', '', entry.get('meta', {}).get('id', '')).replace('*', '').casefold()
+
+
+def _senses(entry: dict, word: str):
+    for node in _walk(entry.get('def', [])):
+        dt = node.get('dt', [])
+        definitions = [_strip_mw_markup(str(x[1])) for x in dt if isinstance(x, list) and len(x) > 1 and x[0] == 'text']
+        definition = ' '.join(definitions)
+        if not definition or _hide_spelling(definition, word, '') != definition:
+            continue
+        examples = [ex for x in dt if isinstance(x, list) and len(x) > 1 and x[0] == 'vis' and isinstance(x[1], list) for ex in x[1] if isinstance(ex, dict)]
+        sentence = next((_strip_mw_markup(ex['t']) for ex in examples if ex.get('t') and _short_complete_sentence(_strip_mw_markup(ex['t']), word) != MISSING_SENTENCE), '')
+        yield definition, sentence
+
+
+def _from_payload(payload: list, word: str) -> dict:
+    empty = {'word': word, 'found': False, 'suggestions': []}
+    if not payload or isinstance(payload[0], str):
+        return _safe_dictionary_result({**empty, 'suggestions': payload[:8]}, word)
+    entries = [e for e in payload if isinstance(e, dict) and _entry_word(e) == word.casefold()]
+    entries.sort(key=lambda e: int(e.get('hom', 1) or 1))
+    for entry in entries:
+        senses = list(_senses(entry, word))
+        if not senses:
+            continue
+        definition, sentence = next((s for s in senses if s[1]), senses[0])
+        origin = ' '.join(_strip_mw_markup(str(p[1])) for p in entry.get('et', []) if isinstance(p, list) and len(p) > 1 and p[0] == 'text')
+        pronunciation, audio_url = _pronunciation(entry)
+        return _safe_dictionary_result({**empty, 'found': True, 'definition': definition,
+            'sentence': sentence, 'origin': origin or 'A documented origin is not yet available for this word.',
+            'part_of_speech': entry.get('fl', ''), 'pronunciation': pronunciation, 'audio_url': audio_url,
+            'source': 'Merriam-Webster'}, word)
+    return _safe_dictionary_result(empty, word)
+
+
+@lru_cache(maxsize=1)
+def _local_hints():
+    import json
+    from pathlib import Path
+    path = Path(__file__).resolve().parents[2] / 'data' / 'word_hints.json'
+    return json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+
+
+@lru_cache(maxsize=8192)
 def lookup_word(word: str) -> dict:
+    from urllib.parse import quote
+    record = _local_hints().get(word)
+    if record:
+        return _safe_dictionary_result({**record, 'word': word, 'found': True, 'suggestions': []}, word)
     key = get_settings().merriam_webster_api_key.strip()
     if not key:
-        return _safe_dictionary_result({
-            "word": word,
-            "found": False,
-            "definition": "Add MERRIAM_WEBSTER_API_KEY on the backend to load the definition.",
-            "origin": "Add the Merriam-Webster API key to load word origin.",
-            "sentence": "Add the Merriam-Webster API key to load an example sentence.",
-            "pronunciation": "",
-            "audio_url": "",
-            "suggestions": [],
-        }, word)
-
+        return _safe_dictionary_result({'word': word, 'found': False, 'suggestions': []}, word)
     with httpx.Client(timeout=10.0) as client:
-        response = client.get(API_URL.format(word=word), params={"key": key})
+        response = client.get(API_URL.format(word=quote(word, safe='')), params={'key': key})
         response.raise_for_status()
-        payload = response.json()
-
-    if not payload:
-        return _safe_dictionary_result({"word": word, "found": False, "suggestions": []}, word)
-    if isinstance(payload[0], str):
-        return _safe_dictionary_result(
-            {"word": word, "found": False, "suggestions": payload[:8]}, word
-        )
-
-    entry = payload[0]
-    pronunciation, audio_url = _pronunciation(entry)
-    etymology = entry.get("et", [])
-    origin = "Word origin unavailable."
-    if etymology:
-        first = etymology[0]
-        if isinstance(first, list) and len(first) > 1:
-            origin = _strip_mw_markup(str(first[1]))
-
-    return _safe_dictionary_result({
-        "word": word,
-        "found": True,
-        "definition": _first_definition(entry),
-        "origin": origin,
-        "sentence": _first_sentence(entry),
-        "pronunciation": pronunciation,
-        "audio_url": audio_url,
-        "suggestions": [],
-    }, word)
+        return _from_payload(response.json(), word)
