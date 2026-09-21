@@ -40,6 +40,10 @@ class DictionaryResult(BaseModel):
     pronunciation: str = ""
     audio_url: str = ""
     source: str = "Merriam-Webster"
+    source_url: str = ""
+    part_of_speech: str = ""
+    license: str = ""
+    sentence_reference: str = ""
     suggestions: list[str] = Field(default_factory=list)
 
 

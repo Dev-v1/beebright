@@ -327,3 +327,6 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .admin-list-row { grid-template-columns: 1fr auto; }
   .admin-list-row .outline.compact { grid-column: 1; }
 }
+
+.hint-attribution { margin-top: 16px; font-size: 12px; line-height: 1.5; }
+.hint-attribution a { color: inherit; text-underline-offset: 2px; }

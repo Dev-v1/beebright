@@ -1,3 +1,4 @@
+import { hideSpelling, sentenceHint } from "./hints.js";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -46,12 +47,6 @@ const EMPTY_DICTIONARY = {
 
 function labelForLevel(key) {
   return ({ one_bee: "One Bee", two_bee: "Two Bee", three_bee: "Three Bee", random: "Random" })[key] || key;
-}
-
-function hideSpelling(text, word, replacement) {
-  if (!text || !word) return text;
-  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return text.replace(new RegExp(`\\b${escaped}(?:s|es|ed|ing|ly)?\\b`, "gi"), replacement);
 }
 
 function speakWithBrowser(word) {
@@ -129,7 +124,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
     setDictionary(EMPTY_DICTIONARY);
     getDictionary(currentWord)
       .then((result) => !cancelled && setDictionary(result))
-      .catch(() => !cancelled && setDictionary({ ...EMPTY_DICTIONARY, definition: "Dictionary information is temporarily unavailable." }));
+      .catch(() => !cancelled && setDictionary({ ...EMPTY_DICTIONARY, word: currentWord, definition: "Dictionary information is temporarily unavailable.", origin: "Word origin is temporarily unavailable.", sentence: "Example sentence is temporarily unavailable." }));
     return () => { cancelled = true; };
   }, [currentWord, screen]);
 
@@ -154,7 +149,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
   }, [screen, mode, level, wordListId, setOffset, words, index, correct, streak, bestStreak, getToken, sessionKey]);
 
   function playWord() {
-    if (dictionary.audio_url) {
+    if (dictionary.word === currentWord && dictionary.audio_url) {
       if (audioRef.current) audioRef.current.pause();
       const audio = new Audio(dictionary.audio_url);
       audioRef.current = audio;
@@ -254,12 +249,10 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
   }
 
   const progress = words.length ? ((index + 1) / words.length) * 100 : 0;
-  const safeDefinition = hideSpelling(dictionary.definition, currentWord, "this word");
-  const safeOrigin = hideSpelling(dictionary.origin, currentWord, "this word");
-  const maskedSentence = hideSpelling(dictionary.sentence, currentWord, "___");
-  const safeSentence = maskedSentence?.includes("___")
-    ? maskedSentence
-    : "The class practiced using ___ in a complete sentence.";
+  const visibleDictionary = dictionary.word === currentWord ? dictionary : EMPTY_DICTIONARY;
+  const safeDefinition = hideSpelling(visibleDictionary.definition, currentWord, "[the target word]");
+  const safeOrigin = hideSpelling(visibleDictionary.origin, currentWord, "[same spelling]");
+  const safeSentence = sentenceHint(visibleDictionary.sentence, currentWord);
   const fillSentence = safeSentence;
   const safeHints = { definition: safeDefinition, origin: safeOrigin, sentence: safeSentence };
 
@@ -374,7 +367,9 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
                   <div className="hint-controls"><span><Lightbulb size={14} /> Need a hint?</span><button onClick={() => setHint("definition")}>Definition</button><button onClick={() => setHint("origin")}>Word origin</button><button onClick={() => setHint("sentence")}>In a sentence</button><button onClick={playWord}><Volume2 size={13} /> Say again</button></div>
                 )}
 
-                {hint && <div className="hint-box"><b>{hint === "definition" ? "Definition" : hint === "origin" ? "Word origin" : "In a sentence"}</b><p>{safeHints[hint]}</p></div>}
+                {hint && <div className="hint-box"><b>{hint === "definition" ? "Definition" : hint === "origin" ? "Word origin" : "In a sentence"}</b><p>{hint === "definition" && visibleDictionary.part_of_speech && <em>{visibleDictionary.part_of_speech}: </em>}{safeHints[hint]}</p></div>}
+
+                {visibleDictionary.source_url && <p className="hint-attribution"><a href={visibleDictionary.source_url} target="_blank" rel="noreferrer">{visibleDictionary.source}</a>{visibleDictionary.license && <> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">{visibleDictionary.license}</a> · Adapted for spelling practice</>}{visibleDictionary.sentence_reference && <> · Example: {hideSpelling(visibleDictionary.sentence_reference, currentWord)}</>}</p>}
 
                 {feedback && (
                   <div className={`feedback ${feedback}`}>
