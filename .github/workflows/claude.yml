@@ -1,14 +1,13 @@
 name: Claude Code Review
 
 on:
-  issue_comment:
-    types: [created]
   pull_request:
     types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
 
 jobs:
   review:
-    # Run on PR creation/update OR when someone comments @claude on an issue/PR
     if: |
       github.event_name == 'pull_request' ||
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude'))
@@ -24,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
 
@@ -32,4 +31,9 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: "Please conduct a full code review on this pull request. Look for potential bugs, security issues, and code readability."
+          prompt: |
+            Please review this pull request and post a main comment summarizing your overall thoughts on the PR.
+            Include:
+            1. An overall assessment and recommendation (Approve/Request Changes).
+            2. A brief analysis of potential bugs, security issues, or code quality improvements.
+            3. Detailed explanations for any inline comments or concerns identified.
