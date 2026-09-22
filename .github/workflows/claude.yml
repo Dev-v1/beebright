@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
       issues: write
+      statuses: write
       id-token: write
-      actions: read
 
     steps:
       - name: Checkout repository
@@ -27,13 +27,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Claude Code Action Official
+      - name: Run Claude Code Action
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
-            Please review this pull request and post a main comment summarizing your overall thoughts on the PR.
-            Include:
-            1. An overall assessment and recommendation (Approve/Request Changes).
-            2. A brief analysis of potential bugs, security issues, or code quality improvements.
-            3. Detailed explanations for any inline comments or concerns identified.
+            Perform a thorough code review on this pull request.
+            1. Submit line-by-line inline comments for any security risks, bugs, or improvements.
+            2. Post a comprehensive summary review on the PR thread.
+            3. If no critical issues or bugs are present, approve the pull request.
