@@ -1,4 +1,4 @@
-name: Claude Code Review
+name: Claudit Code Review
 
 on:
   pull_request_target:
@@ -25,16 +25,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
         with:
+          token: ${{ secrets.BOT_PAT }}
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
-      - name: Run Claude Code Action
+      - name: Run Claudit Action
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.BOT_PAT }}
           prompt: |
             Perform a thorough code review on this pull request.
-            1. Submit line-by-line inline comments for any security risks, bugs, or improvements.
-            2. Post a comprehensive summary review on the PR thread.
-            3. If no critical issues or bugs are present, approve the pull request.
+            1. Submit line-by-line inline comments for any security risks, bugs, or code quality improvements.
+            2. Post a main summary comment with overall feedback on the PR thread.
+            3. If no critical issues exist, submit a formal approval on the pull request.
