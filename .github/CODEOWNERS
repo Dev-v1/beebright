@@ -1,3 +1,2 @@
-# Automatically assign @claude as a required reviewer on all files
-* @claude
-* @Claudit
+# Require @Claudit-bot as the code owner for all files in the repository
+* @Claudit-bot
