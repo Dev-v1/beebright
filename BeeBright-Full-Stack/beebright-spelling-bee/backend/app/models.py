@@ -18,6 +18,7 @@ class LevelInfo(BaseModel):
     key: LevelKey
     label: str
     count: int
+    description: str = ""
 
 
 class PracticeResponse(BaseModel):
@@ -28,6 +29,7 @@ class PracticeResponse(BaseModel):
     limit: int
     total: int
     has_more: bool
+    shuffle_seed: str | None = None
     words: list[WordItem]
 
 
@@ -73,6 +75,7 @@ class WordListSummary(BaseModel):
     word_count: int
     published: bool = True
     built_in: bool = False
+    randomized: bool = False
     created_at: datetime | None = None
 
 

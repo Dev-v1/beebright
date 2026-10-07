@@ -43,7 +43,7 @@ export function getWordLists() {
   return request("/api/word-lists");
 }
 
-export function getPracticeSet(level, offset = 0, randomize = false, wordListId = "champions-2024") {
+export function getPracticeSet(level, offset = 0, randomize = false, wordListId = "champions-2024", shuffleSeed = null) {
   const query = new URLSearchParams({
     word_list_id: wordListId,
     level,
@@ -51,6 +51,7 @@ export function getPracticeSet(level, offset = 0, randomize = false, wordListId 
     limit: "100",
     randomize: String(randomize),
   });
+  if (shuffleSeed) query.set("shuffle_seed", shuffleSeed);
   return request(`/api/practice?${query}`);
 }
 
