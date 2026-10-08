@@ -1,8 +1,24 @@
-// Desktop bridge only. No Clerk, Render, Neon, or remote fetch calls.
+// Offline bridge for the native window or the loopback browser server.
 let bridge;
 function desktopBridge() {
   if (!bridge) bridge = new Promise((resolve) => {
-    if (window.pywebview?.api) resolve(window.pywebview.api);
+    const token = document.querySelector('meta[name="beebright-local-web"]')?.content;
+    if (token) {
+      const call = async (operation, payload) => {
+        const response = await fetch('/__beebright/bridge', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-BeeBright-Token': token },
+          body: JSON.stringify({ operation, ...payload }), cache: 'no-store',
+        });
+        const result = await response.json();
+        if (!response.ok || result?.error) throw new Error(result.error || 'Local request failed.');
+        return result;
+      };
+      resolve({
+        request: (path, method, payload) => call('request', { path, method, payload }),
+        settings: (value) => call('settings', { value }),
+        speak: (word) => call('speak', { word }),
+      });
+    } else if (window.pywebview?.api) resolve(window.pywebview.api);
     else window.addEventListener('pywebviewready', () => resolve(window.pywebview.api), { once: true });
   });
   return bridge;

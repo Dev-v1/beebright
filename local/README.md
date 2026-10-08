@@ -32,6 +32,24 @@ beebright update
 
 It checks the latest verified package and preserves your local progress. An explicit update reports a connection failure instead of claiming success. Each normal launch also checks for an update. Packages are verified with SHA-256 and installed through a staging directory. If the internet is unavailable, the installed app opens normally. Progress and settings live separately in `%LOCALAPPDATA%\BeeBright\userdata` and survive updates. Installation and updates require internet; practice does not.
 
+## Open BeeBright in a browser
+
+Open the public website:
+
+```powershell
+beebright web
+```
+
+Start a local browser edition, with no login or cloud features:
+
+```powershell
+beebright create web
+```
+
+It opens `http://beebright.localhost:8765/` and serves only this computer. Keep the terminal open while practicing; press Ctrl+C to stop. If the port is busy, BeeBright chooses the next available port and prints the address. If your browser cannot resolve the friendly name, use the printed `http://127.0.0.1:8765/` address. Chrome and Edge support localhost subdomains without editing your hosts file. This is a local server, not a published website. It uses the same bundled UI, hints, offline speech, theme, and progress files as the native app. Use one edition at a time so the most recent save does not overwrite another session.
+
+To run this mode directly from the source ZIP, use `python -m beebright_local --web`. Optional: `--port 9000`.
+
 ## Run from source
 
 Download the release ZIP, extract it, and use Python 3.14 and the desktop dependencies:
