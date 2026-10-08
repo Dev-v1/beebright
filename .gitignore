@@ -6,3 +6,11 @@
 **/.env.*
 !**/.env.example
 **/data/dictionary_extract.json
+
+# Generated offline desktop bundle
+/local/beebright_local/data/
+/local/beebright_local/shared/
+/local/version.json
+/local/LICENSE
+/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/
+/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/install.ps1

@@ -263,7 +263,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
     <main className="app-shell">
       <header className="topbar">
         <button className="brand" onClick={() => setScreen("home")}><span>bee</span>bright</button>
-        <div className="top-actions"><div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
+        <div className="top-actions"><a href="/download.html" className="settings-button">Desktop app</a><div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
       </header>
 
       {screen === "home" && (

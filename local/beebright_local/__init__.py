@@ -1,0 +1,1 @@
+"""BeeBright local desktop edition."""

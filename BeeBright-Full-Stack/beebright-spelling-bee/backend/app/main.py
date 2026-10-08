@@ -42,6 +42,7 @@ from app.models import (
     WordListSummary,
     WordItem,
 )
+from app.services.practice_core import shuffled_words
 from app.services.distractors import generate_distractors, shuffled_options
 from app.services.merriam_webster import lookup_word
 from app.services.pdf_parser import LEVEL_LABELS, parse_pdf
@@ -238,8 +239,7 @@ def practice_set(
         if offset >= len(source):
             offset, shuffle_seed = 0, None
         response_seed = shuffle_seed or secrets.token_urlsafe(18)
-        source = list(source)
-        random.Random(response_seed).shuffle(source)
+        source = shuffled_words(source, response_seed)
         selected = source[offset : offset + limit]
         response_offset = offset
     elif randomize:
