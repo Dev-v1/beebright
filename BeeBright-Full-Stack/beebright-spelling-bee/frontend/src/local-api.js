@@ -8,6 +8,7 @@ function desktopBridge() {
         const response = await fetch('/__beebright/bridge', {
           method: 'POST', headers: { 'Content-Type': 'application/json', 'X-BeeBright-Token': token },
           body: JSON.stringify({ operation, ...payload }), cache: 'no-store',
+          signal: AbortSignal.timeout(operation === 'speak' ? 65000 : 15000),
         });
         const result = await response.json();
         if (!response.ok || result?.error) throw new Error(result.error || 'Local request failed.');

@@ -12,9 +12,11 @@ function LocalApp() {
   const [theme, setTheme] = useState('light');
   const [ready, setReady] = useState(false);
   const [notice, setNotice] = useState('');
+  const [startupError, setStartupError] = useState('');
   const [generation, setGeneration] = useState(0);
   useEffect(() => {
-    desktopSettings().then((value) => { setTheme(value.theme || 'light'); setReady(true); });
+    desktopSettings().then((value) => { setTheme(value.theme || 'light'); setReady(true); })
+      .catch((error) => setStartupError(error.message || 'Could not connect to local practice.'));
   }, []);
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
   async function changeTheme(value) {
@@ -28,7 +30,7 @@ function LocalApp() {
     setGeneration((value) => value + 1);
     setNotice('Your local practice was cleared.');
   }
-  if (!ready) return <main className="configuration-page"><div><span className="bee-mark">🐝</span><h1>Opening your spelling studio…</h1></div></main>;
+  if (!ready) return <main className="configuration-page"><div><span className="bee-mark">🐝</span><h1>{startupError ? "Could not open your spelling studio" : "Opening your spelling studio…"}</h1>{startupError && <><p role="alert">{startupError}</p><p>Close BeeBright, run beebright update in your terminal, then open it again.</p><button className="primary" onClick={() => window.location.reload()}>Try again</button></>}</div></main>;
   return <>
     <div hidden={settings}><App key={generation} userId="local-device" getToken={getLocalToken} isAdmin={false} localMode onOpenSettings={() => setSettings(true)} /></div>
     {settings && <main className="settings-page">

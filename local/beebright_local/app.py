@@ -132,11 +132,21 @@ def run(smoke_test=None):
     ui = Path(__file__).parent / 'ui' / 'local.html'
     if not ui.exists():
         raise RuntimeError('The bundled website UI is missing. Reinstall BeeBright.')
-    api = DesktopApi()
-    window = webview.create_window('BeeBright • Local Spelling Practice', str(ui.resolve()),
-                                  js_api=api, width=1280, height=850, min_size=(740, 650),
-                                  background_color='#fbf8ef', text_select=True)
-    USER_DATA.mkdir(parents=True, exist_ok=True)
-    webview.start(smoke_test, window if smoke_test else None,
-                  gui='edgechromium' if sys.platform == 'win32' else None,
-                  private_mode=False, storage_path=str(USER_DATA / 'webview'), http_server=True)
+    # Avoid asynchronous native JavaScript API injection during first launch.
+    from .web import LocalServer
+    server = LocalServer(0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        window = webview.create_window('BeeBright • Local Spelling Practice',
+                                      f'http://127.0.0.1:{server.server_address[1]}/',
+                                      width=1280, height=850, min_size=(740, 650),
+                                      background_color='#fbf8ef', text_select=True)
+        USER_DATA.mkdir(parents=True, exist_ok=True)
+        webview.start(smoke_test, window if smoke_test else None,
+                      gui='edgechromium' if sys.platform == 'win32' else None,
+                      private_mode=False, storage_path=str(USER_DATA / 'webview'))
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
