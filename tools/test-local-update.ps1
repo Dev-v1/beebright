@@ -17,7 +17,15 @@ function Invoke-WebRequest { param($Uri, $OutFile, $TimeoutSec, [switch]$UseBasi
 & (Join-Path $Repo 'local/bootstrap.ps1') -SkipLaunch
 if ((Get-Content "$Bee/current/version.json" -Raw | ConvertFrom-Json).version -ne $global:BeeTestManifest.version) { throw 'Update did not install.' }
 if ((Get-Content "$Bee/userdata/progress.json" -Raw) -notmatch 'keep-me') { throw 'Update erased progress.' }
+$global:BeeTestLaunched = $false
+function Start-Process { $global:BeeTestLaunched = $true; throw 'Update command must not launch the UI.' }
+& (Join-Path $Repo 'local/bootstrap.ps1') update
+if ($global:BeeTestLaunched) { throw 'Update opened the UI.' }
+if ((Get-Content "$Bee/bin/beebright.cmd" -Raw) -notmatch '%\*') { throw 'Launcher did not forward update argument.' }
 function Invoke-RestMethod { throw 'Simulated offline connection' }
+$UpdateFailed = $false
+try { & (Join-Path $Repo 'local/bootstrap.ps1') update } catch { $UpdateFailed = $true }
+if (-not $UpdateFailed) { throw 'Explicit update falsely succeeded while offline.' }
 & (Join-Path $Repo 'local/bootstrap.ps1') -SkipLaunch
 if (-not (Test-Path "$Bee/current/beebright_local/app.py")) { throw 'Offline fallback lost installed app.' }
 Write-Host 'Update installation, progress preservation, offline fallback, and PowerShell syntax passed.'

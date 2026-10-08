@@ -99,7 +99,7 @@ try {
 } catch {
     Invoke-WebRequest 'https://raw.githubusercontent.com/Dev-v1/beebright-local/main/bootstrap.ps1' -OutFile "$BeeRoot\bootstrap.ps1" -UseBasicParsing
 }
-$Command = '@echo off' + "`r`n" + 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\BeeBright\bootstrap.ps1"' + "`r`n"
+$Command = '@echo off' + "`r`n" + 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\BeeBright\bootstrap.ps1" %*' + "`r`n"
 Set-Content -Path "$Bin\beebright.cmd" -Value $Command -Encoding Ascii
 $UserPath = [string][Environment]::GetEnvironmentVariable('Path', 'User')
 if (($UserPath -split ';') -notcontains $Bin) { [Environment]::SetEnvironmentVariable('Path', ($UserPath.TrimEnd(';') + ';' + $Bin), 'User') }

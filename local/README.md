@@ -24,7 +24,13 @@ beebright
 
 The installer adds the command to your user PATH and installs an official signed Python 3.14.8 runtime under `%LOCALAPPDATA%\BeeBright\runtime-3.14`, plus pywebview/Python.NET and Microsoft WebView2 when needed. No administrator privileges are required. Windows x64 is supported by this installer. You can review `install.ps1` before running it.
 
-Each launch checks for an update. Packages are verified with SHA-256 and installed through a staging directory. If the internet is unavailable, the installed app opens normally. Progress and settings live separately in `%LOCALAPPDATA%\BeeBright\userdata` and survive updates. Installation and updates require internet; practice does not.
+To update without opening the app, close BeeBright and run:
+
+```powershell
+beebright update
+```
+
+It checks the latest verified package and preserves your local progress. An explicit update reports a connection failure instead of claiming success. Each normal launch also checks for an update. Packages are verified with SHA-256 and installed through a staging directory. If the internet is unavailable, the installed app opens normally. Progress and settings live separately in `%LOCALAPPDATA%\BeeBright\userdata` and survive updates. Installation and updates require internet; practice does not.
 
 ## Run from source
 
@@ -48,3 +54,23 @@ This repository's sync workflow checks the canonical main branch hourly, copies 
 BeeBright code and original content retain the website's Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license. See `LICENSE`. Third-party dictionary adaptations retain their own attribution and license metadata, including CC BY-SA 4.0 for Wiktionary adaptations. Dictionary reference links are in the bundled hint records; original examples are labeled as such.
 
 The old Tkinter window has been replaced by the shared website UI in a desktop WebView2 window. Practice does not connect to Clerk, Render, Neon, Google Fonts, or dictionary APIs. Attribution links open only when clicked. Earlier locally saved sessions are migrated. The old Python 3.13 runtime is not removed automatically; uninstall it through Windows Installed apps if it is no longer needed.
+
+## Uninstall BeeBright on Windows
+
+Close BeeBright first. These PowerShell commands remove BeeBright, its private Python runtime, and all saved local progress and settings. They also remove the BeeBright command from your user PATH. They leave other Python installations and the shared Microsoft WebView2 runtime in place.
+
+```powershell
+$BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
+$BeeBin = Join-Path $BeeRoot 'bin'
+$UserPath = [string][Environment]::GetEnvironmentVariable('Path', 'User')
+$CleanPath = ($UserPath -split ';' | Where-Object {
+    $_.Trim().TrimEnd('\') -ine $BeeBin.TrimEnd('\')
+}) -join ';'
+[Environment]::SetEnvironmentVariable('Path', $CleanPath, 'User')
+$env:Path = ($env:Path -split ';' | Where-Object {
+    $_.Trim().TrimEnd('\') -ine $BeeBin.TrimEnd('\')
+}) -join ';'
+Remove-Item -LiteralPath $BeeRoot -Recurse -Force -ErrorAction SilentlyContinue
+```
+
+Open a new terminal afterward. To keep your progress for a future reinstall, copy `%LOCALAPPDATA%\BeeBright\userdata` somewhere safe before running these commands. Removing the local app does not delete your website account or its cloud progress.
