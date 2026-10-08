@@ -65,6 +65,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
   const [wordLists, setWordLists] = useState([]);
   const [wordListId, setWordListId] = useState("champions-2024");
   const [setOffset, setSetOffset] = useState(0);
+  const [shuffleSeed, setShuffleSeed] = useState(null);
   const [words, setWords] = useState([]);
   const [index, setIndex] = useState(0);
   const [correct, setCorrect] = useState(0);
@@ -131,7 +132,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
   useEffect(() => {
     if (screen !== "practice" || !words.length) return;
     const session = {
-      mode, level, wordListId, setOffset, words, index, correct, streak, bestStreak,
+      mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak,
     };
     localStorage.setItem(sessionKey, JSON.stringify(session));
     setSavedSession(session);
@@ -146,7 +147,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
       }
     }, 350);
     return () => window.clearTimeout(saveTimerRef.current);
-  }, [screen, mode, level, wordListId, setOffset, words, index, correct, streak, bestStreak, getToken, sessionKey]);
+  }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, getToken, sessionKey]);
 
   function playWord() {
     if (dictionary.word === currentWord && dictionary.audio_url) {
@@ -163,10 +164,11 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
     setBusy(true);
     setMessage("");
     try {
-      const response = await getPracticeSet(level, nextOffset, false, wordListId);
+      const response = await getPracticeSet(level, nextOffset, false, wordListId, nextOffset ? shuffleSeed : null);
       const selectedWords = response.words;
       setWords(selectedWords);
-      setSetOffset(nextOffset);
+      setSetOffset(response.offset);
+      setShuffleSeed(response.shuffle_seed || null);
       setIndex(0);
       setCorrect(0);
       setStreak(0);
@@ -194,6 +196,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
       const savedWordList = wordLists.find((item) => item.id === savedWordListId);
       if (savedWordList) setLevels(savedWordList.levels);
       setSetOffset(saved.setOffset || 0);
+      setShuffleSeed(saved.shuffleSeed || null);
       setWords(saved.words);
       setIndex(saved.index || 0);
       setCorrect(saved.correct || 0);
@@ -313,7 +316,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
               <h2>One focused set</h2>
               <p>Your score and winning streak stay visible without taking over the screen.</p>
               <div className="word-list-picker"><span>WORD LIST</span><select value={wordListId} onChange={(event) => chooseWordList(event.target.value)}>{wordLists.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select></div>
-              <div className="level-picker"><span>WORD LIST LEVEL</span><div className="level-buttons">{levels.map((item) => <button key={item.key} className={level === item.key ? "selected" : ""} onClick={() => setLevel(item.key)}>{item.label}<small>{item.count.toLocaleString()} words</small></button>)}</div></div>
+              <div className="level-picker"><span>WORD LIST LEVEL</span><div className="level-buttons">{levels.map((item) => <button key={item.key} className={level === item.key ? "selected" : ""} onClick={() => setLevel(item.key)}>{item.label}{item.description && <small>{item.description}</small>}<small>{item.count.toLocaleString()} words</small></button>)}</div></div>
               <button className="primary full" disabled={busy || !levels.length} onClick={() => startPractice(0)}>{busy ? "Loading..." : "Start 100 questions"}<ArrowRight size={17} /></button>
             </aside>
           </div>
@@ -390,7 +393,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
           <h1>You finished strong.</h1>
           <p className="lead">You completed {words.length} questions in {activeMode.name}. Your next set is ready when you are.</p>
           <div className="result-grid"><div><b>{correct}</b><span>correct answers</span></div><div><b>{bestStreak}</b><span>best streak</span></div><div><b>{words.length ? Math.round((correct / words.length) * 100) : 0}%</b><span>score</span></div></div>
-          <button className="primary" onClick={() => startPractice(setOffset + 100)}>Start next set <ArrowRight size={16} /></button>
+          <button className="primary" onClick={() => startPractice(setOffset + words.length)}>Start next set <ArrowRight size={16} /></button>
           <button className="text-button center-button" onClick={() => setScreen("setup")}>Choose another mode</button>
         </section>
       )}

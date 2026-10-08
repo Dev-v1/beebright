@@ -166,7 +166,11 @@ def _local_hints():
     import json
     from pathlib import Path
     path = Path(__file__).resolve().parents[2] / 'data' / 'word_hints.json'
-    return json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+    records = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+    study_path = path.with_name('study_2027_hints.json')
+    if study_path.exists():
+        records.update(json.loads(study_path.read_text(encoding='utf-8')))
+    return records
 
 
 @lru_cache(maxsize=8192)

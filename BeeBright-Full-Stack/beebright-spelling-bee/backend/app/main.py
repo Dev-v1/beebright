@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import random
+import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -88,6 +89,11 @@ def load_words() -> dict[str, list[str]]:
 
 
 WORD_LEVELS = load_words()
+BUILT_IN_LISTS = {
+    record["id"]: record
+    for path in sorted((BASE_DIR / "data" / "word_lists").glob("*.json"))
+    for record in [json.loads(path.read_text(encoding="utf-8"))]
+}
 
 
 def load_distractors() -> dict[str, list[str]]:
@@ -115,7 +121,8 @@ def word_item(word: str, level: str, source: str = "2024 Words of the Champions"
 
 def word_list_summary(record: dict, *, built_in: bool = False) -> WordListSummary:
     level_info = [
-        LevelInfo(key=key, label=LEVEL_LABELS[key], count=len(words))
+        LevelInfo(key=key, label=LEVEL_LABELS[key], count=len(words),
+                  description=record.get("level_descriptions", {}).get(key, ""))
         for key, words in record["levels"].items()
         if words
     ]
@@ -127,6 +134,7 @@ def word_list_summary(record: dict, *, built_in: bool = False) -> WordListSummar
         word_count=sum(item.count for item in level_info),
         published=record.get("published", True),
         built_in=built_in,
+        randomized=record.get("randomized", False),
         created_at=record.get("created_at"),
     )
 
@@ -178,6 +186,7 @@ def access(user_id: str = Depends(get_current_user_id)):
 @app.get("/api/word-lists", response_model=list[WordListSummary])
 def published_word_lists():
     result = [built_in_word_list()]
+    result.extend(word_list_summary(item, built_in=True) for item in BUILT_IN_LISTS.values())
     if not settings.database_url.strip():
         return result
     try:
@@ -194,10 +203,15 @@ def practice_set(
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
     randomize: bool = Query(default=False),
+    shuffle_seed: str | None = Query(default=None, min_length=1, max_length=128),
 ):
     if word_list_id == "champions-2024":
         available_levels = WORD_LEVELS
         source_title = "2024 Words of the Champions"
+    elif word_list_id in BUILT_IN_LISTS:
+        built_in = BUILT_IN_LISTS[word_list_id]
+        available_levels = built_in["levels"]
+        source_title = built_in["title"]
     else:
         try:
             custom_list = get_word_list(word_list_id, published_only=True)
@@ -217,7 +231,18 @@ def practice_set(
     if not source:
         raise HTTPException(status_code=404, detail="This level has no words.")
 
-    if randomize:
+    response_seed = None
+    if BUILT_IN_LISTS.get(word_list_id, {}).get("randomized"):
+        # Shuffle the full list once, then page through it without repeats.
+        # The client saves this seed so resumed and subsequent sets agree.
+        if offset >= len(source):
+            offset, shuffle_seed = 0, None
+        response_seed = shuffle_seed or secrets.token_urlsafe(18)
+        source = list(source)
+        random.Random(response_seed).shuffle(source)
+        selected = source[offset : offset + limit]
+        response_offset = offset
+    elif randomize:
         selected = random.sample(source, k=min(limit, len(source)))
         response_offset = 0
     else:
@@ -235,6 +260,7 @@ def practice_set(
         limit=limit,
         total=len(source),
         has_more=response_offset + len(selected) < len(source),
+        shuffle_seed=response_seed,
         words=[word_item(word, level, source_title) for word in selected],
     )
 
