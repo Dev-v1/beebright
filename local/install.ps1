@@ -62,10 +62,21 @@ if (-not (Test-BeeRuntime $Runtime)) {
             $ExistingPython = Find-BeePython
             if ($ExistingPython) { Copy-BeePython $ExistingPython }
         }
+        if (-not (Test-BeeRuntime $Runtime)) {
+            # Manually removing an old runtime can leave setup registration behind.
+            Write-Host 'Repairing the incomplete Python 3.14 installation...'
+            $RepairLog = Join-Path $BeeRoot 'python-repair.log'
+            $Process = Start-Process $Setup -ArgumentList @('/repair', '/quiet', '/log', "`"$RepairLog`"") -PassThru -Wait
+            if ($Process.ExitCode -notin @(0, 3010)) { throw "Python repair failed ($($Process.ExitCode)). Details: $RepairLog" }
+            if (-not (Test-BeeRuntime $Runtime)) {
+                $ExistingPython = Find-BeePython
+                if ($ExistingPython) { Copy-BeePython $ExistingPython }
+            }
+        }
     } finally { if (Test-Path $Setup) { Remove-Item $Setup -Force } }
 }
 if (-not (Test-BeeRuntime $Runtime)) {
-    throw "Python setup did not create a working 64-bit Python 3.14 runtime at $Runtime. See $BeeRoot\python-setup.log. No BeeBright launcher was installed."
+    throw "Python setup did not create a working 64-bit Python 3.14 runtime at $Runtime. See $BeeRoot\python-setup.log and python-repair.log. No BeeBright launcher was installed."
 }
 & "$Runtime\python.exe" -I -m ensurepip --upgrade
 if ($LASTEXITCODE) { throw 'The BeeBright runtime could not initialize pip.' }

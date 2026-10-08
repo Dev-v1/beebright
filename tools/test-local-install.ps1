@@ -30,4 +30,10 @@ if (-not (Test-Path "$Bee/runtime-3.14/python.exe")) { throw 'Reinstall failed t
 if ((Get-FileHash "$Existing/python.exe").Hash -ne $OriginalHash) { throw 'Installer modified the existing Python installation.' }
 & "$Bee/runtime-3.14/python.exe" -I -c "import webview, clr; import sys; assert sys.version_info[:2] == (3, 14)"
 if ($LASTEXITCODE) { throw 'Reinstalled Python runtime or desktop dependencies are invalid.' }
+# Manual folder deletion leaves Python's installer registration behind.
+Move-Item "$Bee/runtime-3.14" (Join-Path $env:RUNNER_TEMP 'bee-runtime-backup')
+Move-Item $Existing (Join-Path $env:RUNNER_TEMP 'bee-existing-backup')
+& (Join-Path $Repo 'local/install.ps1') -SkipLaunch
+& "$Bee/runtime-3.14/python.exe" -I -c "import webview, clr"
+if ($LASTEXITCODE) { throw 'Repair after manual runtime removal failed.' }
 Write-Host 'Official runtime installation, command availability, WebView2, and desktop UI passed.'
