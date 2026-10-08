@@ -55,7 +55,10 @@ jobs:
           fi
           VERSION=$(python3 -c 'import json; print(json.load(open("version.json"))["version"][:12])')
           TAG="desktop-$VERSION"
+          RELEASE=$(python3 -c 'import json; from pathlib import Path; p=Path("release.json"); print(json.loads(p.read_text())["version"] if p.exists() else "")')
+          TITLE="BeeBright Local $VERSION"
+          if test -n "$RELEASE"; then TITLE="BeeBright $RELEASE"; fi
           if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             cp "$RUNNER_TEMP/upstream/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/beebright-local.zip" "$RUNNER_TEMP/beebright-local-source.zip"
-            gh release create "$TAG" "$RUNNER_TEMP/beebright-local-source.zip" --repo "$GITHUB_REPOSITORY" --target "$(git rev-parse HEAD)" --title "BeeBright Local $VERSION" --notes 'Native offline spelling practice. Windows installer: irm https://beebright.vercel.app/install.ps1 | iex. This source ZIP includes bundled word lists, hints, shared practice code, and attribution. CC BY-NC-SA 4.0; third-party dictionary licenses are retained.'
+            gh release create "$TAG" "$RUNNER_TEMP/beebright-local-source.zip" --repo "$GITHUB_REPOSITORY" --target "$(git rev-parse HEAD)" --title "$TITLE" --notes 'Native offline spelling practice. Windows installer: irm https://beebright.vercel.app/install.ps1 | iex. This source ZIP includes bundled word lists, hints, shared practice code, and attribution. CC BY-NC-SA 4.0; third-party dictionary licenses are retained.'
           fi
