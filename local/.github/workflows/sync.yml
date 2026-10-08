@@ -38,7 +38,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          rsync -a --delete --exclude=.git "$RUNNER_TEMP/desktop/" ./
+          rsync -a --delete --exclude=.git --exclude=.github/workflows/sync.yml "$RUNNER_TEMP/desktop/" ./
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python3 - <<'PYCODE'
