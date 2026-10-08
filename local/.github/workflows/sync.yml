@@ -27,6 +27,7 @@ jobs:
             git -C "$RUNNER_TEMP/upstream" fetch --depth 1 origin feat/local-and-2027
             git -C "$RUNNER_TEMP/upstream" checkout FETCH_HEAD
           fi
+          npm ci --prefix "$RUNNER_TEMP/upstream/BeeBright-Full-Stack/beebright-spelling-bee/frontend"
           node "$RUNNER_TEMP/upstream/tools/build-local.mjs"
           mkdir "$RUNNER_TEMP/desktop"
           unzip -q "$RUNNER_TEMP/upstream/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/beebright-local.zip" -d "$RUNNER_TEMP/desktop"
@@ -37,7 +38,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          rsync -a --delete --exclude=.git "$RUNNER_TEMP/desktop/" ./
+          rsync -a --delete --exclude=.git --exclude=.github/workflows/sync.yml "$RUNNER_TEMP/desktop/" ./
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python3 - <<'PYCODE'

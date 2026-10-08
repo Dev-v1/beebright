@@ -14,16 +14,33 @@ const readJson = (name) => JSON.parse(fs.readFileSync(path.join(backend, 'data',
 const hints = {...readJson('word_hints.json'), ...readJson('study_2027_hints.json')};
 const lists = [{id:'champions-2024',title:'2024 Words of the Champions',...readJson('words.json')},
                readJson('word_lists/study-2027.json')];
+const frontend = path.join(app,'frontend');
+// Compile the exact website components/CSS with an offline-only desktop entry point.
+execFileSync(process.execPath,[path.join(frontend,'node_modules/vite/bin/vite.js'),'build','--mode','desktop'],{cwd:frontend,stdio:'inherit'});
 const files = new Map();
 function walk(dir, prefix='') {
   for (const item of fs.readdirSync(dir, {withFileTypes:true})) {
-    if (['__pycache__','data','shared','.git'].includes(item.name)) continue;
+    if (['__pycache__','data','shared','ui','ui-source','.git'].includes(item.name)) continue;
     const name = path.posix.join(prefix,item.name);
     if (item.isDirectory()) walk(path.join(dir,item.name), name);
     else if (!item.name.endsWith('.pyc')) files.set(name,fs.readFileSync(path.join(dir,item.name)));
   }
 }
 walk(local);
+function collect(dir,prefix) {
+  for (const entry of fs.readdirSync(dir,{withFileTypes:true})) {
+    const file=path.join(dir,entry.name), name=path.posix.join(prefix,entry.name);
+    if (entry.isDirectory()) collect(file,name); else files.set(name,fs.readFileSync(file));
+  }
+}
+collect(path.join(frontend,'dist-local'),'beebright_local/ui');
+files.set('beebright_local/ui/bee.svg',fs.readFileSync(path.join(frontend,'public/bee.svg')));
+for(const name of ['App.jsx','api.js','hints.js','local-api.js','local-main.jsx','styles.css','fonts.css']) {
+  files.set('ui-source/src/'+name,fs.readFileSync(path.join(frontend,'src',name)));
+}
+for(const name of ['package.json','package-lock.json','vite.config.js','local.html']) {
+  files.set('ui-source/'+name,fs.readFileSync(path.join(frontend,name)));
+}
 files.set('LICENSE',fs.readFileSync(path.join(root,'LICENSE')));
 for (const [name, data] of Object.entries({hints,lists,distractors:readJson('distractors.json')})) {
   files.set(`beebright_local/data/${name}.json`,Buffer.from(JSON.stringify(data)));

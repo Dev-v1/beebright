@@ -14,3 +14,7 @@
 /local/LICENSE
 /BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/
 /BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/install.ps1
+
+/local/beebright_local/ui/
+/local/ui-source/
+**/dist-local/

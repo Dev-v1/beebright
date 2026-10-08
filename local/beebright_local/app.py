@@ -1,257 +1,142 @@
+"""The website React UI rendered locally in a native desktop WebView."""
 from __future__ import annotations
 
 import base64
+import json
+import secrets
 import shutil
 import subprocess
 import sys
 import threading
-import tkinter as tk
-from tkinter import ttk, messagebox
+from pathlib import Path
+from urllib.parse import parse_qs, unquote, urlsplit
 
-from .engine import (load_catalog, new_session, hint_for, choices_for,
-                     check, save_json, read_json)
+from .engine import load_catalog, hint_for, choices_for, read_json, save_json, USER_DATA
+from .shared.practice_core import shuffled_words
 
-MODES = {'Multiple Choice': 'choice', 'Fill in the Blank': 'blank',
-         'Type the Word': 'type', 'Flash Cards': 'flash'}
-LABELS = {'one_bee': 'One Bee', 'two_bee': 'Two Bee', 'three_bee': 'Three Bee', 'random': 'Random'}
+LABELS = {'one_bee': 'One Bee', 'two_bee': 'Two Bee', 'three_bee': 'Three Bee'}
 
 
-def speak(word):
-    # Never pass a practice word through shell interpolation.
-    if sys.platform == 'win32':
-        script = "Add-Type -AssemblyName System.Speech; $s=New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Rate=-2; $s.Speak([Console]::In.ReadToEnd())"
-        args = ['powershell.exe', '-NoProfile', '-EncodedCommand', base64.b64encode(script.encode('utf-16le')).decode()]
-        subprocess.run(args, input=word, text=True, creationflags=subprocess.CREATE_NO_WINDOW, timeout=60, check=True)
-    elif sys.platform == 'darwin':
-        subprocess.run(['say', '--', word], check=True, timeout=60)
-    elif shutil.which('espeak'):
-        subprocess.run(['espeak', '-s', '130', '--', word], check=True, timeout=60)
-    else:
-        raise RuntimeError('No local speech voice was found. Install espeak on Linux.')
-
-
-class BeeBright(tk.Tk):
+class DesktopApi:
     def __init__(self):
-        super().__init__()
-        self.title('BeeBright • Local Spelling Practice')
-        self.geometry('980x760')
-        self.minsize(740, 650)
-        self.lists, self.hints, self.distractors = load_catalog()
-        self.session = read_json('progress.json')
-        self.settings = read_json('settings.json', {'dark': False})
-        self.protocol('WM_DELETE_WINDOW', self.exit)
-        self.home()
+        self._lists, self._hints, self._distractors = load_catalog()
+        self._lock = threading.RLock()
 
-    def clear(self):
-        for child in self.winfo_children():
-            child.destroy()
-        self.bg = '#141b2c' if self.settings.get('dark') else '#fffaf0'
-        self.fg = '#f6f0dd' if self.settings.get('dark') else '#1e293b'
-        self.configure(bg=self.bg)
-        canvas = tk.Canvas(self, bg=self.bg, highlightthickness=0)
-        scrollbar = ttk.Scrollbar(self, orient='vertical', command=canvas.yview)
-        canvas.configure(yscrollcommand=scrollbar.set)
-        scrollbar.pack(side='right', fill='y')
-        canvas.pack(side='left', fill='both', expand=True)
-        self.panel = tk.Frame(canvas, bg=self.bg)
-        window = canvas.create_window((0, 0), window=self.panel, anchor='nw')
-        self.panel.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
-        canvas.bind('<Configure>', lambda e: canvas.itemconfigure(window, width=e.width))
-        self.panel.configure(padx=36, pady=24)
-        canvas.bind('<MouseWheel>', lambda e: canvas.yview_scroll(-int(e.delta / 120), 'units'))
-
-    def text(self, value, size=14, bold=False, parent=None):
-        widget = tk.Label(parent or self.panel, text=value, bg=self.bg, fg=self.fg,
-                          font=('Segoe UI', size, 'bold' if bold else 'normal'),
-                          wraplength=max(500, self.winfo_width() - 100), justify='center')
-        widget.pack(pady=8)
-        return widget
-
-    def button(self, text, command, parent=None, primary=False):
-        widget = tk.Button(parent or self.panel, text=text, command=command,
-                           bg='#f8c94c' if primary else '#ede7d8', fg='#1e293b',
-                           activebackground='#ffd96c', relief='flat', cursor='hand2',
-                           font=('Segoe UI', 12, 'bold'), padx=18, pady=10)
-        widget.pack(pady=5, fill='x')
-        return widget
-
-    def home(self):
-        self.clear()
-        self.text('🐝 BeeBright', 30, True)
-        self.text('A little practice. A brighter speller.', 19)
-        self.text('Practice locally • No account • Progress stays on this laptop', 11)
-        self.list_var = tk.StringVar(value=self.lists[-1]['title'])
-        combo = ttk.Combobox(self.panel, textvariable=self.list_var,
-                             values=[r['title'] for r in self.lists], state='readonly', font=('Segoe UI', 13))
-        combo.pack(pady=14, fill='x')
-        self.level_frame = tk.Frame(self.panel, bg=self.bg)
-        self.level_frame.pack(fill='x')
-        self.level_var = tk.StringVar()
-        combo.bind('<<ComboboxSelected>>', lambda event: self.levels())
-        self.levels()
-        self.mode_var = tk.StringVar(value='Multiple Choice')
-        ttk.Combobox(self.panel, textvariable=self.mode_var, values=list(MODES),
-                     state='readonly', font=('Segoe UI', 13)).pack(pady=12, fill='x')
-        self.button('Start practice →', self.start, primary=True)
-        if self.session and self.valid_session():
-            self.button('Resume saved practice', self.question)
-        self.button('Settings', self.preferences)
-        self.text('CC BY-NC-SA 4.0 • Dictionary attribution is shown with hints.', 10)
-
-    def record(self):
-        return next(r for r in self.lists if r['title'] == self.list_var.get())
-
-    def levels(self):
-        for child in self.level_frame.winfo_children():
-            child.destroy()
-        record = self.record()
-        keys = [key for key, words in record['levels'].items() if words]
-        self.level_var.set(keys[0])
-        for key in keys:
-            description = record.get('level_descriptions', {}).get(key, '')
-            text = LABELS.get(key, key) + ('\n' + description if description else '')
-            text += f"\n{len(record['levels'][key]):,} words"
-            tk.Radiobutton(self.level_frame, text=text, value=key, variable=self.level_var,
-                indicatoron=False, bg='#f8c94c', selectcolor='#e7ae19', fg='#1e293b',
-                font=('Segoe UI', 12, 'bold'), padx=14, pady=12).pack(side='left', fill='x', expand=True, padx=4)
-
-    def valid_session(self):
+    def request(self, path, method='GET', payload=None):
+        """Only allow the offline practice routes; no cloud/admin/account routes."""
         try:
-            s = self.session
-            return bool(s['words']) and 0 <= s['index'] < len(s['words']) and s['mode'] in MODES.values()
-        except (KeyError, TypeError):
-            return False
+            with self._lock:
+                return self._request(path, method, payload)
+        except (ValueError, KeyError, TypeError) as exc:
+            return {'error': str(exc)}
 
-    def start(self):
-        self.session = new_session(self.record(), self.level_var.get(), MODES[self.mode_var.get()])
-        self.save()
-        self.question()
+    def _request(self, path, method, payload):
+        parsed = urlsplit(path)
+        if parsed.scheme or parsed.netloc:
+            raise ValueError('Only local practice is supported.')
+        route = unquote(parsed.path)
+        if route == '/api/word-lists' and method == 'GET':
+            return [{'id': r['id'], 'title': r['title'], 'built_in': True, 'published': True,
+                     'randomized': bool(r.get('randomized')), 'word_count': sum(map(len, r['levels'].values())),
+                     'levels': [{'key': key, 'label': LABELS[key], 'count': len(words),
+                                 'description': r.get('level_descriptions', {}).get(key, '')}
+                                for key, words in r['levels'].items()]} for r in self._lists]
+        if route.startswith('/api/dictionary/') and method == 'GET':
+            word = route.removeprefix('/api/dictionary/')
+            if word not in self._hints:
+                raise ValueError('This word is not in the bundled dictionary.')
+            return hint_for(word, self._hints)
+        if route == '/api/practice' and method == 'GET':
+            q = parse_qs(parsed.query)
+            record = next((r for r in self._lists if r['id'] == q.get('word_list_id', ['champions-2024'])[0]), None)
+            if record is None:
+                raise ValueError('Unknown local word list.')
+            level = q.get('level', ['one_bee'])[0]
+            source = record['levels'][level]
+            offset = max(0, int(q.get('offset', ['0'])[0]))
+            limit = max(1, min(100, int(q.get('limit', ['100'])[0])))
+            if offset >= len(source):
+                offset = 0
+                q.pop('shuffle_seed', None)
+            seed = None
+            if record.get('randomized'):
+                seed = q.get('shuffle_seed', [secrets.token_urlsafe(18)])[0]
+                source = shuffled_words(source, seed)
+            selected = source[offset:offset + limit]
+            return {'word_list_id': record['id'], 'level': level, 'label': LABELS[level],
+                    'offset': offset, 'limit': limit, 'total': len(source),
+                    'shuffle_seed': seed, 'has_more': offset + len(selected) < len(source),
+                    'words': [{'word': word, 'level': level, 'source': record['title'],
+                               'options': choices_for(word, self._distractors)} for word in selected]}
+        if route == '/api/progress':
+            if method == 'GET':
+                session = read_json('progress.json')
+                # Preserve earlier Tkinter sessions by converting to the shared React shape.
+                if session and session.get('words') and isinstance(session['words'][0], str):
+                    session = {'mode': session['mode'], 'level': session['level'],
+                               'wordListId': session['list_id'], 'setOffset': 0,
+                               'shuffleSeed': session.get('seed'),
+                               'words': [{'word': w, 'options': choices_for(w, self._distractors)} for w in session['words']],
+                               'index': session['index'], 'correct': session['correct'],
+                               'streak': session['streak'], 'bestStreak': session['best']}
+                    save_json('progress.json', session)
+                return {'session': session}
+            if method == 'PUT':
+                session = payload.get('session')
+                if not isinstance(session, dict) or not isinstance(session.get('words'), list):
+                    raise ValueError('Invalid local session.')
+                save_json('progress.json', session)
+                return {'session': session}
+            if method == 'DELETE':
+                save_json('progress.json', None)
+                return None
+        raise ValueError('This feature is not available in the offline edition.')
 
-    def save(self):
-        if self.session:
-            save_json('progress.json', self.session)
+    def settings(self, value=None):
+        with self._lock:
+            if value is not None:
+                theme = value.get('theme')
+                if theme not in ('light', 'dark'):
+                    raise ValueError('Unknown appearance.')
+                save_json('settings.json', {'theme': theme})
+            saved = read_json('settings.json', {})
+            return {'theme': saved.get('theme', 'dark' if saved.get('dark') else 'light')}
 
-    def question(self):
-        s = self.session
-        if s['index'] >= len(s['words']):
-            return self.results()
-        self.clear()
-        word = s['words'][s['index']]
-        self.hint = hint_for(word, self.hints)
-        self.text(f"{LABELS.get(s['level'])} • Question {s['index'] + 1} of {len(s['words'])}", 12)
-        self.score_label = self.text(f"✓ {s['correct']} correct     🔥 {s['streak']} streak", 11)
-        self.button('🔊 Listen', lambda: self.audio(word))
-        self.choice_var = tk.StringVar()
-        self.answer_widgets = []
-        if s['mode'] == 'flash':
-            self.card = self.text(self.hint['definition'], 22, True)
-            self.text(self.hint['sentence'], 16)
-            self.card.bind('<Double-Button-1>', lambda event: self.reveal(word))
-            self.button('Reveal card', lambda: self.reveal(word))
-        elif s['mode'] == 'choice':
-            self.text('Which spelling is correct?', 22, True)
-            for value in choices_for(word, self.distractors):
-                widget = tk.Radiobutton(self.panel, text=value, value=value, variable=self.choice_var,
-                    indicatoron=False, bg='#ede7d8', selectcolor='#f8c94c', font=('Segoe UI', 14), padx=20, pady=10)
-                widget.pack(fill='x', pady=3)
-                self.answer_widgets.append(widget)
+    def speak(self, word):
+        if not isinstance(word, str) or word not in self._hints:
+            raise ValueError('Unknown practice word.')
+        # Pass words on stdin, never through command interpolation.
+        if sys.platform == 'win32':
+            script = "Add-Type -AssemblyName System.Speech; $s=New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Rate=-2; $s.Speak([Console]::In.ReadToEnd())"
+            args = ['powershell.exe', '-NoProfile', '-EncodedCommand', base64.b64encode(script.encode('utf-16le')).decode()]
+            subprocess.run(args, input=word, text=True, creationflags=subprocess.CREATE_NO_WINDOW, timeout=60, check=True)
+        elif sys.platform == 'darwin':
+            subprocess.run(['say', '--', word], check=True, timeout=60)
+        elif shutil.which('espeak'):
+            subprocess.run(['espeak', '-s', '130', '--', word], check=True, timeout=60)
         else:
-            self.text(self.hint['sentence'] if s['mode'] == 'blank' else 'Type the word you hear.', 20, True)
-            self.entry = ttk.Entry(self.panel, textvariable=self.choice_var, font=('Segoe UI', 20))
-            self.entry.pack(fill='x', pady=12)
-            self.entry.focus_set()
-            self.entry.bind('<Return>', lambda event: self.submit())
-            self.answer_widgets.append(self.entry)
-        if s['mode'] != 'flash':
-            self.check_button = self.button('Check answer', self.submit, primary=True)
-        self.feedback = self.text('', 16, True)
-        hint_row = tk.Frame(self.panel, bg=self.bg)
-        hint_row.pack(fill='x')
-        for key, title in [('definition', 'Definition'), ('origin', 'Word origin'), ('sentence', 'In a sentence')]:
-            tk.Button(hint_row, text=title, command=lambda k=key: self.show_hint(k),
-                      bg='#f8c94c', relief='flat', padx=12, pady=8).pack(side='left', expand=True, fill='x', padx=3)
-        self.hint_label = self.text('', 12)
-        self.next_button = self.button('Next word →', self.next)
-        if not s['checked'] and s['mode'] != 'flash':
-            self.next_button.config(state='disabled')
-        self.button('Save & exit to menu', self.home)
-        if s['checked'] and s['mode'] != 'flash':
-            self.lock_answer()
-            self.feedback.config(text=f'Answer: {word}')
+            raise RuntimeError('Install an offline speech voice such as espeak.')
+        return True
 
-    def reveal(self, word):
-        self.card.config(text=word)
 
-    def audio(self, word):
-        def worker():
-            try:
-                speak(word)
-            except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
-                self.after(0, lambda error=str(exc): messagebox.showerror('Speech unavailable', error))
-        threading.Thread(target=worker, daemon=True).start()
-
-    def show_hint(self, key):
-        note = self.hint.get(key, '')
-        source = self.hint.get('source', '')
-        license = self.hint.get('license', '')
-        self.hint_label.config(text=note + '\n' + source + (' • ' + license if license else ''))
-
-    def lock_answer(self):
-        for widget in self.answer_widgets:
-            widget.config(state='disabled')
-        self.check_button.config(state='disabled')
-        self.next_button.config(state='normal')
-
-    def submit(self):
-        answer = self.choice_var.get()
-        if not answer.strip() or self.session['checked']:
+def run(smoke_test=None):
+    if sys.platform == 'win32' and sys.version_info < (3, 14):
+        # An older installed launcher is still executing during its first update.
+        # Re-enter the updated launcher so it can migrate the runtime before opening the UI.
+        launcher = USER_DATA.parent / 'bootstrap.ps1'
+        if launcher.exists():
+            subprocess.Popen(['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(launcher)])
             return
-        correct = check(self.session, answer)
-        word = self.session['words'][self.session['index']]
-        self.feedback.config(text='Correct!' if correct else f'The correct spelling is: {word}')
-        self.lock_answer()
-        s = self.session
-        self.score_label.config(text=f"✓ {s['correct']} correct     🔥 {s['streak']} streak")
-        self.save()
-
-    def next(self):
-        if not self.session['checked'] and self.session['mode'] != 'flash':
-            return
-        self.session['index'] += 1
-        self.session['checked'] = False
-        self.save()
-        self.question()
-
-    def results(self):
-        self.clear()
-        s = self.session
-        self.text('You finished strong.', 30, True)
-        self.text(f"{s['correct']} correct • Best streak {s['best']} • {len(s['words'])} words", 18)
-        self.button('Choose another practice', self.home, primary=True)
-
-    def preferences(self):
-        self.clear()
-        self.text('Your settings', 26, True)
-        self.button('Switch to ' + ('light' if self.settings.get('dark') else 'dark') + ' mode', self.toggle_theme)
-        self.button('Clear saved practice', self.clear_progress)
-        self.text('Progress is saved only on this laptop. Updates preserve it.', 12)
-        self.button('Back', self.home)
-
-    def toggle_theme(self):
-        self.settings['dark'] = not self.settings.get('dark')
-        save_json('settings.json', self.settings)
-        self.preferences()
-
-    def clear_progress(self):
-        if messagebox.askyesno('Clear progress', 'Clear the saved practice session on this laptop?'):
-            self.session = None
-            save_json('progress.json', None)
-            self.home()
-
-    def exit(self):
-        self.save()
-        self.destroy()
-
-
-def run():
-    BeeBright().mainloop()
+        raise RuntimeError('BeeBright needs Python 3.14. Run the install command again.')
+    import webview
+    ui = Path(__file__).parent / 'ui' / 'local.html'
+    if not ui.exists():
+        raise RuntimeError('The bundled website UI is missing. Reinstall BeeBright.')
+    api = DesktopApi()
+    window = webview.create_window('BeeBright • Local Spelling Practice', str(ui.resolve()),
+                                  js_api=api, width=1280, height=850, min_size=(740, 650),
+                                  background_color='#fbf8ef', text_select=True)
+    USER_DATA.mkdir(parents=True, exist_ok=True)
+    webview.start(smoke_test, window if smoke_test else None,
+                  gui='edgechromium' if sys.platform == 'win32' else None,
+                  private_mode=False, storage_path=str(USER_DATA / 'webview'), http_server=True)

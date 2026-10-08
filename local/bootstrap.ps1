@@ -53,7 +53,13 @@ try {
     if ($Locked) { $Mutex.ReleaseMutex() }
     $Mutex.Dispose()
 }
-$Python = Join-Path $BeeRoot 'runtime\pythonw.exe'
+$Python = Join-Path $BeeRoot 'runtime-3.14\pythonw.exe'
+if (-not (Test-Path $Python)) {
+    Write-Host 'BeeBright now uses Python 3.14. Installing the updated runtime...'
+    Invoke-WebRequest 'https://beebright.vercel.app/install.ps1' -OutFile "$BeeRoot\install-new.ps1" -UseBasicParsing
+    & "$BeeRoot\install-new.ps1" -SkipLaunch
+    if (-not (Test-Path $Python)) { throw 'Python 3.14 installation failed. Run the install command again.' }
+}
 if (-not (Test-Path $Python)) { throw 'BeeBright runtime is missing. Run the install command again.' }
 if ($SkipLaunch) { return }
 Start-Process -FilePath $Python -WorkingDirectory $Current -ArgumentList @('-m', 'beebright_local')

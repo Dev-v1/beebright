@@ -7,8 +7,8 @@ foreach ($Script in @('install.ps1', 'bootstrap.ps1')) {
 }
 $env:LOCALAPPDATA = Join-Path $env:RUNNER_TEMP 'bee-update-test'
 $Bee = Join-Path $env:LOCALAPPDATA 'BeeBright'
-New-Item -ItemType Directory -Force -Path "$Bee/runtime", "$Bee/userdata" | Out-Null
-Set-Content "$Bee/runtime/pythonw.exe" ''
+New-Item -ItemType Directory -Force -Path "$Bee/runtime-3.14", "$Bee/userdata" | Out-Null
+Set-Content "$Bee/runtime-3.14/pythonw.exe" ''
 Set-Content "$Bee/userdata/progress.json" '{"sentinel":"keep-me"}'
 $Archive = Join-Path $Repo 'BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/beebright-local.zip'
 $global:BeeTestManifest = Get-Content (Join-Path $Repo 'BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/manifest.json') -Raw | ConvertFrom-Json

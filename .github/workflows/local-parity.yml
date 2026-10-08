@@ -10,17 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: npm ci
+        working-directory: BeeBright-Full-Stack/beebright-spelling-bee/frontend
       - run: node tools/build-local.mjs --materialize
       - run: python3 -m unittest discover -s local -v
   windows-desktop:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: npm ci
+        working-directory: BeeBright-Full-Stack/beebright-spelling-bee/frontend
       - run: node tools/build-local.mjs --materialize
       - run: python -m unittest discover -s local -v
       - run: ./tools/test-local-install.ps1
         shell: powershell
       - run: ./tools/test-local-update.ps1
         shell: powershell
-      - run: python ../tools/test_local_ui.py
-        working-directory: local
