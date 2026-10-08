@@ -1,0 +1,23 @@
+name: Desktop parity
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  shared-practice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: node tools/build-local.mjs --materialize
+      - run: python3 -m unittest discover -s local -v
+  windows-desktop:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: node tools/build-local.mjs --materialize
+      - run: python -m unittest discover -s local -v
+      - run: ./tools/test-local-update.ps1
+        shell: powershell
+      - run: python -c "import sys; sys.path.insert(0,'local'); from beebright_local.app import BeeBright; app=BeeBright(); app.update(); app.start(); app.update(); app.show_hint('origin'); app.update(); app.exit()"

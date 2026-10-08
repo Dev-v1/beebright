@@ -1,0 +1,48 @@
+name: Sync desktop and publish release
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: desktop-release
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Build the canonical website revision
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/Dev-v1/beebright.git "$RUNNER_TEMP/upstream"
+          test -f "$RUNNER_TEMP/upstream/tools/build-local.mjs"
+          node "$RUNNER_TEMP/upstream/tools/build-local.mjs"
+          mkdir "$RUNNER_TEMP/desktop"
+          unzip -q "$RUNNER_TEMP/upstream/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/beebright-local.zip" -d "$RUNNER_TEMP/desktop"
+          cd "$RUNNER_TEMP/desktop"
+          python3 -m unittest discover -v
+      - name: Synchronize source and publish ZIP
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rsync -a --delete --exclude=.git "$RUNNER_TEMP/desktop/" ./
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          if ! git diff --cached --quiet; then
+            git commit -m 'Sync desktop with canonical BeeBright revision'
+            git push origin HEAD:main
+          fi
+          VERSION=$(python3 -c 'import json; print(json.load(open("version.json"))["version"][:12])')
+          TAG="desktop-$VERSION"
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            cp "$RUNNER_TEMP/upstream/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/beebright-local.zip" "$RUNNER_TEMP/beebright-local-source.zip"
+            gh release create "$TAG" "$RUNNER_TEMP/beebright-local-source.zip" --repo "$GITHUB_REPOSITORY" --target "$(git rev-parse HEAD)" --title "BeeBright Local $VERSION" --notes 'Native offline spelling practice. Windows installer: irm https://beebright.vercel.app/install.ps1 | iex. This source ZIP includes bundled word lists, hints, shared practice code, and attribution. CC BY-NC-SA 4.0; third-party dictionary licenses are retained.'
+          fi

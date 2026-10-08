@@ -1498,5 +1498,3005 @@
     "source_url": "https://www.merriam-webster.com/dictionary/truant",
     "sentence_reference": "BeeBright original sentence",
     "license": ""
+  },
+  "alive": {
+    "definition": "Living rather than dead.",
+    "origin": "Old English on life, meaning in life.",
+    "sentence": "The tiny plant was still alive after the frost.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/alive",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "inside": {
+    "definition": "Within the inner part of something.",
+    "origin": "English in combined with side.",
+    "sentence": "The puppy slept inside its basket.",
+    "part_of_speech": "preposition",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/inside",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "humble": {
+    "definition": "Modest about one's importance or achievements.",
+    "origin": "French from Latin humilis, meaning lowly.",
+    "sentence": "The humble winner thanked all her teammates.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/humble",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "guide": {
+    "definition": "A person who shows others the way.",
+    "origin": "French, ultimately from a Germanic word for looking after someone.",
+    "sentence": "Our guide led us safely through the forest.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/guide",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "money": {
+    "definition": "Coins or notes used to pay for things.",
+    "origin": "French from Latin moneta, a mint or coinage.",
+    "sentence": "I saved enough money to buy a bicycle.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/money",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "hello": {
+    "definition": "A word used to greet someone.",
+    "origin": "An altered form of the greeting hollo.",
+    "sentence": "She smiled and said hello to her new neighbor.",
+    "part_of_speech": "interjection",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/hello",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "bamboo": {
+    "definition": "A tall grass with hard, hollow stems.",
+    "origin": "Borrowed from Malay bambu.",
+    "sentence": "The panda chewed a stalk of bamboo.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/bamboo",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "still": {
+    "definition": "Not moving or making a sound.",
+    "origin": "Old English stille, meaning quiet or motionless.",
+    "sentence": "The deer stood still at the edge of the woods.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/still",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "fine": {
+    "definition": "Very small or thin in size or texture.",
+    "origin": "French fin, ultimately related to Latin finis, an end or limit.",
+    "sentence": "Fine sand slipped through my fingers.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/fine",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "thirsty": {
+    "definition": "Feeling a need to drink.",
+    "origin": "Old English thurstig, formed from the word for thirst.",
+    "sentence": "The thirsty runner drank a glass of water.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/thirsty",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "afraid": {
+    "definition": "Feeling fear or worry.",
+    "origin": "A past participle of the old verb affray, from French.",
+    "sentence": "The child was afraid of the loud thunder.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/afraid",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "lead": {
+    "definition": "To show the way by going ahead.",
+    "origin": "Old English laedan, meaning to cause to go.",
+    "sentence": "Please lead us to the picnic area.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/lead",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "hospital": {
+    "definition": "A place where sick or injured people receive medical care.",
+    "origin": "French from Latin hospitalis, relating to guests.",
+    "sentence": "The ambulance took the injured man to the hospital.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/hospital",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "holiday": {
+    "definition": "A special day of celebration or a break from work.",
+    "origin": "Old English haligdaeg, combining holy and day.",
+    "sentence": "We visited our cousins during the holiday.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/holiday",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sloth": {
+    "definition": "A slow-moving tropical mammal that hangs from tree branches.",
+    "origin": "Middle English slouthe, related to slow; the animal was named for its slow movement.",
+    "sentence": "A sloth hung upside down from a branch.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sloth",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "stars": {
+    "definition": "Huge glowing balls of hot gas visible as points of light in the night sky.",
+    "origin": "Plural of star, from Old English steorra.",
+    "sentence": "We counted the bright stars above our campsite.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/stars",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "lizard": {
+    "definition": "A reptile with a long body, usually four legs and a tail.",
+    "origin": "French from Latin lacerta.",
+    "sentence": "The lizard warmed itself on a sunny rock.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/lizard",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "bunny": {
+    "definition": "An informal name for a rabbit.",
+    "origin": "English dialect bun, meaning rabbit, with a diminutive ending.",
+    "sentence": "The fluffy bunny nibbled a leaf.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/bunny",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "return": {
+    "definition": "To go or come back.",
+    "origin": "French retourner, combining again with turn.",
+    "sentence": "We will return home before sunset.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/return",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "rabbit": {
+    "definition": "A small mammal with long ears and strong back legs.",
+    "origin": "Middle English rabet, probably through French from a Dutch form.",
+    "sentence": "A rabbit hopped across the lawn.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/rabbit",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "spiders": {
+    "definition": "Eight-legged animals, many of which spin silk webs.",
+    "origin": "Plural of spider, from an older English form related to spin.",
+    "sentence": "The spiders built webs between the fence posts.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/spiders",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "barge": {
+    "definition": "A flat-bottomed boat used to carry heavy loads.",
+    "origin": "French from Late Latin barca, a boat.",
+    "sentence": "The barge carried coal along the canal.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/barge",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "cabin": {
+    "definition": "A small, simple house, often built of wood.",
+    "origin": "Middle English cabane, borrowed from French.",
+    "sentence": "We stayed in a wooden cabin beside the lake.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/cabin",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "fire": {
+    "definition": "Burning that produces heat and often light or flames.",
+    "origin": "Old English fyr.",
+    "sentence": "The campers warmed their hands beside the fire.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/fire",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "nurse": {
+    "definition": "A person trained to care for sick or injured people.",
+    "origin": "French from a Latin word relating to nourishment.",
+    "sentence": "The nurse gently checked my bandage.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/nurse",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "finish": {
+    "definition": "To bring something to an end or complete it.",
+    "origin": "French finir, from Latin finire, to end.",
+    "sentence": "I will finish my homework before dinner.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/finish",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "mustard": {
+    "definition": "A sharp-tasting yellow or brown sauce made from ground seeds.",
+    "origin": "French moustarde, connected with must, unfermented grape juice once used to make it.",
+    "sentence": "He spread mustard on his sandwich.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/mustard",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "fear": {
+    "definition": "An unpleasant feeling caused by danger or worry.",
+    "origin": "Old English faer, originally a sudden danger.",
+    "sentence": "Her fear faded when she saw the friendly dog.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/fear",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "dive": {
+    "definition": "To jump or plunge into water headfirst.",
+    "origin": "Old English forms related to dipping or sinking.",
+    "sentence": "The swimmer will dive into the pool.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/dive",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "smoothly": {
+    "definition": "Without sudden movements, bumps, or difficulties.",
+    "origin": "English smooth with the adverb ending -ly.",
+    "sentence": "The skater glided smoothly across the ice.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/smoothly",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "mist": {
+    "definition": "Tiny drops of water floating in the air near the ground.",
+    "origin": "Inherited from Old English and other Germanic vocabulary.",
+    "sentence": "A light mist covered the meadow at dawn.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/mist",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "distance": {
+    "definition": "The amount of space between two places or things.",
+    "origin": "French from Latin distantia, related to standing apart.",
+    "sentence": "We measured the distance between the two trees.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/distance",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "claws": {
+    "definition": "Sharp, curved nails on an animal's feet.",
+    "origin": "Plural of claw, from Old English clawu.",
+    "sentence": "The cat gripped the branch with its claws.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/claws",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sick": {
+    "definition": "Ill or not feeling well.",
+    "origin": "Old English seoc.",
+    "sentence": "My sick brother stayed home from school.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sick",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sweat": {
+    "definition": "Moisture released through the skin, especially when hot.",
+    "origin": "Old English swat.",
+    "sentence": "Sweat dripped from his forehead after the race.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sweat",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "feed": {
+    "definition": "To give food to a person or animal.",
+    "origin": "Old English fedan, related to food.",
+    "sentence": "We feed the birds every morning.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/feed",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "frozen": {
+    "definition": "Turned solid by cold.",
+    "origin": "A past participle of freeze, from Old English freosan.",
+    "sentence": "The frozen pond was covered with ice.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/frozen",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "cliffs": {
+    "definition": "High, steep faces of rock.",
+    "origin": "Plural of cliff, from Old English clif.",
+    "sentence": "The waves crashed against the tall cliffs.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/cliffs",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "pancake": {
+    "definition": "A flat cake cooked from batter in a pan.",
+    "origin": "English pan combined with cake.",
+    "sentence": "She flipped the pancake when its edges turned golden.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/pancake",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "late": {
+    "definition": "Arriving or happening after the expected time.",
+    "origin": "Old English laet, meaning slow or sluggish.",
+    "sentence": "The late bus arrived after the concert began.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/late",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "soared": {
+    "definition": "Flew or rose high in the air.",
+    "origin": "Past tense of soar, from French essorer.",
+    "sentence": "The eagle soared above the mountains.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/soared",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "mossy": {
+    "definition": "Covered with small, soft green plants that grow in damp places.",
+    "origin": "Moss, from Old English mos, with the ending -y.",
+    "sentence": "We stepped over a mossy log beside the stream.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/mossy",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "morning": {
+    "definition": "The early part of the day before noon.",
+    "origin": "English morn with -ing.",
+    "sentence": "The birds sang loudly in the morning.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/morning",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "footprints": {
+    "definition": "Marks left by feet on a surface.",
+    "origin": "English foot combined with print and a plural ending.",
+    "sentence": "We followed the muddy footprints across the floor.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/footprints",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "spray": {
+    "definition": "A cloud of tiny drops of liquid.",
+    "origin": "Related to an older verb from Middle Dutch sprayen, to sprinkle.",
+    "sentence": "Ocean spray splashed onto our faces.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/spray",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "good": {
+    "definition": "Of a high or pleasing quality.",
+    "origin": "Old English god.",
+    "sentence": "The baker made a good loaf of bread.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/good",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "peach": {
+    "definition": "A round fruit with a fuzzy skin and a hard stone inside.",
+    "origin": "French from Latin persica, referring to Persia.",
+    "sentence": "Juice ran down my chin as I ate the peach.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/peach",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "bush": {
+    "definition": "A woody plant with several stems near the ground.",
+    "origin": "Middle English bussh, related to Germanic words for shrubs.",
+    "sentence": "A bird nested in the thick bush.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/bush",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "winter": {
+    "definition": "The coldest season of the year.",
+    "origin": "Inherited from Old English; cognates occur in other Germanic languages.",
+    "sentence": "Snow often covers the fields in winter.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/winter",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "swift": {
+    "definition": "Moving or happening very quickly.",
+    "origin": "Inherited from Old English, related to a verb for moving.",
+    "sentence": "The swift fox vanished into the trees.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/swift",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "riddle": {
+    "definition": "A puzzling question with a clever answer.",
+    "origin": "Old English raedels, related to interpreting or advising.",
+    "sentence": "We laughed when we solved the funny riddle.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/riddle",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "leg": {
+    "definition": "A body part used for standing and walking.",
+    "origin": "Borrowed from Old Norse leggr.",
+    "sentence": "The puppy rested its injured leg.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/leg",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sparkle": {
+    "definition": "To shine with small flashes of light.",
+    "origin": "Middle English, a repeated-action form of spark.",
+    "sentence": "The jewels sparkle under the lamp.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sparkle",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "pump": {
+    "definition": "A device that moves liquid or gas.",
+    "origin": "Middle English pumpe, related to Dutch and Low German forms.",
+    "sentence": "We used a pump to fill the bicycle tires.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/pump",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "wind": {
+    "definition": "Air moving across the earth's surface.",
+    "origin": "Inherited from Old English and other Germanic languages.",
+    "sentence": "A strong wind blew the kite higher.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/wind",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "darkness": {
+    "definition": "An absence or lack of light.",
+    "origin": "English dark with the noun ending -ness.",
+    "sentence": "We switched on a flashlight in the darkness.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/darkness",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "tangy": {
+    "definition": "Having a strong, sharp flavor.",
+    "origin": "English tang with the adjective ending -y.",
+    "sentence": "The tangy lemon sauce made my mouth pucker.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/tangy",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "charming": {
+    "definition": "Pleasant and appealing.",
+    "origin": "From charm, through French from Latin carmen, a song or spell.",
+    "sentence": "The charming cottage had flowers beside its door.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/charming",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "even": {
+    "definition": "Divisible by two without a remainder.",
+    "origin": "Old English efen, meaning equal or level.",
+    "sentence": "Eight is an even number.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/even",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "indoors": {
+    "definition": "Within a building.",
+    "origin": "English in combined with doors.",
+    "sentence": "We played indoors during the storm.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/indoors",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "half": {
+    "definition": "One of two equal parts.",
+    "origin": "Old English healf.",
+    "sentence": "I shared half of my sandwich with my friend.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/half",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "seal": {
+    "definition": "A sea mammal with flippers and a smooth body.",
+    "origin": "Old English seolh, the animal name.",
+    "sentence": "The seal rested on a rock beside the water.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/seal",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "shoot": {
+    "definition": "To send something quickly through the air.",
+    "origin": "Old English sceotan.",
+    "sentence": "The player tried to shoot the ball into the basket.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/shoot",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "safety": {
+    "definition": "The state of being protected from harm.",
+    "origin": "French sauvete, ultimately from Latin salvus, safe.",
+    "sentence": "We wore helmets for safety while riding our bikes.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/safety",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "wings": {
+    "definition": "Body parts that birds or insects use to fly.",
+    "origin": "Plural of wing, from an Old Norse form.",
+    "sentence": "The eagle spread its wings before taking off.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/wings",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "always": {
+    "definition": "At all times or on every occasion.",
+    "origin": "English all combined with an older form of way.",
+    "sentence": "She always brushes her teeth before bed.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/always",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "medium": {
+    "definition": "Between large and small, or between two extremes.",
+    "origin": "From a Latin word meaning the middle.",
+    "sentence": "I ordered a medium cup of juice.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/medium",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "paper": {
+    "definition": "Thin material made from fibers, used for writing or printing.",
+    "origin": "French from Latin papyrus, the plant once used as writing material.",
+    "sentence": "He folded the paper into a little boat.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/paper",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "shift": {
+    "definition": "To move or change from one position to another.",
+    "origin": "Old English sciftan, originally to divide or arrange.",
+    "sentence": "Please shift the chair away from the door.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/shift",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "gentle": {
+    "definition": "Kind, mild, and careful not to hurt.",
+    "origin": "French gentil, from Latin gentilis, relating to a family or clan.",
+    "sentence": "The gentle horse let the child stroke its nose.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/gentle",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "silly": {
+    "definition": "Foolish or playfully lacking good sense.",
+    "origin": "From Old English saelig, once meaning happy or fortunate.",
+    "sentence": "The silly clown wore enormous shoes.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/silly",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "stout": {
+    "definition": "Strong and sturdy.",
+    "origin": "From French, ultimately related to Germanic words for boldness.",
+    "sentence": "A stout rope held the boat to the dock.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/stout",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "rich": {
+    "definition": "Having a great deal of money or valuable possessions.",
+    "origin": "Old English rice, originally powerful.",
+    "sentence": "The rich merchant owned several large ships.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/rich",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "ginger": {
+    "definition": "A spicy plant root used to flavor food.",
+    "origin": "Through French and Latin from Greek zingiberis, ultimately from an Indian language.",
+    "sentence": "She added fresh ginger to the soup.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/ginger",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "drink": {
+    "definition": "To take liquid into the mouth and swallow it.",
+    "origin": "Old English drincan.",
+    "sentence": "Please drink some water after your run.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/drink",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "beans": {
+    "definition": "Edible seeds of several plants, often cooked as food.",
+    "origin": "Plural of bean, from Old English bean.",
+    "sentence": "We added beans to the vegetable soup.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/beans",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "shy": {
+    "definition": "Nervous or uncomfortable around other people.",
+    "origin": "Old English sceoh, timid.",
+    "sentence": "The shy child spoke softly to the new teacher.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/shy",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "library": {
+    "definition": "A place that keeps books and other materials for people to use.",
+    "origin": "Latin librarium, related to liber, meaning book.",
+    "sentence": "We borrowed three books from the library.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/library",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "grandfather": {
+    "definition": "The father of one's mother or father.",
+    "origin": "English grand combined with father.",
+    "sentence": "My grandfather taught me how to plant tomatoes.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/grandfather",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "speak": {
+    "definition": "To express words with the voice.",
+    "origin": "Old English sprecan or specan.",
+    "sentence": "Please speak clearly so everyone can hear.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/speak",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "tusk": {
+    "definition": "A long, pointed tooth that projects from an animal's mouth.",
+    "origin": "Old English tusc.",
+    "sentence": "The elephant had broken one tusk.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/tusk",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "cottage": {
+    "definition": "A small house, often in the countryside.",
+    "origin": "From an old word for a small dwelling with the ending -age.",
+    "sentence": "We rented a cottage near the beach.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/cottage",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "yellow": {
+    "definition": "Having the color of a ripe lemon.",
+    "origin": "Old English geolu.",
+    "sentence": "The yellow kite stood out against the blue sky.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/yellow",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "pennies": {
+    "definition": "Small coins worth one cent in United States money.",
+    "origin": "Plural of penny, from Old English penig.",
+    "sentence": "I counted the pennies in my piggy bank.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/pennies",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "frazzled": {
+    "definition": "Exhausted or upset by too much activity or stress.",
+    "origin": "From frazzle, related to fray, to wear into threads.",
+    "sentence": "The frazzled parent rested after organizing the party.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/frazzled",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "come": {
+    "definition": "To move toward the speaker or a particular place.",
+    "origin": "Old English cuman.",
+    "sentence": "Please come to the table for lunch.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/come",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "groan": {
+    "definition": "To make a low sound because of pain or unhappiness.",
+    "origin": "Old English granian.",
+    "sentence": "He began to groan when he saw the long chore list.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/groan",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "beware": {
+    "definition": "To be cautious about a possible danger.",
+    "origin": "Middle English be combined with war, aware.",
+    "sentence": "Beware of the slippery steps after the rain.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/beware",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "mouth": {
+    "definition": "The opening in the face used for eating and speaking.",
+    "origin": "Old English muth.",
+    "sentence": "The dentist asked me to open my mouth.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/mouth",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "company": {
+    "definition": "A group of people gathered together.",
+    "origin": "French from a Latin formation meaning people who share bread.",
+    "sentence": "The pleasant company made the long trip enjoyable.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/company",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "lovely": {
+    "definition": "Beautiful or very pleasing.",
+    "origin": "English love with the adjective ending -ly.",
+    "sentence": "The garden looked lovely in the spring sunshine.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/lovely",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "path": {
+    "definition": "A route or track used for walking.",
+    "origin": "Old English paeth.",
+    "sentence": "A narrow path led through the woods.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/path",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "source": {
+    "definition": "The place or thing from which something comes.",
+    "origin": "French from Latin surgere, to rise.",
+    "sentence": "The spring was the source of the village's water.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/source",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "market": {
+    "definition": "A place where people buy and sell goods.",
+    "origin": "Latin mercatus, related to trade.",
+    "sentence": "We bought fresh vegetables at the market.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/market",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "year": {
+    "definition": "A period of twelve months.",
+    "origin": "Old English gear.",
+    "sentence": "We visit our cousins once each year.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/year",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "result": {
+    "definition": "Something that happens because of an action or event.",
+    "origin": "Related to Latin resultare, originally to spring back.",
+    "sentence": "The broken window was the result of a stray ball.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/result",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "truck": {
+    "definition": "A large motor vehicle for carrying goods.",
+    "origin": "Originally a word for a small wheel or wheeled vehicle.",
+    "sentence": "The truck delivered boxes to the store.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/truck",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "whale": {
+    "definition": "A large sea mammal that breathes air.",
+    "origin": "Old English hwael.",
+    "sentence": "The whale rose to the surface to breathe.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/whale",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "down": {
+    "definition": "Toward a lower place or position.",
+    "origin": "From Old English of dune, meaning from the hill.",
+    "sentence": "The ball rolled down the slope.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/down",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "body": {
+    "definition": "The physical form of a person or animal.",
+    "origin": "Old English bodig.",
+    "sentence": "Exercise helps keep your body strong.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/body",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "most": {
+    "definition": "The greatest amount or number.",
+    "origin": "Old English maest, a superlative related to more.",
+    "sentence": "She collected the most shells of anyone on the beach.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/most",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "total": {
+    "definition": "The whole amount after parts are added together.",
+    "origin": "French from Medieval Latin totalis, related to totus, whole.",
+    "sentence": "The total of three and four is seven.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/total",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "hurt": {
+    "definition": "To cause pain or injury.",
+    "origin": "French hurter, originally to strike.",
+    "sentence": "The sharp stone could hurt your foot.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/hurt",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "shell": {
+    "definition": "A hard outer covering that protects an animal.",
+    "origin": "Old English sciell.",
+    "sentence": "The turtle pulled its head into its shell.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/shell",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "easy": {
+    "definition": "Not difficult to do or understand.",
+    "origin": "French aise, meaning comfort.",
+    "sentence": "The first puzzle was easy to solve.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/easy",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "tallest": {
+    "definition": "Having the greatest height in a group.",
+    "origin": "Superlative of tall, with the English ending -est.",
+    "sentence": "The tallest tree towered above the others.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/tallest",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "truth": {
+    "definition": "What is real or correct.",
+    "origin": "Old English treowth, related to faithfulness.",
+    "sentence": "She told the truth about the broken vase.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/truth",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "seventy": {
+    "definition": "The number equal to seven tens.",
+    "origin": "Old English seofontig, combining seven and tens.",
+    "sentence": "The library bought seventy new books.",
+    "part_of_speech": "number",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/seventy",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "house": {
+    "definition": "A building where people live.",
+    "origin": "Old English hus.",
+    "sentence": "Our house has a blue front door.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/house",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "hopped": {
+    "definition": "Moved with short jumps.",
+    "origin": "Past tense of hop, from Old English hoppian.",
+    "sentence": "The frog hopped onto the lily pad.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/hopped",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "flock": {
+    "definition": "A group of birds or sheep.",
+    "origin": "Old English flocc.",
+    "sentence": "A flock of geese crossed the sky.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/flock",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "yarn": {
+    "definition": "A long thread used for knitting or weaving.",
+    "origin": "Old English gearn.",
+    "sentence": "She knitted a scarf from soft yarn.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/yarn",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "trouble": {
+    "definition": "A problem or difficult situation.",
+    "origin": "French from a Latin verb related to disturbing.",
+    "sentence": "The flat tire caused trouble on our trip.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/trouble",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sound": {
+    "definition": "Something heard through vibrations reaching the ears.",
+    "origin": "French from Latin sonus.",
+    "sentence": "The sound of the bell called us inside.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sound",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "remember": {
+    "definition": "To bring something back into the mind.",
+    "origin": "French remembrer, related to Latin memor, mindful.",
+    "sentence": "I remember the first time I rode a bike.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/remember",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "grumpily": {
+    "definition": "In an irritable or bad-tempered way.",
+    "origin": "English grumpy with the adverb ending -ly.",
+    "sentence": "He grumpily complained about getting up early.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/grumpily",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "shine": {
+    "definition": "To give out or reflect bright light.",
+    "origin": "Old English scinan.",
+    "sentence": "The stars shine brightly on clear nights.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/shine",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "illness": {
+    "definition": "A disease or state of being unwell.",
+    "origin": "English ill with the noun ending -ness.",
+    "sentence": "The illness kept her in bed for two days.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/illness",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "entire": {
+    "definition": "Whole and complete.",
+    "origin": "French entier, from Latin integer, whole.",
+    "sentence": "We ate the entire loaf of bread.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/entire",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "relax": {
+    "definition": "To become calm or less tense.",
+    "origin": "Latin relaxare, to loosen.",
+    "sentence": "I like to relax with a book after school.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/relax",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "peer": {
+    "definition": "To look closely or with difficulty.",
+    "origin": "Recorded in Middle English; its earlier origin is uncertain.",
+    "sentence": "We had to peer through the fog to see the boat.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/peer",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sprout": {
+    "definition": "To begin growing from a seed or plant.",
+    "origin": "Old English sprutan.",
+    "sentence": "The seeds will sprout after we water them.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sprout",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "shivering": {
+    "definition": "Shaking slightly because of cold or fear.",
+    "origin": "From shiver, recorded in Middle English.",
+    "sentence": "The shivering puppy curled up in a warm blanket.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/shivering",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "dirt": {
+    "definition": "Loose earth or an unwanted dirty substance.",
+    "origin": "Middle English drit, from Old Norse.",
+    "sentence": "Mud and dirt covered his boots.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/dirt",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "knit": {
+    "definition": "To make cloth by looping yarn together with needles.",
+    "origin": "Old English cnyttan, related to knot.",
+    "sentence": "She learned to knit a warm hat.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/knit",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "cloak": {
+    "definition": "A loose outer garment that hangs from the shoulders.",
+    "origin": "French cloque, originally a bell, named for its shape.",
+    "sentence": "The traveler wrapped a woolen cloak around his shoulders.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/cloak",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "rod": {
+    "definition": "A long, thin, straight bar or stick.",
+    "origin": "Old English rodd.",
+    "sentence": "He used a metal rod to support the plant.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/rod",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "hiking": {
+    "definition": "Walking a long distance, especially in the countryside.",
+    "origin": "From hike, an English word whose earlier origin is uncertain.",
+    "sentence": "We went hiking on the mountain trail.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/hiking",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "carve": {
+    "definition": "To cut a shape or design from a material.",
+    "origin": "Old English ceorfan, to cut.",
+    "sentence": "He used a small tool to carve a wooden bird.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/carve",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "crack": {
+    "definition": "A narrow break or split in something.",
+    "origin": "Related to an Old English word for a sharp breaking noise.",
+    "sentence": "A crack appeared in the old flowerpot.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/crack",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "parade": {
+    "definition": "A public procession for a celebration or display.",
+    "origin": "French, ultimately from a word for preparing or arranging.",
+    "sentence": "The band marched at the front of the parade.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/parade",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "friend": {
+    "definition": "A person you like and trust.",
+    "origin": "Old English freond, related to loving.",
+    "sentence": "My friend helped me finish the puzzle.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/friend",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "dangle": {
+    "definition": "To hang loosely and swing.",
+    "origin": "Probably of Scandinavian origin; the exact history is uncertain.",
+    "sentence": "The keys dangle from a hook beside the door.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/dangle",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "pearls": {
+    "definition": "Smooth, shiny objects formed inside certain shellfish.",
+    "origin": "Plural of pearl, borrowed through French.",
+    "sentence": "Her necklace was made of white pearls.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/pearls",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "breeze": {
+    "definition": "A light, gentle wind.",
+    "origin": "Probably from Spanish brisa.",
+    "sentence": "A cool breeze moved the curtains.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/breeze",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "shadows": {
+    "definition": "Dark areas formed where something blocks the light.",
+    "origin": "Plural of shadow, from Old English sceadu.",
+    "sentence": "The trees cast long shadows across the path.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/shadows",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sharp": {
+    "definition": "Having an edge or point that can cut or pierce.",
+    "origin": "Old English scearp.",
+    "sentence": "Be careful with the sharp scissors.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sharp",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "whistle": {
+    "definition": "To make a high sound by blowing air through the lips.",
+    "origin": "Old English hwistlian, imitating the sound.",
+    "sentence": "He can whistle a cheerful tune.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/whistle",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "ran": {
+    "definition": "Moved quickly on foot.",
+    "origin": "Past tense of run, from Old English forms including rinnan.",
+    "sentence": "The dog ran across the yard.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/ran",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "apple": {
+    "definition": "A round fruit with firm flesh and a thin skin.",
+    "origin": "Old English aeppel.",
+    "sentence": "She packed a red apple in her lunch.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/apple",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "earth": {
+    "definition": "The ground or soil.",
+    "origin": "Old English eorthe.",
+    "sentence": "The gardener dug into the soft earth.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/earth",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "wrong": {
+    "definition": "Not correct or true.",
+    "origin": "Old Norse rangr, originally crooked.",
+    "sentence": "I erased the wrong answer and tried again.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/wrong",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "crunch": {
+    "definition": "To crush or chew with a crisp breaking sound.",
+    "origin": "An English word formed in imitation of a sound.",
+    "sentence": "We could hear the horse crunch a carrot.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/crunch",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "beasts": {
+    "definition": "Animals, especially large or wild ones.",
+    "origin": "Plural of beast, from French and Latin bestia.",
+    "sentence": "The story described strange beasts in the forest.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/beasts",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "chips": {
+    "definition": "Thin slices of food cooked until crisp.",
+    "origin": "Plural of chip, from an Old English word for cutting.",
+    "sentence": "We shared a bowl of potato chips.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/chips",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "voice": {
+    "definition": "The sound made by someone speaking or singing.",
+    "origin": "French from Latin vox.",
+    "sentence": "Her clear voice carried across the room.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/voice",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "steps": {
+    "definition": "Movements made by lifting and placing the feet.",
+    "origin": "Plural of step, from Old English stepe.",
+    "sentence": "We took careful steps across the icy pavement.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/steps",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "foolish": {
+    "definition": "Lacking good sense or judgment.",
+    "origin": "English fool with the adjective ending -ish.",
+    "sentence": "It was foolish to leave the bike unlocked.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/foolish",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "narrow": {
+    "definition": "Having little width.",
+    "origin": "Old English nearu.",
+    "sentence": "Only one person could fit through the narrow doorway.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/narrow",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "heart": {
+    "definition": "The organ that pumps blood around the body.",
+    "origin": "Old English heorte.",
+    "sentence": "Exercise makes your heart beat faster.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/heart",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "ampulla": {
+    "definition": "A small flask or rounded vessel with a narrow neck.",
+    "origin": "Borrowed from a Latin word for a small flask.",
+    "sentence": "The archaeologist found a clay ampulla beside the ancient coins.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/ampulla",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "ototoxic": {
+    "definition": "Harmful to the ear, especially to hearing or balance.",
+    "origin": "Oto-, from Greek for ear, combined with toxic.",
+    "sentence": "The researcher tested whether the chemical was ototoxic.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/ototoxic",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "decisively": {
+    "definition": "In a firm way that settles a question or outcome.",
+    "origin": "Decisive with the adverb ending -ly, ultimately related to Latin decidere, to decide.",
+    "sentence": "She acted decisively and stopped the leak.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/decisively",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "neurological": {
+    "definition": "Relating to the brain, spinal cord, and nerves.",
+    "origin": "From neurology, using Greek neuron, nerve, and an element meaning study.",
+    "sentence": "The doctor performed a neurological examination to check his reflexes.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/neurological",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "chickadee": {
+    "definition": "A small North American bird with a distinctive call and often a dark cap.",
+    "origin": "An imitation of the bird's call.",
+    "sentence": "A chickadee perched on the snowy feeder.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/chickadee",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sensilla": {
+    "definition": "Small sensory structures on the bodies of insects and other invertebrates.",
+    "origin": "Plural of sensillum, a New Latin diminutive related to Latin sensus, sense.",
+    "sentence": "The insect's sensilla detected movement near its antennae.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sensilla",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "conspicuous": {
+    "definition": "Easy to notice or see.",
+    "origin": "Latin conspicuus, related to conspicere, to look at.",
+    "sentence": "Her bright orange hat was conspicuous in the crowd.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/conspicuous",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "prosciutto": {
+    "definition": "Italian ham that is salted and dried rather than cooked.",
+    "origin": "Italian, ultimately from a Latin formation meaning dried thoroughly.",
+    "sentence": "The chef placed thin slices of prosciutto on the platter.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/prosciutto",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Delaware": {
+    "definition": "A United States state on the Atlantic coast, with Dover as its capital.",
+    "origin": "Named after the river and bay, whose name honors the English governor Lord De La Warr.",
+    "sentence": "We visited Delaware during our trip along the Atlantic coast.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Delaware",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "credenza": {
+    "definition": "A low cabinet or sideboard used for storage.",
+    "origin": "Italian, related to a word for belief or trust, from Latin credere.",
+    "sentence": "The dishes were stored in a wooden credenza.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/credenza",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "auditory": {
+    "definition": "Relating to hearing.",
+    "origin": "Latin audire, meaning to hear, through an adjective formation.",
+    "sentence": "The auditory test measured how well she could hear faint sounds.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/auditory",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "mysticetes": {
+    "definition": "Baleen whales, which strain food from water using plates in their mouths.",
+    "origin": "From the New Latin zoological name Mysticeti; its older Greek derivation has been debated.",
+    "sentence": "The mysticetes filtered tiny animals from the seawater.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/mysticetes",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "irrelevant": {
+    "definition": "Not connected with the matter being considered.",
+    "origin": "Ir-, meaning not, combined with relevant.",
+    "sentence": "The judge excluded the irrelevant detail from the discussion.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/irrelevant",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "apologetic": {
+    "definition": "Expressing regret for a mistake or offense.",
+    "origin": "Related to Greek apologia, a speech in defense.",
+    "sentence": "His apologetic note explained why he had missed the meeting.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/apologetic",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sputum": {
+    "definition": "Material coughed up from the lungs or air passages.",
+    "origin": "From Latin for something spat out, derived from spuere, to spit.",
+    "sentence": "The laboratory examined the patient's sputum sample.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sputum",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "psychological": {
+    "definition": "Relating to the mind, feelings, or behavior.",
+    "origin": "From psychology, using Greek psyche, mind or soul, and an element meaning study.",
+    "sentence": "The story explored the psychological effects of isolation.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/psychological",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "shar-pei": {
+    "definition": "A dog of a Chinese breed with loose, wrinkled skin and a bristly coat.",
+    "origin": "From Cantonese elements meaning sand and skin or fur.",
+    "sentence": "The shar-pei wrinkled its brow and settled beside its owner.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/shar-pei",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "curriculum": {
+    "definition": "The subjects and courses taught by a school or program.",
+    "origin": "From Latin for a running course, related to currere, to run.",
+    "sentence": "The new curriculum includes science, art, and music.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/curriculum",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "pulmonary": {
+    "definition": "Relating to the lungs.",
+    "origin": "Latin pulmonarius, from pulmo, lung.",
+    "sentence": "The medical diagram showed the pulmonary blood vessels.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/pulmonary",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "assemblage": {
+    "definition": "A collection of things or people brought together.",
+    "origin": "French, formed from assembler, to bring together.",
+    "sentence": "The display contained an assemblage of shells from many beaches.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/assemblage",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "endothermy": {
+    "definition": "The ability to generate body heat internally and regulate body temperature.",
+    "origin": "Endo-, meaning within, with a Greek element meaning heat.",
+    "sentence": "The lesson explained how endothermy helps birds stay warm.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/endothermy",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "trichobothria": {
+    "definition": "Long sensory hairs that detect air movement and vibrations in many arachnids and some insects.",
+    "origin": "Plural of trichobothrium, using Greek elements for hair and a small pit.",
+    "sentence": "The spider's trichobothria sensed the moving air nearby.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/trichobothria",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "echolocation": {
+    "definition": "Finding objects by sending out sounds and listening to their echoes.",
+    "origin": "English echo combined with location.",
+    "sentence": "The bat used echolocation to find insects in the dark.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/echolocation",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "arugula": {
+    "definition": "A leafy plant with a peppery taste, eaten in salads.",
+    "origin": "From an Italian dialect form related to Latin eruca.",
+    "sentence": "She added fresh arugula to the salad.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/arugula",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Amharic": {
+    "definition": "A Semitic language spoken widely in Ethiopia.",
+    "origin": "Amhara, the name of a people and region, with the ending -ic.",
+    "sentence": "The guide greeted the visitors in Amharic.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Amharic",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "subscription": {
+    "definition": "An arrangement to receive a service or publication regularly.",
+    "origin": "Latin subscriptio, related to subscribere, to write underneath or sign.",
+    "sentence": "Our subscription delivers a science magazine every month.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/subscription",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "legation": {
+    "definition": "A diplomatic mission headed by a minister, or its official premises.",
+    "origin": "Latin legatio, an embassy, related to legare, to send as an envoy.",
+    "sentence": "The ambassador met the visiting officials at the legation.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/legation",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "vibrometer": {
+    "definition": "An instrument that measures vibrations.",
+    "origin": "Vibro-, relating to vibration, with -meter, a measuring instrument.",
+    "sentence": "The engineer used a vibrometer to examine the shaking bridge.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/vibrometer",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "foliage": {
+    "definition": "The leaves of a plant or plants together.",
+    "origin": "French feuillage, ultimately from Latin folium, leaf.",
+    "sentence": "The thick foliage shaded the forest floor.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/foliage",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "mortar": {
+    "definition": "A mixture used to hold bricks or stones together.",
+    "origin": "French from Latin mortarium, a vessel for pounding materials.",
+    "sentence": "The builder spread mortar between the bricks.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/mortar",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "inaugurate": {
+    "definition": "To formally begin something or install someone in office.",
+    "origin": "Latin inaugurare, associated with taking omens before an official act.",
+    "sentence": "The town will inaugurate its new museum on Saturday.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/inaugurate",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "doberman": {
+    "definition": "A dog of a German breed with a muscular body and short coat.",
+    "origin": "Named for German breeder Karl Friedrich Louis Dobermann.",
+    "sentence": "The doberman stood alert beside the gate.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/doberman",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "generosity": {
+    "definition": "Willingness to give or share freely.",
+    "origin": "Latin generositas, related to generosus, noble.",
+    "sentence": "Her generosity supplied books for the entire class.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/generosity",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "finesse": {
+    "definition": "Skillful, delicate handling of a task or situation.",
+    "origin": "From French, derived from fin, meaning fine.",
+    "sentence": "The dancer moved with remarkable finesse.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/finesse",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "forsythia": {
+    "definition": "A shrub that produces bright yellow flowers in early spring.",
+    "origin": "A New Latin plant name honoring botanist William Forsyth.",
+    "sentence": "The forsythia bloomed before its leaves appeared.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/forsythia",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sentinels": {
+    "definition": "People or animals that stand guard and watch for danger.",
+    "origin": "Plural of sentinel, through French from Italian sentinella.",
+    "sentence": "The sentinels watched the gate throughout the night.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sentinels",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "torrential": {
+    "definition": "Falling in a very heavy, rushing flow.",
+    "origin": "From torrent, ultimately Latin torrens, rushing or burning.",
+    "sentence": "Torrential rain flooded the narrow streets.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/torrential",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "leprosy": {
+    "definition": "A chronic bacterial disease that can affect the skin and peripheral nerves.",
+    "origin": "Through French from Greek lepra, a scaly condition.",
+    "sentence": "The history exhibit described advances in treating leprosy.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/leprosy",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "a cappella": {
+    "definition": "Without instrumental accompaniment.",
+    "origin": "Italian phrase meaning in the manner of the chapel.",
+    "sentence": "The choir sang a cappella in the quiet hall.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/a_cappella",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "panoramic": {
+    "definition": "Providing a wide view of an area.",
+    "origin": "From panorama, using Greek elements meaning all and view.",
+    "sentence": "The hilltop offered a panoramic view of the valley.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/panoramic",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "authority": {
+    "definition": "The power or right to make decisions and enforce rules.",
+    "origin": "French from Latin auctoritas, influence or power.",
+    "sentence": "The principal has authority to set the school rules.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/authority",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "innocuous": {
+    "definition": "Harmless and unlikely to cause offense or injury.",
+    "origin": "Latin innocuus, combining not with nocere, to harm.",
+    "sentence": "The innocuous little beetle did not damage the plants.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/innocuous",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "enigmatic": {
+    "definition": "Mysterious or difficult to understand.",
+    "origin": "From enigma, through Latin from Greek ainigma, a riddle.",
+    "sentence": "Her enigmatic smile gave no clue to the answer.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/enigmatic",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "gauntlets": {
+    "definition": "Protective gloves, especially ones covering part of the forearm.",
+    "origin": "French gantelet, a diminutive related to gant, glove.",
+    "sentence": "The knight pulled on heavy gauntlets before the contest.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/gauntlets",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "solenodon": {
+    "definition": "A nocturnal Caribbean mammal with a long snout and venomous saliva.",
+    "origin": "A New Latin genus name using Greek elements for channel and tooth.",
+    "sentence": "The solenodon searched the forest floor for insects at night.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/solenodon",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "tenuous": {
+    "definition": "Weak, slight, or not firmly established.",
+    "origin": "Latin tenuis, thin.",
+    "sentence": "The argument depended on a tenuous connection between the events.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/tenuous",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "settee": {
+    "definition": "A long seat with a back, usually for several people.",
+    "origin": "An altered form related to settle, an older word for a bench.",
+    "sentence": "We sat together on the cushioned settee.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/settee",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "influenza": {
+    "definition": "A contagious viral illness that commonly causes fever, aches, and coughing.",
+    "origin": "From Italian for influence, reflecting an old belief in the influence of the stars.",
+    "sentence": "Several students stayed home after catching influenza.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/influenza",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "chitinous": {
+    "definition": "Made of or containing the tough substance found in insect outer coverings.",
+    "origin": "Chitin, from Greek chiton, a tunic, with the ending -ous.",
+    "sentence": "The beetle's chitinous shell protected its body.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/chitinous",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "embankment": {
+    "definition": "A raised bank of earth or stone used for support or protection.",
+    "origin": "From embank with the noun ending -ment.",
+    "sentence": "Grass covered the steep embankment beside the railway.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/embankment",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "trenchant": {
+    "definition": "Clear, forceful, and sharply effective.",
+    "origin": "French, related to trancher, to cut.",
+    "sentence": "Her trenchant criticism exposed the weakness in the plan.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/trenchant",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "despondent": {
+    "definition": "Very discouraged and without hope.",
+    "origin": "Latin despondere, to give up or lose hope.",
+    "sentence": "He felt despondent after several failed attempts.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/despondent",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "juniper": {
+    "definition": "An evergreen tree or shrub that often bears small berry-like cones.",
+    "origin": "Latin juniperus, the tree name.",
+    "sentence": "A juniper grew on the rocky hillside.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/juniper",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "propeller": {
+    "definition": "A rotating device whose blades move a boat or aircraft through water or air.",
+    "origin": "From propel, Latin propellere, to drive forward.",
+    "sentence": "The airplane's propeller began to spin.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/propeller",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "eureka": {
+    "definition": "An exclamation used when a discovery or solution is found.",
+    "origin": "Greek heureka, meaning I have found it.",
+    "sentence": "Eureka, she cried when the puzzle finally made sense.",
+    "part_of_speech": "interjection",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/eureka",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "butane": {
+    "definition": "A flammable gas used as fuel.",
+    "origin": "From butyl with the chemical ending -ane; butyl is related to Latin butyrum, butter.",
+    "sentence": "The camping stove used butane as its fuel.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/butane",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "thermotaxis": {
+    "definition": "Movement by an organism in response to temperature.",
+    "origin": "Greek-derived thermo-, heat, combined with taxis, arrangement or directed movement.",
+    "sentence": "The experiment measured thermotaxis as the organisms moved toward warmth.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/thermotaxis",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "approximation": {
+    "definition": "An estimate or value that is close to the exact one.",
+    "origin": "From approximate, ultimately Latin approximare, to come near.",
+    "sentence": "We used an approximation of the distance to plan the trip.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/approximation",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "mewling": {
+    "definition": "Crying softly in a weak or complaining way.",
+    "origin": "From mewl, a word imitating a small crying sound.",
+    "sentence": "The mewling kitten searched for its mother.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/mewling",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "spes phthisica": {
+    "definition": "An unrealistic hope of recovery associated historically with advanced tuberculosis.",
+    "origin": "Latin phrase combining spes, hope, with phthisica, relating to consumption or tuberculosis.",
+    "sentence": "The historical medical text described the patient's optimism as spes phthisica.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/spes_phthisica",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Presbyterian": {
+    "definition": "Relating to a Christian tradition governed by elected elders.",
+    "origin": "From presbyter, through Latin from Greek presbyteros, elder.",
+    "sentence": "The family attended a Presbyterian church.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Presbyterian",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "unrelenting": {
+    "definition": "Not easing, weakening, or giving way.",
+    "origin": "Un-, meaning not, with relenting, yielding or becoming less harsh.",
+    "sentence": "The unrelenting heat dried the fields.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/unrelenting",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Addis Ababa": {
+    "definition": "The capital city of Ethiopia.",
+    "origin": "An Amharic place name meaning new flower.",
+    "sentence": "The travelers arrived in Addis Ababa before continuing their journey.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Addis_Ababa",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "seminal": {
+    "definition": "Highly influential in the development of later ideas or work.",
+    "origin": "Latin seminalis, from semen, seed.",
+    "sentence": "Her seminal paper inspired a new field of research.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/seminal",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "procession": {
+    "definition": "A group moving together in an orderly line.",
+    "origin": "Latin processio, related to procedere, to go forward.",
+    "sentence": "The procession moved slowly through the town square.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/procession",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Tripoli": {
+    "definition": "The capital city of Libya, on the Mediterranean coast.",
+    "origin": "Through Arabic and earlier forms from Greek Tripolis, meaning three cities.",
+    "sentence": "The ship docked near Tripoli on the Mediterranean coast.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Tripoli",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "dominion": {
+    "definition": "Control or rule over a territory.",
+    "origin": "Latin dominium, ownership or lordship.",
+    "sentence": "The king claimed dominion over the neighboring islands.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/dominion",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "asymmetric": {
+    "definition": "Having sides or parts that do not match in shape or arrangement.",
+    "origin": "Greek-derived a-, not, with symmetric.",
+    "sentence": "The artist chose an asymmetric design with a single large curve.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/asymmetric",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "persistent": {
+    "definition": "Continuing firmly despite difficulty or opposition.",
+    "origin": "From Latin persistere, to stand firm.",
+    "sentence": "The persistent student kept practicing until she mastered the skill.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/persistent",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "annelids": {
+    "definition": "Segmented worms, including earthworms and leeches.",
+    "origin": "From a zoological name based on Latin annellus, a little ring.",
+    "sentence": "The biologist examined annelids collected from the soil.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/annelids",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Cappadocia": {
+    "definition": "A historical region of central Anatolia, in present-day Turkey.",
+    "origin": "Through Greek from an Old Persian place name; its ultimate meaning is uncertain.",
+    "sentence": "The travelers photographed the unusual rock formations of Cappadocia.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Cappadocia",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "alabaster": {
+    "definition": "A soft, pale mineral used for carvings and ornaments.",
+    "origin": "Through French and Latin from Greek alabastros.",
+    "sentence": "The sculptor carved a small bowl from alabaster.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/alabaster",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "reluctance": {
+    "definition": "Unwillingness or hesitation to do something.",
+    "origin": "From reluctant, related to Latin reluctari, to struggle against.",
+    "sentence": "Her reluctance to enter the cave faded when she saw the lights.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/reluctance",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "blithely": {
+    "definition": "In a cheerful, carefree, or unconcerned way.",
+    "origin": "Blithe, from Old English blithe, with -ly.",
+    "sentence": "He blithely sang as he walked down the path.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/blithely",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "lemmings": {
+    "definition": "Small rodents found mainly in northern regions.",
+    "origin": "Plural of lemming, from Norwegian.",
+    "sentence": "The lemmings sheltered beneath the snow.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/lemmings",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "burnished": {
+    "definition": "Polished until smooth and shiny.",
+    "origin": "From burnish, through French brunir, to polish or make brown.",
+    "sentence": "The burnished brass handle gleamed in the sunlight.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/burnished",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "palazzo": {
+    "definition": "A large, grand Italian house or palace.",
+    "origin": "Italian, from Latin palatium, palace.",
+    "sentence": "The old palazzo overlooked the canal.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/palazzo",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "phantasmal": {
+    "definition": "Ghostly or resembling an unreal vision.",
+    "origin": "From phantasm, through Latin from Greek phantasma, an appearance.",
+    "sentence": "A phantasmal figure seemed to drift through the fog.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/phantasmal",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "arsonists": {
+    "definition": "People who deliberately set unlawful fires.",
+    "origin": "From arson, through French from Latin ardere, to burn, with -ist and plural -s.",
+    "sentence": "Investigators searched for the arsonists who had burned the warehouse.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/arsonists",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "acolyte": {
+    "definition": "A person who assists in a religious service.",
+    "origin": "Through Latin from Greek akolouthos, follower.",
+    "sentence": "The acolyte carried a candle to the altar.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/acolyte",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "hemisphere": {
+    "definition": "One half of a sphere or globe.",
+    "origin": "Greek hemi-, half, with sphaira, sphere.",
+    "sentence": "The equator separates each hemisphere from the other.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/hemisphere",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "hypothesis": {
+    "definition": "A proposed explanation that can be tested.",
+    "origin": "From Greek for a supposition or something placed underneath.",
+    "sentence": "The scientist tested her hypothesis with a controlled experiment.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/hypothesis",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "consulate": {
+    "definition": "The office or building of a government's representative in a foreign city.",
+    "origin": "From consul, a Latin official title.",
+    "sentence": "The traveler asked the consulate for help replacing a passport.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/consulate",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "éclair": {
+    "definition": "An oblong pastry filled with cream and usually topped with icing.",
+    "origin": "French word meaning a flash of lightning.",
+    "sentence": "She chose a chocolate éclair from the bakery case.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/%C3%A9clair",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "self-sufficient": {
+    "definition": "Able to meet one's needs without outside help.",
+    "origin": "English self combined with sufficient, from Latin sufficere, to be enough.",
+    "sentence": "The self-sufficient farm produced its own food and electricity.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/self-sufficient",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "modish": {
+    "definition": "Fashionable or following the latest style.",
+    "origin": "Mode, from French for fashion, with the ending -ish.",
+    "sentence": "Her modish jacket drew compliments at the party.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/modish",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "salicylic acid": {
+    "definition": "A chemical compound used in some medicines and skin-care products.",
+    "origin": "Named in relation to salicin, from Latin salix, willow, where related substances occur.",
+    "sentence": "The label listed salicylic acid among the product's ingredients.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/salicylic_acid",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "odorant": {
+    "definition": "A substance that gives off a smell.",
+    "origin": "From Latin odor, smell, through an adjective meaning giving off an odor.",
+    "sentence": "An odorant was added to the gas to make leaks noticeable.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/odorant",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "quiche": {
+    "definition": "An open pastry tart with a savory egg-and-cream filling.",
+    "origin": "French, borrowed from a German dialect word related to cake.",
+    "sentence": "The bakery served a vegetable quiche for lunch.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/quiche",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "frequency": {
+    "definition": "The number of repeating cycles or events in a given time.",
+    "origin": "Latin frequentia, related to frequens, frequent or crowded.",
+    "sentence": "The scientist measured the frequency of the sound waves.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/frequency",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "cataract": {
+    "definition": "A clouding of the eye's lens that can reduce vision.",
+    "origin": "Through Latin from Greek katarraktes, a waterfall or something falling down.",
+    "sentence": "The eye examination revealed a cataract in the older patient's lens.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/cataract",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Bildungsroman": {
+    "definition": "A novel about a person's growth and development from youth.",
+    "origin": "German Bildung, formation or education, with Roman, novel.",
+    "sentence": "The class read a Bildungsroman about a young artist discovering her identity.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Bildungsroman",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "cul-de-sac": {
+    "definition": "A street closed at one end.",
+    "origin": "French phrase literally meaning bottom of a bag.",
+    "sentence": "The children rode their bicycles around the quiet cul-de-sac.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/cul-de-sac",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "diffidence": {
+    "definition": "A lack of confidence that makes a person shy or hesitant.",
+    "origin": "Latin diffidentia, mistrust or lack of confidence.",
+    "sentence": "Her diffidence made speaking before the audience difficult.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/diffidence",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "arachnid": {
+    "definition": "An animal such as a spider or scorpion, usually with eight legs.",
+    "origin": "Greek arachne, spider, through a zoological formation.",
+    "sentence": "The scorpion is an arachnid rather than an insect.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/arachnid",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "alleviate": {
+    "definition": "To make pain or difficulty less severe.",
+    "origin": "Latin alleviare, to lighten.",
+    "sentence": "Rest helped alleviate the soreness in her legs.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/alleviate",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "thrummed": {
+    "definition": "Made a steady, low humming or vibrating sound.",
+    "origin": "Past tense of thrum, an imitation of a sound.",
+    "sentence": "The engine thrummed beneath the deck.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/thrummed",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "saxophone": {
+    "definition": "A wind instrument with a single reed and a curved metal body.",
+    "origin": "Named for its inventor Adolphe Sax, with Greek phone, sound.",
+    "sentence": "The musician played a mellow solo on the saxophone.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/saxophone",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "prospective": {
+    "definition": "Expected or likely to happen or become something in the future.",
+    "origin": "Latin prospicere, to look forward.",
+    "sentence": "The guide showed the campus to prospective students.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/prospective",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "comprehensible": {
+    "definition": "Able to be understood.",
+    "origin": "Latin comprehensibilis, related to comprehendere, to grasp.",
+    "sentence": "The teacher gave a clear and comprehensible explanation.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/comprehensible",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "generator": {
+    "definition": "A machine that converts mechanical energy into electrical energy.",
+    "origin": "From Latin for one who produces, related to generare.",
+    "sentence": "The generator supplied electricity during the power outage.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/generator",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "mayonnaise": {
+    "definition": "A thick sauce made by mixing oil with egg and an acid such as vinegar.",
+    "origin": "Borrowed from French; the earlier origin of the name is disputed.",
+    "sentence": "He spread mayonnaise on the sandwich.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/mayonnaise",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "conflagration": {
+    "definition": "A large, destructive fire.",
+    "origin": "Latin conflagratio, related to conflagrare, to burn up.",
+    "sentence": "The conflagration destroyed several buildings before firefighters contained it.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/conflagration",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "undulating": {
+    "definition": "Moving in a smooth, wave-like pattern.",
+    "origin": "From undulate, related to Latin unda, wave.",
+    "sentence": "The flag was undulating in the gentle breeze.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/undulating",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "diplomatically": {
+    "definition": "With tact and skill in handling people or disagreements.",
+    "origin": "Diplomatic with -ally, ultimately related to Greek diploma, a folded document.",
+    "sentence": "She diplomatically suggested a compromise that pleased both sides.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/diplomatically",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "embodiment": {
+    "definition": "A concrete example or expression of an idea or quality.",
+    "origin": "From embody, combining em- with body, and -ment.",
+    "sentence": "The volunteer was an embodiment of kindness.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/embodiment",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "crocheted": {
+    "definition": "Made fabric by looping thread or yarn with a hooked needle.",
+    "origin": "Past tense of crochet, from French for a small hook.",
+    "sentence": "She crocheted a blanket for the new baby.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/crocheted",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "affinities": {
+    "definition": "Natural similarities, connections, or attractions.",
+    "origin": "Plural of affinity, from Latin affinitas, relationship.",
+    "sentence": "The two languages have affinities in their vocabulary.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/affinities",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "cuisine": {
+    "definition": "A style or tradition of cooking.",
+    "origin": "From French for kitchen, ultimately from Latin coquina.",
+    "sentence": "The restaurant specializes in Italian cuisine.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/cuisine",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "bioluminescence": {
+    "definition": "Light produced by chemical reactions inside living organisms.",
+    "origin": "Bio-, life, with luminescence, related to Latin lumen, light.",
+    "sentence": "The firefly's glow is an example of bioluminescence.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/bioluminescence",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "canter": {
+    "definition": "A horse's smooth, three-beat gait faster than a trot.",
+    "origin": "Shortened from Canterbury gallop, associated with pilgrims riding toward Canterbury.",
+    "sentence": "The horse moved across the field at a canter.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/canter",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "porpoises": {
+    "definition": "Small toothed sea mammals related to dolphins, usually with rounded snouts.",
+    "origin": "Through French from Latin elements meaning pig and fish.",
+    "sentence": "The porpoises surfaced beside the boat.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/porpoises",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "brazier": {
+    "definition": "A container that holds burning coals for heating or cooking.",
+    "origin": "From French braise, glowing coals.",
+    "sentence": "The travelers warmed their hands beside the brazier.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/brazier",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "quizzically": {
+    "definition": "With a puzzled or questioning expression.",
+    "origin": "Quizzical with the adverb ending -ly, related to quiz.",
+    "sentence": "He looked quizzically at the upside-down sign.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/quizzically",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "censers": {
+    "definition": "Containers in which incense is burned.",
+    "origin": "Plural of censer, through French from Latin incensarium.",
+    "sentence": "Fragrant smoke rose from the swinging censers.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/censers",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Pennsylvania": {
+    "definition": "A United States state with Harrisburg as its capital.",
+    "origin": "Named for William Penn's father, with Latin silva, forest, in a formation meaning Penn's woodland.",
+    "sentence": "Our class visited Pennsylvania to learn about early American history.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Pennsylvania",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "lactobacillus": {
+    "definition": "A rod-shaped bacterium that produces lactic acid from sugars.",
+    "origin": "New Latin combining elements for milk and a small rod.",
+    "sentence": "The laboratory identified a lactobacillus in the culture.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/lactobacillus",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "frankincense": {
+    "definition": "An aromatic tree resin burned as incense.",
+    "origin": "French elements meaning high-quality or pure incense.",
+    "sentence": "The room smelled of burning frankincense.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/frankincense",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "stomatopods": {
+    "definition": "Marine crustaceans known as mantis shrimps, with powerful grasping or striking limbs.",
+    "origin": "From New Latin Stomatopoda, using Greek elements for mouth and foot.",
+    "sentence": "The stomatopods hid in burrows among the reef rocks.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/stomatopods",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "kerosene": {
+    "definition": "A liquid fuel made from petroleum.",
+    "origin": "Coined from Greek keros, wax, with a chemical ending.",
+    "sentence": "The old lamp burned kerosene.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/kerosene",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "protectorate": {
+    "definition": "A territory protected and partly controlled by a stronger state.",
+    "origin": "From protector with the ending -ate.",
+    "sentence": "The treaty made the small territory a protectorate of its larger neighbor.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/protectorate",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "sauntered": {
+    "definition": "Walked slowly and casually.",
+    "origin": "Past tense of saunter; its earlier origin is uncertain.",
+    "sentence": "They sauntered through the park after lunch.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/sauntered",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "preconception": {
+    "definition": "An opinion formed before enough information is known.",
+    "origin": "Pre-, before, with conception, from Latin concipere, to form or take in.",
+    "sentence": "Her visit challenged her preconception about life in the city.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/preconception",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "pathologically": {
+    "definition": "In a way related to disease or an unhealthy condition.",
+    "origin": "From pathological, using Greek pathos, suffering, and an element for study, with -ly.",
+    "sentence": "The tissue was pathologically altered by the disease.",
+    "part_of_speech": "adverb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/pathologically",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "lapels": {
+    "definition": "The folded-back edges on the front of a coat or jacket.",
+    "origin": "Plural of lapel, a diminutive of lap, a flap or fold.",
+    "sentence": "He pinned a flower to one of his jacket's lapels.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/lapels",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "imperial": {
+    "definition": "Relating to an empire or emperor.",
+    "origin": "Latin imperialis, related to imperium, command or empire.",
+    "sentence": "The imperial palace contained a vast ceremonial hall.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/imperial",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "vibrissae": {
+    "definition": "Stiff sensory hairs, such as the whiskers of a cat.",
+    "origin": "Plural of Latin vibrissa, related to vibrare, to vibrate.",
+    "sentence": "The cat's vibrissae helped it sense the narrow opening.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/vibrissae",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "eponymous": {
+    "definition": "Giving one's name to something.",
+    "origin": "Greek-derived elements for upon and name, through eponym.",
+    "sentence": "The eponymous heroine gives the novel its title.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/eponymous",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "cerulean": {
+    "definition": "Deep sky-blue in color.",
+    "origin": "Latin caeruleus, blue or dark blue.",
+    "sentence": "The artist painted the sea a cerulean shade.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/cerulean",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "yakuza": {
+    "definition": "Members of organized criminal groups in Japan.",
+    "origin": "Japanese, traditionally linked to a losing card combination of eight, nine, and three.",
+    "sentence": "The documentary examined the history of the yakuza in Japan.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/yakuza",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "bogong moth": {
+    "definition": "An Australian moth known for seasonal migration to alpine areas.",
+    "origin": "The first element comes from an Aboriginal Australian word associated with the brown moth.",
+    "sentence": "A bogong moth rested in the cool mountain cave.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/bogong_moth",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "electrolytes": {
+    "definition": "Substances that form electrically charged particles when dissolved and can conduct electricity.",
+    "origin": "Electro-, electricity, with an element from Greek lytos, capable of being dissolved.",
+    "sentence": "The science lesson explained how dissolved electrolytes conduct electricity.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/electrolytes",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "wallowing": {
+    "definition": "Rolling or lying in mud, water, or a similar substance.",
+    "origin": "From wallow, related to Old English wealwian, to roll.",
+    "sentence": "The buffalo were wallowing in the muddy pool.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/wallowing",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "perpendicular": {
+    "definition": "Meeting a line or surface at a right angle.",
+    "origin": "Latin perpendicularis, relating to a plumb line.",
+    "sentence": "The two lines were perpendicular and formed a right angle.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/perpendicular",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "increments": {
+    "definition": "Small amounts by which something increases.",
+    "origin": "Plural of increment, from Latin incrementum, growth.",
+    "sentence": "We raised the height in small increments until the model balanced.",
+    "part_of_speech": "plural noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/increments",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "appetizing": {
+    "definition": "Making food seem appealing to eat.",
+    "origin": "From appetite, ultimately Latin appetitus, desire, with an English ending.",
+    "sentence": "An appetizing smell drifted from the kitchen.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/appetizing",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "inanimate": {
+    "definition": "Not alive.",
+    "origin": "Latin inanimatus, combining not with animatus, alive or animated.",
+    "sentence": "A stone is an inanimate object.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/inanimate",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Sierra Leone": {
+    "definition": "A West African country on the Atlantic coast, with Freetown as its capital.",
+    "origin": "An adapted form of Portuguese Serra Leoa, meaning lion mountains.",
+    "sentence": "The travelers arrived in Sierra Leone during the rainy season.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Sierra_Leone",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "calibrate": {
+    "definition": "To check or adjust an instrument so that its measurements are accurate.",
+    "origin": "From caliber, through French calibre, with the verb ending -ate.",
+    "sentence": "The technician will calibrate the scale before weighing the samples.",
+    "part_of_speech": "verb",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/calibrate",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Eritrea": {
+    "definition": "A country on the Red Sea coast of northeastern Africa, with Asmara as its capital.",
+    "origin": "From an Italian geographical name based on a Greek name associated with the Red Sea.",
+    "sentence": "The ship sailed along the coast of Eritrea.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Eritrea",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "phenomenon": {
+    "definition": "An observable event or occurrence.",
+    "origin": "Greek phainomenon, something appearing or seen.",
+    "sentence": "The rainbow was a beautiful natural phenomenon.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/phenomenon",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "newt": {
+    "definition": "A small amphibian with a long tail, related to salamanders.",
+    "origin": "An alteration of an older English phrase an ewt, with the n transferred to the noun.",
+    "sentence": "A newt swam between the pond plants.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/newt",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "euphemism": {
+    "definition": "A mild expression used in place of one considered harsh or unpleasant.",
+    "origin": "Greek euphemismos, from elements for good and speaking.",
+    "sentence": "Passed away is a euphemism for died.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/euphemism",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Aphrodite": {
+    "definition": "The Greek goddess of love and beauty.",
+    "origin": "A Greek divine name whose ultimate origin is uncertain; a traditional story connects it with aphros, foam.",
+    "sentence": "The ancient statue depicted Aphrodite standing beside a shell.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Aphrodite",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "unconscious": {
+    "definition": "Not awake or aware of one's surroundings.",
+    "origin": "Un-, meaning not, with conscious, from Latin conscius, knowing.",
+    "sentence": "The unconscious patient did not respond until later.",
+    "part_of_speech": "adjective",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/unconscious",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Krio": {
+    "definition": "An English-based creole language spoken in Sierra Leone.",
+    "origin": "Through the language's own name from Portuguese crioulo, creole.",
+    "sentence": "The guide translated the announcement into Krio.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Krio",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "Gloucester": {
+    "definition": "A city in southwestern England beside the River Severn.",
+    "origin": "An English place name based on the Roman name Glevum with an Old English element for a fortified town.",
+    "sentence": "We visited the cathedral in Gloucester during our trip.",
+    "part_of_speech": "proper noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/Gloucester",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "irascibility": {
+    "definition": "A tendency to become angry easily.",
+    "origin": "From irascible, related to Latin irasci, to grow angry.",
+    "sentence": "His irascibility made minor delays seem like major problems.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/irascibility",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "glycerin": {
+    "definition": "A sweet, colorless, thick liquid used in many products.",
+    "origin": "French glycerine, based on Greek glykeros, sweet.",
+    "sentence": "The soap maker measured the glycerin into a clean container.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/glycerin",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
+  },
+  "reassurance": {
+    "definition": "Words or actions that help someone feel less worried.",
+    "origin": "Re-, again, with assurance, related to assure.",
+    "sentence": "Her calm reassurance helped the nervous child feel safe.",
+    "part_of_speech": "noun",
+    "source": "Dictionary reference",
+    "source_url": "https://en.wiktionary.org/wiki/reassurance",
+    "sentence_reference": "BeeBright original sentence",
+    "license": "CC BY-SA 4.0"
   }
 }
