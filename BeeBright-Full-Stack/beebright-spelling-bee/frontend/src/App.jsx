@@ -1,3 +1,4 @@
+import { desktopSpeak } from "./local-api.js";
 import { hideSpelling, sentenceHint } from "./hints.js";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -57,7 +58,7 @@ function speakWithBrowser(word) {
   window.speechSynthesis.speak(utterance);
 }
 
-function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
+function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMode = false }) {
   const [screen, setScreen] = useState("home");
   const [mode, setMode] = useState("choice");
   const [levels, setLevels] = useState([]);
@@ -132,7 +133,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
   useEffect(() => {
     if (screen !== "practice" || !words.length) return;
     const session = {
-      mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak,
+      mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed,
     };
     localStorage.setItem(sessionKey, JSON.stringify(session));
     setSavedSession(session);
@@ -147,9 +148,10 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
       }
     }, 350);
     return () => window.clearTimeout(saveTimerRef.current);
-  }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, getToken, sessionKey]);
+  }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, getToken, sessionKey]);
 
   function playWord() {
+    if (localMode) { desktopSpeak(currentWord).catch(() => setMessage("Your local speech voice is unavailable.")); return; }
     if (dictionary.word === currentWord && dictionary.audio_url) {
       if (audioRef.current) audioRef.current.pause();
       const audio = new Audio(dictionary.audio_url);
@@ -202,6 +204,9 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
       setCorrect(saved.correct || 0);
       setStreak(saved.streak || 0);
       setBestStreak(saved.bestStreak || 0);
+      setAnswer(saved.answer || "");
+      setFeedback(saved.feedback || null);
+      setRevealed(Boolean(saved.revealed));
       setScreen("practice");
     } catch {
       localStorage.removeItem(sessionKey);
@@ -263,7 +268,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
     <main className="app-shell">
       <header className="topbar">
         <button className="brand" onClick={() => setScreen("home")}><span>bee</span>bright</button>
-        <div className="top-actions"><a href="/download.html" className="settings-button">Desktop app</a><div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
+        <div className="top-actions">{!localMode && <a href="/download.html" className="settings-button">Desktop app</a>}<div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
       </header>
 
       {screen === "home" && (
@@ -276,7 +281,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
               <button className="primary" onClick={() => setScreen("setup")}>Start a practice set <ArrowRight size={17} /></button>
               {resumeAvailable && <button className="outline" onClick={resume}><RotateCcw size={15} /> Resume where I left off</button>}
             </div>
-            <button className="request-list-link" onClick={onRequestList}><ClipboardList size={16} /><span>Request another word list</span></button>
+            {!localMode && <button className="request-list-link" onClick={onRequestList}><ClipboardList size={16} /><span>Request another word list</span></button>}
             {message && <p className="status-message">{message}</p>}
           </div>
 
@@ -346,7 +351,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList }) {
               </div>
             ) : (
               <>
-                <button className="listen-card" onClick={playWord}><span><Volume2 size={19} /></span><div><strong>Listen closely</strong><small>Merriam-Webster audio when available</small></div></button>
+                <button className="listen-card" onClick={playWord}><span><Volume2 size={19} /></span><div><strong>Listen closely</strong><small>{localMode ? "Your computer’s offline voice" : "Merriam-Webster audio when available"}</small></div></button>
                 {mode === "blank" && <h2 className="prompt-sentence">{fillSentence}</h2>}
                 {mode === "choice" && <h2 className="question-title">Which spelling is correct?</h2>}
                 {mode === "type" && <h2 className="question-title">Type the word you hear.</h2>}

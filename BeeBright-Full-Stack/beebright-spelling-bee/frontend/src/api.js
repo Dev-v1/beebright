@@ -1,3 +1,4 @@
+import { desktopRequest } from "./local-api.js";
 // This is the one place the frontend reads your Render backend URL.
 // In Vercel, create an environment variable named VITE_API_BASE_URL.
 // Example: https://your-beebright-api.onrender.com
@@ -6,6 +7,7 @@ export const API_BASE_URL = (
 ).replace(/\/$/, "");
 
 async function request(path, options = {}) {
+  if (import.meta.env.VITE_LOCAL_APP === "true") return desktopRequest(path, options);
   const response = await fetch(`${API_BASE_URL}${path}`, options);
   if (!response.ok) {
     let message = `Request failed (${response.status})`;
