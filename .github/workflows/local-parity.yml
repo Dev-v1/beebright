@@ -22,4 +22,5 @@ jobs:
         shell: powershell
       - run: ./tools/test-local-update.ps1
         shell: powershell
-      - run: python -c "import sys; sys.path.insert(0,'local'); from beebright_local.app import BeeBright; app=BeeBright(); app.update(); app.start(); app.update(); app.show_hint('origin'); app.update(); app.exit()"
+      - run: python ../tools/test_local_ui.py
+        working-directory: local

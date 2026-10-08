@@ -17,7 +17,7 @@ $Bee = Join-Path $env:LOCALAPPDATA 'BeeBright'
 if (-not (Get-Command beebright.cmd -ErrorAction SilentlyContinue)) { throw 'Installer did not expose the beebright command.' }
 Push-Location "$Bee/current"
 try {
-    & "$Bee/runtime/python.exe" -c 'import tkinter; from beebright_local.app import BeeBright; app=BeeBright(); app.update(); app.start(); app.update(); app.show_hint("origin"); app.update(); app.exit()'
+    & "$Bee/runtime/python.exe" (Join-Path $Repo "tools/test_local_ui.py")
     if ($LASTEXITCODE) { throw 'Installed runtime could not open the desktop UI.' }
 } finally { Pop-Location }
 Write-Host 'Official runtime installation, command availability, bundled Tkinter, and desktop UI passed.'
