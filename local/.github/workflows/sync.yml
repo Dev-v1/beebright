@@ -21,7 +21,12 @@ jobs:
         shell: bash
         run: |
           git clone --depth 1 https://github.com/Dev-v1/beebright.git "$RUNNER_TEMP/upstream"
-          test -f "$RUNNER_TEMP/upstream/tools/build-local.mjs"
+          # Bootstrap the standalone release while the website PR awaits its required review.
+          # Once main includes the builder, all future releases follow main automatically.
+          if ! test -f "$RUNNER_TEMP/upstream/tools/build-local.mjs"; then
+            git -C "$RUNNER_TEMP/upstream" fetch --depth 1 origin feat/local-and-2027
+            git -C "$RUNNER_TEMP/upstream" checkout FETCH_HEAD
+          fi
           node "$RUNNER_TEMP/upstream/tools/build-local.mjs"
           mkdir "$RUNNER_TEMP/desktop"
           unzip -q "$RUNNER_TEMP/upstream/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/beebright-local.zip" -d "$RUNNER_TEMP/desktop"
@@ -35,6 +40,13 @@ jobs:
           rsync -a --delete --exclude=.git "$RUNNER_TEMP/desktop/" ./
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python3 - <<'PYCODE'
+          import json, hashlib, os
+          from pathlib import Path
+          version = json.loads(Path('version.json').read_text())['version']
+          archive = Path(os.environ['RUNNER_TEMP']) / 'upstream/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/beebright-local.zip'
+          Path('update-manifest.json').write_text(json.dumps({'version': version, 'sha256': hashlib.sha256(archive.read_bytes()).hexdigest(), 'url': 'https://github.com/Dev-v1/beebright-local/releases/download/desktop-' + version[:12] + '/beebright-local-source.zip'}, indent=2))
+          PYCODE
           git add .
           if ! git diff --cached --quiet; then
             git commit -m 'Sync desktop with canonical BeeBright revision'

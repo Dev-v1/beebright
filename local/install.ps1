@@ -17,7 +17,12 @@ if (-not (Test-Path "$Runtime\pythonw.exe")) {
         if ($Process.ExitCode -notin @(0, 3010)) { throw "Python setup failed: $($Process.ExitCode)" }
     } finally { if (Test-Path $Setup) { Remove-Item $Setup -Force } }
 }
-Invoke-WebRequest 'https://beebright.vercel.app/local/bootstrap.ps1' -OutFile "$BeeRoot\bootstrap.ps1" -UseBasicParsing
+try {
+    Invoke-WebRequest 'https://beebright.vercel.app/local/bootstrap.ps1' -OutFile "$BeeRoot\bootstrap.ps1" -UseBasicParsing
+    if ((Get-Content "$BeeRoot\bootstrap.ps1" -Raw) -notmatch 'BeeBrightUpdater') { throw 'Website launcher is not available yet.' }
+} catch {
+    Invoke-WebRequest 'https://raw.githubusercontent.com/Dev-v1/beebright-local/main/bootstrap.ps1' -OutFile "$BeeRoot\bootstrap.ps1" -UseBasicParsing
+}
 $Command = '@echo off' + "`r`n" + 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\BeeBright\bootstrap.ps1"' + "`r`n"
 Set-Content -Path "$Bin\beebright.cmd" -Value $Command -Encoding Ascii
 $UserPath = [string][Environment]::GetEnvironmentVariable('Path', 'User')

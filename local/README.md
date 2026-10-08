@@ -10,6 +10,12 @@ In PowerShell:
 irm https://beebright.vercel.app/install.ps1 | iex
 ```
 
+If the website installer has not been deployed yet, the standalone repository also serves it:
+
+```powershell
+irm https://raw.githubusercontent.com/Dev-v1/beebright-local/main/install.ps1 | iex
+```
+
 Then run:
 
 ```text
@@ -32,7 +38,7 @@ On macOS, speech uses `say`; on Linux, install Tkinter and `espeak`. The one-com
 
 ## How website fixes reach the local edition
 
-The website repository `Dev-v1/beebright` is the canonical source. Its `local/` directory contains this app. Every website build regenerates the desktop bundle using the exact same hint-masking code, distractor generator, word lists, and hint data as that website commit. The installed launcher checks this bundle on every launch.
+The website repository `Dev-v1/beebright` is the canonical source. Its `local/` directory contains this app. Every website build regenerates the desktop bundle using the exact same hint-masking code, distractor generator, word lists, and hint data as that website commit. The installed launcher checks this bundle on every launch, falling back to the standalone GitHub release manifest when the website endpoint is unavailable.
 
 This repository's sync workflow checks the canonical main branch hourly, copies the desktop package here, runs the local tests, and publishes a new source ZIP release when the upstream commit changes. Desktop-specific fixes belong in canonical `local/`. Website authentication and administration changes are intentionally outside the desktop feature set.
 

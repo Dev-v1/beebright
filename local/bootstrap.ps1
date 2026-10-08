@@ -9,8 +9,13 @@ try {
     $Locked = $Mutex.WaitOne(15000)
     if (-not $Locked) { throw 'Another BeeBright update is in progress.' }
     try {
-        $Manifest = Invoke-RestMethod 'https://beebright.vercel.app/local/manifest.json' -TimeoutSec 8
-        if ($Manifest.version -notmatch '^[a-f0-9]{40}$' -or $Manifest.sha256 -notmatch '^[a-f0-9]{64}$' -or $Manifest.url -ne 'https://beebright.vercel.app/local/beebright-local.zip') {
+        try {
+            $Manifest = Invoke-RestMethod 'https://beebright.vercel.app/local/manifest.json' -TimeoutSec 8
+            if (-not $Manifest.version) { throw 'Website update is not available yet.' }
+        } catch {
+            $Manifest = Invoke-RestMethod 'https://raw.githubusercontent.com/Dev-v1/beebright-local/main/update-manifest.json' -TimeoutSec 8
+        }
+        if ($Manifest.version -notmatch '^[a-f0-9]{40}$' -or $Manifest.sha256 -notmatch '^[a-f0-9]{64}$' -or ($Manifest.url -ne 'https://beebright.vercel.app/local/beebright-local.zip' -and $Manifest.url -notmatch '^https://github\.com/Dev-v1/beebright-local/releases/download/desktop-[a-f0-9]{12}/beebright-local-source\.zip$')) {
             throw 'Invalid BeeBright update manifest.'
         }
         $Installed = ''
