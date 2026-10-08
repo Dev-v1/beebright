@@ -241,12 +241,15 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --ink: #edf7f3;
-  --muted: #a8bbb7;
-  --cream: #0e1c1d;
-  --paper: #152728;
-  --mint: #203a32;
-  --line: #365050;
+  --ink: #f4faf7;
+  --muted: #c4d5d0;
+  --cream: #142326;
+  --paper: #22363a;
+  --mint: #29453d;
+  --line: #708d8b;
+  --coral: #ff9c86;
+  color: var(--ink);
+  background: var(--cream);
 }
 [data-theme="dark"] body,
 [data-theme="dark"] .practice-page,
@@ -259,13 +262,52 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 [data-theme="dark"] .type-row input,
 [data-theme="dark"] .result-grid { background: var(--paper); color: var(--ink); }
 [data-theme="dark"] .mode-list button.selected,
-[data-theme="dark"] .choices button.picked { background: #293728; }
+[data-theme="dark"] .choices button:hover,
+[data-theme="dark"] .choices button.picked { background: #354d47; border-color: var(--yellow); }
+[data-theme="dark"] .choices button.right { background: #25493a; border-color: #90dca6; }
+[data-theme="dark"] .choices button.wrong { background: #583630; border-color: var(--coral); }
+[data-theme="dark"] .choices button:disabled { opacity: 1; }
+[data-theme="dark"] .primary,
+[data-theme="dark"] .feedback > button { background: var(--yellow); color: #17333a; }
+[data-theme="dark"] .primary svg,
+[data-theme="dark"] .warmup-card > button,
+[data-theme="dark"] .listen-card > span,
+[data-theme="dark"] .mode-list i { color: #17333a; }
+[data-theme="dark"] .mode-list i { background: var(--yellow); }
+[data-theme="dark"] .warmup-spark { color: #983c28; }
+[data-theme="dark"] .warmup-card { box-shadow: 14px 17px 0 #304347; }
+[data-theme="dark"] .top-tag,
+[data-theme="dark"] .request-list-link,
+[data-theme="dark"] .text-button,
+[data-theme="dark"] .set-panel > p,
+[data-theme="dark"] .word-list-picker,
+[data-theme="dark"] .level-picker,
+[data-theme="dark"] .progress-area > div:first-child,
+[data-theme="dark"] .hint-controls span,
+[data-theme="dark"] .hint-controls button,
+[data-theme="dark"] .hint-box p,
+[data-theme="dark"] .feedback-copy p,
+[data-theme="dark"] .flash-card p,
+[data-theme="dark"] .choices b { color: var(--muted); }
+[data-theme="dark"] .eyebrow,
+[data-theme="dark"] .status-message,
+[data-theme="dark"] .flash-card small { color: #f1c580; }
+[data-theme="dark"] .hint-controls button,
+[data-theme="dark"] .type-row input,
+[data-theme="dark"] .choices b,
+[data-theme="dark"] .practice-header,
+[data-theme="dark"] .flash-card { border-color: var(--line); }
+[data-theme="dark"] .type-row input::placeholder { color: var(--muted); opacity: 1; }
+[data-theme="dark"] .progress-track { background: #435b60; }
+[data-theme="dark"] .danger-button { background: #9f3728; color: #fff; }
+[data-theme="dark"] .level-buttons small { opacity: 1; }
+[data-theme="dark"] :is(button, input, select, textarea, a):focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
 [data-theme="dark"] .warmup-card,
 [data-theme="dark"] .level-buttons button { color: #17333a; }
-[data-theme="dark"] .flash-card { background: linear-gradient(135deg, #152728, #40391f); }
-[data-theme="dark"] .flash-card.revealed { background: linear-gradient(135deg, #152728, #203a32); }
-[data-theme="dark"] .hint-box { background: #342e1b; }
-[data-theme="dark"] .feedback.correct { background: #203a32; }
+[data-theme="dark"] .flash-card { background: linear-gradient(135deg, #22363a, #443d26); }
+[data-theme="dark"] .flash-card.revealed { background: linear-gradient(135deg, #22363a, #294c40); }
+[data-theme="dark"] .hint-box { background: #3e3824; }
+[data-theme="dark"] .feedback.correct { background: #294c40; }
 [data-theme="dark"] .feedback.incorrect,
 [data-theme="dark"] .settings-notice.error { background: #3d2522; color: #ffc2b5; }
 [data-theme="dark"] .auth-page { background: radial-gradient(circle at 18% 25%, #42391c, transparent 32%), var(--cream); }

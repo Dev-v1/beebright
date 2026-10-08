@@ -1,4 +1,7 @@
-param([switch]$SkipLaunch)
+param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '')
+if ($Command -notin @('', 'update')) { throw 'Usage: beebright [update]' }
+$UpdateOnly = $Command -eq 'update'
+if ($UpdateOnly) { $SkipLaunch = $true }
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
@@ -44,15 +47,20 @@ try {
                 if (Test-Path $Zip) { Remove-Item $Zip -Force }
                 if (Test-Path $Stage) { Remove-Item $Stage -Recurse -Force }
             }
-        }
+        } else { Write-Host 'BeeBright is already up to date.' }
     } catch {
-        if (-not (Test-Path "$Current\beebright_local\app.py")) { throw }
+        if ($UpdateOnly -or -not (Test-Path "$Current\beebright_local\app.py")) { throw }
         Write-Host "Update check unavailable; opening the installed offline version. $($_.Exception.Message)"
     }
 } finally {
     if ($Locked) { $Mutex.ReleaseMutex() }
     $Mutex.Dispose()
 }
+# Refresh older installed commands so arguments reach the updater on future runs.
+$Bin = Join-Path $BeeRoot 'bin'
+New-Item -ItemType Directory -Force -Path $Bin | Out-Null
+$Launcher = '@echo off' + "`r`n" + 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\BeeBright\bootstrap.ps1" %*' + "`r`n"
+Set-Content -Path "$Bin\beebright.cmd" -Value $Launcher -Encoding Ascii
 $Python = Join-Path $BeeRoot 'runtime-3.14\pythonw.exe'
 if (-not (Test-Path $Python)) {
     Write-Host 'BeeBright now uses Python 3.14. Installing the updated runtime...'

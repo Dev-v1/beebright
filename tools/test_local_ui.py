@@ -40,6 +40,20 @@ def test(w):
         assert w.evaluate_js("!document.querySelector('.settings-page').innerText.includes('Username')")
         w.evaluate_js("document.querySelectorAll('.theme-switch button')[1].click()")
         wait(w,"document.documentElement.dataset.theme === 'dark'")
+        # Verify actual rendered contrast, including the former white-on-white button.
+        w.evaluate_js("document.querySelector('.brand').click()")
+        wait(w,"document.querySelector('.hero-copy h1') !== null")
+        assert w.evaluate_js("""(() => {
+            const rgb = s => s.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4});
+            const lum = s => {const c=rgb(s);return c[0]*.2126+c[1]*.7152+c[2]*.0722};
+            const contrast = (a,b) => (Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05);
+            const button = getComputedStyle(document.querySelector('.hero-buttons .primary'));
+            const lead = getComputedStyle(document.querySelector('.lead'));
+            const body = getComputedStyle(document.body);
+            const warmup = getComputedStyle(document.querySelector('.warmup-card > button'));
+            const card = getComputedStyle(document.querySelector('.warmup-card'));
+            return contrast(button.color,button.backgroundColor)>=4.5 && contrast(lead.color,body.backgroundColor)>=4.5 && contrast(warmup.color,card.backgroundColor)>=4.5;
+        })()""")
         time.sleep(.5)
         print('Shared website UI, four modes, hints, feedback and local settings passed.')
     except Exception as e: failure.append(e)
