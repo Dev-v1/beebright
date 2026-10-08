@@ -1,3 +1,4 @@
+param([switch]$SkipLaunch)
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
@@ -22,5 +23,5 @@ Set-Content -Path "$Bin\beebright.cmd" -Value $Command -Encoding Ascii
 $UserPath = [string][Environment]::GetEnvironmentVariable('Path', 'User')
 if (($UserPath -split ';') -notcontains $Bin) { [Environment]::SetEnvironmentVariable('Path', ($UserPath.TrimEnd(';') + ';' + $Bin), 'User') }
 if (($env:Path -split ';') -notcontains $Bin) { $env:Path += ';' + $Bin }
-& "$BeeRoot\bootstrap.ps1"
+& "$BeeRoot\bootstrap.ps1" -SkipLaunch:$SkipLaunch
 Write-Host 'Installed! Type beebright to open the desktop app. Your progress stays on this laptop.'
