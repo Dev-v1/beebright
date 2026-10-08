@@ -28,7 +28,7 @@ class NativeStartupTest(unittest.TestCase):
                     headers={'Content-Type': 'application/json', 'X-BeeBright-Token': token})
                 self.assertEqual(json.load(urllib.request.urlopen(req)), {'theme': 'light'})
             fake = SimpleNamespace(create_window=create_window, start=start)
-            with patch.dict('sys.modules', {'webview': fake}), patch.object(app, 'USER_DATA', data), patch.object(engine, 'USER_DATA', data):
+            with patch.object(app.sys, 'version_info', (3, 14)), patch.dict('sys.modules', {'webview': fake}), patch.object(app, 'USER_DATA', data), patch.object(engine, 'USER_DATA', data):
                 app.run()
             with self.assertRaises(OSError):
                 urllib.request.urlopen(observed['url'], timeout=1)
