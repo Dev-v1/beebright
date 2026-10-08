@@ -1,8 +1,9 @@
-param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '')
-if ($Command -notin @('', 'update')) { throw 'Usage: beebright [update]' }
+param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '', [Parameter(Position=1)][string]$Target = '')
+if ($Command -notin @('', 'update', 'web', 'create') -or ($Command -eq 'create' -and $Target -ne 'web') -or ($Command -ne 'create' -and $Target)) { throw 'Usage: beebright | beebright update | beebright web | beebright create web' }
 $UpdateOnly = $Command -eq 'update'
 if ($UpdateOnly) { $SkipLaunch = $true }
 $ErrorActionPreference = 'Stop'
+if ($Command -eq 'web') { Start-Process 'https://beebright.vercel.app/'; return }
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
 $Current = Join-Path $BeeRoot 'current'
@@ -70,4 +71,12 @@ if (-not (Test-Path $Python)) {
 }
 if (-not (Test-Path $Python)) { throw 'BeeBright runtime is missing. Run the install command again.' }
 if ($SkipLaunch) { return }
+if ($Command -eq 'create') {
+    Push-Location $Current
+    try {
+        & (Join-Path $BeeRoot 'runtime-3.14\python.exe') -m beebright_local --web
+        if ($LASTEXITCODE) { throw 'The local web server stopped with an error.' }
+    } finally { Pop-Location }
+    return
+}
 Start-Process -FilePath $Python -WorkingDirectory $Current -ArgumentList @('-m', 'beebright_local')

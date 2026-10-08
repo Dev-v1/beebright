@@ -1,5 +1,5 @@
 """Test the actual installed React desktop window and Python bridge."""
-import sys, time
+import sys, time, os
 from pathlib import Path
 sys.path.insert(0, str(Path.cwd()))
 from beebright_local.app import run
@@ -58,5 +58,19 @@ def test(w):
         print('Shared website UI, four modes, hints, feedback and local settings passed.')
     except Exception as e: failure.append(e)
     finally: w.destroy()
-run(test)
+if os.environ.get('BEEBRIGHT_TEST_LOCAL_WEB'):
+    import threading, webview
+    from beebright_local.web import LocalServer
+    server = LocalServer(0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        window = webview.create_window('BeeBright browser test', f'http://beebright.localhost:{server.server_address[1]}/')
+        webview.start(test, window, gui='edgechromium')
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()
+else:
+    run(test)
 if failure: raise failure[0]

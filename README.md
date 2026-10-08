@@ -1,6 +1,12 @@
 # beebright
 Spelling Bee Practice Website
 
+## Local browser commands
+
+`beebright web` opens https://beebright.vercel.app/.
+
+`beebright create web` serves the offline edition at http://beebright.localhost:8765/. Keep the terminal open; Ctrl+C stops the server. No login or cloud features are required. See `local/README.md` for port fallback and source usage.
+
 ## Uninstall BeeBright on Windows
 
 Close BeeBright first. These PowerShell commands remove BeeBright, its private Python runtime, and all saved local progress and settings. They also remove the BeeBright command from your user PATH. They leave other Python installations and the shared Microsoft WebView2 runtime in place.

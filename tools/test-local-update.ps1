@@ -28,4 +28,11 @@ try { & (Join-Path $Repo 'local/bootstrap.ps1') update } catch { $UpdateFailed =
 if (-not $UpdateFailed) { throw 'Explicit update falsely succeeded while offline.' }
 & (Join-Path $Repo 'local/bootstrap.ps1') -SkipLaunch
 if (-not (Test-Path "$Bee/current/beebright_local/app.py")) { throw 'Offline fallback lost installed app.' }
+$global:BeeTestOpened = ''
+function Start-Process { param($FilePath) $global:BeeTestOpened = $FilePath }
+& (Join-Path $Repo 'local/bootstrap.ps1') web
+if ($global:BeeTestOpened -ne 'https://beebright.vercel.app/') { throw 'Web command did not open the website.' }
+$InvalidCommandFailed = $false
+try { & (Join-Path $Repo 'local/bootstrap.ps1') create invalid } catch { $InvalidCommandFailed = $true }
+if (-not $InvalidCommandFailed) { throw 'Invalid create command did not report usage.' }
 Write-Host 'Update installation, progress preservation, offline fallback, and PowerShell syntax passed.'
