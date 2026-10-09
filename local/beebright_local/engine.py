@@ -50,6 +50,7 @@ def choices_for(word, distractors):
 def save_json(name, value):
     USER_DATA.mkdir(parents=True, exist_ok=True)
     path = USER_DATA / name
+    path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_name(path.name + '.' + secrets.token_hex(8) + '.tmp')
     try:
         temp.write_text(json.dumps(value, ensure_ascii=False), encoding='utf-8')

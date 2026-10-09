@@ -20,3 +20,6 @@
 **/dist-local/
 
 /BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/install.sh
+
+/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/study-catalog.json
+/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local-changelog.md

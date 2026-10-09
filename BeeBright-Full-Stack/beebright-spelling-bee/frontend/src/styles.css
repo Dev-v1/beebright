@@ -385,3 +385,33 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .home-side .warmup-card { position: relative; top: auto; right: auto; width: 100%; }
 .home-page .mode-grid { grid-column: 1 / -1; margin-top: 0; }
 @media (max-width: 1000px) { .home-page { grid-template-columns: 1fr; gap: 38px; } .home-side { max-width: 420px; width: 100%; } }
+/* Shared practice studio */
+.studio-page { padding-block: 40px 80px; }
+.studio-page h1 { font-size: clamp(2rem,4vw,3.8rem); margin: 20px 0; }
+.studio-privacy { opacity: .8; max-width: 760px; line-height: 1.6; }
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; margin: 24px 0; }
+.tools-grid button,.tools-grid article,.studio-card { background: var(--surface, #fff); color: inherit; border: 1px solid var(--border,#d9d7ce); border-radius: 18px; padding: 24px; }
+.tools-grid button { text-align: left; cursor: pointer; }
+.tools-grid strong,.tools-grid small,.tools-grid code { display:block; margin:8px 0; }
+.tools-grid small { line-height: 1.6; }
+.studio-card { margin: 24px 0; max-width: 900px; }
+.studio-card label { display:flex; flex-direction:column; gap:8px; margin:20px 0; max-width:450px; }
+.studio-card select,.studio-card input { border-radius:8px; padding:10px; background:inherit; color:inherit; border:1px solid var(--border,#aaa); font:inherit; }
+.studio-controls { display:flex; flex-wrap:wrap; gap:24px; }
+.studio-card button { margin:8px 12px 8px 0; }
+.studio-card table { width:100%; border-collapse:collapse; }
+.studio-card th,.studio-card td { text-align:left; padding:12px; border-bottom:1px solid var(--border,#ccc); }
+.pair-lessons { display:grid; gap:16px; margin-block:24px; }
+.challenge-banner { display:flex; justify-content:center; flex-wrap:wrap; gap:24px; padding:15px; background:var(--surface,#fff4bf); border:1px solid var(--border,#ccc); border-radius:12px; margin-bottom:12px; }
+.favorite-word { margin-bottom:12px; }
+.release-notes { white-space:pre-wrap; line-height:1.8; }
+.print-worksheet li { margin-block:16px; }
+.earned { border-color:#b18612 !important; }
+[data-theme="dark"] .studio-card,[data-theme="dark"] .tools-grid button,[data-theme="dark"] .tools-grid article,[data-theme="dark"] .challenge-banner { background:#293139; border-color:#63717c; color:#f4f5f6; }
+[data-theme="dark"] .studio-card option { background:#293139; color:#f4f5f6; }
+@media print {
+ body * { visibility:hidden; }
+ .print-worksheet,.print-worksheet * { visibility:visible; color:#000 !important; background:#fff !important; }
+ .print-worksheet { position:absolute; left:0; top:0; width:100%; padding:25px; }
+ .worksheet-answers { break-before:page; }
+}

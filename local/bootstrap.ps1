@@ -1,4 +1,4 @@
-param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '', [Parameter(Position=1)][string]$Target = '', [Alias('v', '-v', '-version')][switch]$Version)
+param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '', [Parameter(Position=1)][string]$Target = '', [Alias('v', '-v', '-version')][switch]$Version, [Parameter(ValueFromRemainingArguments=$true)][string[]]$ExtraArguments)
 $BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
 if ($Command -eq 'help') {
     Write-Output @'
@@ -10,12 +10,37 @@ BeeBright commands
   beebright -v              Show the installed version (also --v, --version, -version).
   beebright help            Show this command list without internet access.
   beebright uninstall       Remove BeeBright, its private runtimes and local saved progress.
+
+  beebright daily         Start today's shared ten-word challenge.
+  beebright review        Practice words you missed.
+  beebright compete       Start an elimination spelling bee.
+  beebright doctor        Check runtime, catalog, UI and speech.
+  beebright stats         Show accuracy and answer totals.
+  beebright profile       Open local players; list, add NAME, switch NAME.
+  beebright backup        Save all players; optionally supply FILE.json.
+  beebright restore       Open backup picker; optionally supply FILE.json.
+  beebright sprint        Start a two-minute spelling sprint.
+  beebright lists         Show study lists and completion.
+  beebright practice      Choose list, mode and question count.
+  beebright audio         Adjust and test pronunciation speed.
+  beebright origins       Practice words by source language.
+  beebright pairs         Practice confusing word pairs.
+  beebright favorites     Practice saved favorite words.
+  beebright worksheet     Create a printable worksheet and answer key.
+  beebright remind        Set a reminder; HH:MM or off.
+  beebright achievements  View earned practice milestones.
+  beebright duel          Alternate turns between two players.
+  beebright changelog     Show release notes.
 Close BeeBright and stop local web practice before uninstalling.
 '@
     return
 }
 if ($Command -eq 'uninstall') {
     $ErrorActionPreference = 'Stop'
+    # Stop only BeeBright reminder workers, verified by executable path and command line.
+    Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+        $_.ExecutablePath -and $_.ExecutablePath.StartsWith($BeeRoot + '\', [StringComparison]::OrdinalIgnoreCase) -and $_.CommandLine -match '--reminder-worker'
+    } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
     $Running = Get-Process -ErrorAction SilentlyContinue | Where-Object {
         try { $_.Path -and $_.Path.StartsWith($BeeRoot + '\', [StringComparison]::OrdinalIgnoreCase) } catch { $false }
     }
@@ -35,6 +60,18 @@ if ($Version) {
     if (-not (Test-Path $ReleaseFile)) { throw 'Installed BeeBright version is unavailable. Run beebright update.' }
     $Release = Get-Content $ReleaseFile -Raw | ConvertFrom-Json
     Write-Output "BeeBright $($Release.version)"
+    return
+}
+$Features = @('daily', 'review', 'compete', 'doctor', 'stats', 'profile', 'backup', 'restore', 'sprint', 'lists', 'practice', 'audio', 'origins', 'pairs', 'favorites', 'worksheet', 'remind', 'achievements', 'duel', 'changelog')
+if ($Command -in $Features) {
+    $ErrorActionPreference = 'Stop'
+    $env:BEEBRIGHT_DATA_DIR = Join-Path $BeeRoot 'userdata'
+    $Runner = "import runpy,sys; sys.path.insert(0,sys.argv.pop(1)); runpy.run_module('beebright_local',run_name='__main__')"
+    $Arguments = @('-c', $Runner, (Join-Path $BeeRoot 'current'), $Command)
+    if ($Target) { $Arguments += $Target }
+    if ($ExtraArguments) { $Arguments += $ExtraArguments }
+    & (Join-Path $BeeRoot 'runtime-3.15/python.exe') @Arguments
+    if ($LASTEXITCODE) { throw 'BeeBright command failed. See the message above.' }
     return
 }
 if ($Command -notin @('', 'update', 'web', 'create') -or ($Command -eq 'create' -and $Target -ne 'web') -or ($Command -ne 'create' -and $Target)) { throw 'Usage: beebright | update | web | create web | help | uninstall | --version' }

@@ -94,11 +94,42 @@ beebright --version
 beebright -version
 ```
 
-Each prints the installed release, such as `BeeBright 1.8`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
+Each prints the installed release, such as `BeeBright 2.0`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
 
 ## Commands
 
 Run `beebright help` for descriptions of every command. Help and version checks work offline. `beebright update` installs the latest app and migrates older private runtimes to Python 3.15.
+
+## BeeBright 2.0 commands
+
+Type `beebright help` to list every command. Windows opens its desktop window; macOS and Linux open the same local UI in a browser.
+
+| Command | Action |
+|---|---|
+| `beebright daily` | Same ten words each UTC day |
+| `beebright review` | Missed-word review |
+| `beebright compete` | Elimination spelling bee |
+| `beebright doctor` | Runtime, files, speech and data checks |
+| `beebright stats` | Answer totals and accuracy |
+| `beebright profile` | Open local players; also list, add NAME, switch NAME |
+| `beebright backup` | Save all players to a timestamped JSON file in the current terminal directory; optional FILE.json |
+| `beebright restore` | Open a backup picker; optional FILE.json |
+| `beebright sprint` | Two-minute timed challenge |
+| `beebright lists` | Lists, levels and completion |
+| `beebright practice` | Custom session controls |
+| `beebright audio` | Adjust and test speech |
+| `beebright origins` | Practice by origin language |
+| `beebright pairs` | Confusing word-pair lessons |
+| `beebright favorites` | Practice saved words |
+| `beebright worksheet` | Printable blanks and a separate answer key |
+| `beebright remind` | Reminder controls; also HH:MM or off |
+| `beebright achievements` | Practice milestones |
+| `beebright duel` | Two players alternate turns |
+| `beebright changelog` | Release notes |
+
+Reminders work while the computer is awake and you are signed in. Reopen BeeBright after restarting to resume reminders. Example: `beebright remind 18:30`, and `beebright remind off` to stop. They do not require cloud services. Practice history is limited to the most recent 5,000 answers. Origin groups match language names in supplied histories; words can appear in several groups. List completion means a word has been answered correctly at least once, rather than a claim of permanent mastery.
+
+Website practice tools save statistics and favorites in the current browser, separately for each account. Local profiles stay on the computer. The two backup formats are separate; neither exports Clerk credentials or website account data.
 
 ## Uninstall
 
