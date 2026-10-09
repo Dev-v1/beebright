@@ -15,6 +15,9 @@ const hints = {...readJson('word_hints.json'), ...readJson('study_2027_hints.jso
 const lists = [{id:'champions-2024',title:'2024 Words of the Champions',...readJson('words.json')},
                readJson('word_lists/study-2027.json')];
 const frontend = path.join(app,'frontend');
+fs.writeFileSync(path.join(frontend,'public/study-catalog.json'),JSON.stringify({lists,hints,distractors:readJson('distractors.json')}));
+fs.copyFileSync(path.join(local,'CHANGELOG.md'),path.join(frontend,'public/local-changelog.md'));
+
 // Compile the exact website components/CSS with an offline-only desktop entry point.
 execFileSync(process.execPath,[path.join(frontend,'node_modules/vite/bin/vite.js'),'build','--mode','desktop'],{cwd:frontend,stdio:'inherit'});
 const files = new Map();
@@ -34,8 +37,9 @@ function collect(dir,prefix) {
   }
 }
 collect(path.join(frontend,'dist-local'),'beebright_local/ui');
+files.set('beebright_local/ui/CHANGELOG.md',fs.readFileSync(path.join(local,'CHANGELOG.md')));
 files.set('beebright_local/ui/bee.svg',fs.readFileSync(path.join(frontend,'public/bee.svg')));
-for(const name of ['App.jsx','api.js','hints.js','local-api.js','local-main.jsx','styles.css','fonts.css']) {
+for(const name of ['App.jsx','api.js','hints.js','local-api.js','local-main.jsx','styles.css','fonts.css','studio.jsx','studio-core.js']) {
   files.set('ui-source/src/'+name,fs.readFileSync(path.join(frontend,'src',name)));
 }
 for(const name of ['package.json','package-lock.json','vite.config.js','local.html']) {

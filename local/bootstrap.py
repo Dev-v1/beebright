@@ -80,6 +80,27 @@ HELP = """BeeBright commands
   beebright -v              Show installed version (also --v, --version, -version).
   beebright help            Show commands without internet access.
   beebright uninstall       Remove BeeBright, private runtimes and local saved progress.
+
+  beebright daily         Start today’s shared ten-word challenge.
+  beebright review        Practice words you missed.
+  beebright compete       Start an elimination spelling bee.
+  beebright doctor        Check runtime, catalog, UI and speech.
+  beebright stats         Show accuracy and answer totals.
+  beebright profile       Open local players; list, add NAME, switch NAME.
+  beebright backup        Save all players; optionally supply FILE.json.
+  beebright restore       Open backup picker; optionally supply FILE.json.
+  beebright sprint        Start a two-minute spelling sprint.
+  beebright lists         Show study lists and completion.
+  beebright practice      Choose list, mode and question count.
+  beebright audio         Adjust and test pronunciation speed.
+  beebright origins       Practice words by source language.
+  beebright pairs         Practice confusing word pairs.
+  beebright favorites     Practice saved favorite words.
+  beebright worksheet     Create a printable worksheet and answer key.
+  beebright remind        Set a reminder; HH:MM or off.
+  beebright achievements  View earned practice milestones.
+  beebright duel          Alternate turns between two players.
+  beebright changelog     Show release notes.
 Stop local practice with Ctrl+C before uninstalling.
 """
 
@@ -125,6 +146,13 @@ def main(args=None):
         return
     if args == ['web']:
         webbrowser.open('https://beebright.vercel.app/')
+        return
+    features = ['daily', 'review', 'compete', 'doctor', 'stats', 'profile', 'backup', 'restore', 'sprint', 'lists', 'practice', 'audio', 'origins', 'pairs', 'favorites', 'worksheet', 'remind', 'achievements', 'duel', 'changelog']
+    if args and args[0] in features:
+        os.environ['BEEBRIGHT_DATA_DIR'] = str(ROOT / 'userdata')
+        sys.path.insert(0, str(CURRENT))
+        from beebright_local.commands import launch
+        launch(args[0], args[1:], web=True)
         return
     if args not in ([], ['update'], ['create', 'web']):
         raise RuntimeError('Usage: beebright [update | web | create web | help | uninstall | --version]')

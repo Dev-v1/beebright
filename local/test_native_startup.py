@@ -26,8 +26,8 @@ class NativeStartupTest(unittest.TestCase):
                 req = urllib.request.Request(observed['url'] + '__beebright/bridge',
                     data=json.dumps({'operation': 'settings', 'value': None}).encode(),
                     headers={'Content-Type': 'application/json', 'X-BeeBright-Token': token})
-                self.assertEqual(json.load(urllib.request.urlopen(req)), {'theme': 'light'})
-            fake = SimpleNamespace(create_window=create_window, start=start)
+                self.assertEqual(json.load(urllib.request.urlopen(req)), {'theme': 'light', 'profileId': 'default'})
+            fake = SimpleNamespace(create_window=create_window, start=start, settings={})
             with patch.object(app.sys, 'version_info', (3, 15)), patch.dict('sys.modules', {'webview': fake}), patch.object(app, 'USER_DATA', data), patch.object(engine, 'USER_DATA', data):
                 app.run()
             with self.assertRaises(OSError):

@@ -16,6 +16,7 @@ jobs:
       - run: npm ci
         working-directory: BeeBright-Full-Stack/beebright-spelling-bee/frontend
       - run: node tools/build-local.mjs --materialize
+      - run: node --test BeeBright-Full-Stack/beebright-spelling-bee/frontend/src/*.test.js
       - run: python3 -m unittest discover -s local -v
       - run: sh -n local/install.sh
       - run: sh tools/test-posix-runtime.sh

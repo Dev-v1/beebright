@@ -1,5 +1,12 @@
 # BeeBright releases
 
+## 2.0
+
+- Twenty new commands: daily, review, compete, doctor, stats, profile, backup, restore, sprint, lists, practice, audio, origins, pairs, favorites, worksheet, remind, achievements, duel and changelog.
+- Shared website and local practice tools, timed sessions, daily seeded questions, word-origin filters, pair lessons, favorites and printable worksheets.
+- Per-player local progress, portable backup/restore and on-device reminder notifications.
+- Practice tool history on the website is saved per account in the current browser. Local tools never need a cloud account.
+
 ## 1.9
 
 - Save local sessions immediately and serialize writes so fast exits and completing a set do not restore stale progress.

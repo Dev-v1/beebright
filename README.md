@@ -32,6 +32,12 @@ Each prints the installed release, such as `BeeBright 1.8`, without opening the 
 
 Run `beebright help` for descriptions of every command. Help and version checks work offline. `beebright update` installs the latest app and migrates older private runtimes to Python 3.15.
 
+## BeeBright 2.0 practice tools
+
+The website and local edition share daily challenges, review, mock bees, sprints, custom sessions, origins, word pairs, favorites, printable worksheets, duels, statistics and achievements. Open **Practice tools** from the main navigation. Local terminal commands also provide player profiles, backup/restore, reminders, diagnostics and release notes. See [the local command reference](local/README.md#beebright-20-commands).
+
+Statistics and favorites on the website are per-account browser data. Existing session cloud saves remain supported. The local edition keeps everything on the computer and does not need an account.
+
 ## Uninstall
 
 Close BeeBright and stop local browser practice with Ctrl+C, then run:

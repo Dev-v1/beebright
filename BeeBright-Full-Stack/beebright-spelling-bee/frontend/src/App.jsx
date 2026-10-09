@@ -1,3 +1,4 @@
+import { PracticeTools, useStudio } from "./studio.jsx";
 import release from '../../../../local/release.json';
 import { desktopSpeak } from "./local-api.js";
 import { hideSpelling, sentenceHint } from "./hints.js";
@@ -51,18 +52,25 @@ function labelForLevel(key) {
   return ({ one_bee: "One Bee", two_bee: "Two Bee", three_bee: "Three Bee", random: "Random" })[key] || key;
 }
 
-function speakWithBrowser(word) {
+function speakWithBrowser(word, audioSettings = {}) {
   if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(word);
-  utterance.rate = 0.72;
+  utterance.rate = audioSettings.rate || 0.72;
+  utterance.volume = audioSettings.volume ?? 1;
+  utterance.voice = window.speechSynthesis.getVoices().find(v => v.voiceURI === audioSettings.voice) || null;
   window.speechSynthesis.speak(utterance);
 }
 
 function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMode = false }) {
+  const studio = useStudio(userId, localMode);
+  const [feature, setFeature] = useState(() => localMode ? new URLSearchParams(window.location.search).get('feature') || '' : '');
+  const [practiceContext, setPracticeContext] = useState(null);
+  const [remaining, setRemaining] = useState(null);
+  const [duelScore, setDuelScore] = useState([0, 0]);
   const [installPlatform, setInstallPlatform] = useState("windows");
   const installCommands = { windows: "irm https://beebright.vercel.app/install.ps1 | iex", macos: "curl -fsSL https://beebright.vercel.app/install.sh | sh", linux: "curl -fsSL https://beebright.vercel.app/install.sh | sh" };
-  const [screen, setScreen] = useState("home");
+  const [screen, setScreen] = useState(() => feature ? "tools" : "home");
   const [mode, setMode] = useState("choice");
   const [levels, setLevels] = useState([]);
   const [level, setLevel] = useState("one_bee");
@@ -85,6 +93,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   const [resumeAvailable, setResumeAvailable] = useState(false);
   const [savedSession, setSavedSession] = useState(null);
   const audioRef = useRef(null);
+  const answerLockRef = useRef(false);
   const saveTimerRef = useRef(null);
   const saveQueueRef = useRef(Promise.resolve());
   const sessionKey = `${SESSION_KEY}:${userId}`;
@@ -128,7 +137,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     if (!currentWord || screen !== "practice") return;
     let cancelled = false;
     setDictionary(EMPTY_DICTIONARY);
-    getDictionary(currentWord)
+    (current?.hint ? Promise.resolve(current.hint) : getDictionary(currentWord))
       .then((result) => !cancelled && setDictionary(result))
       .catch(() => !cancelled && setDictionary({ ...EMPTY_DICTIONARY, word: currentWord, definition: "Dictionary information is temporarily unavailable.", origin: "Word origin is temporarily unavailable.", sentence: "Example sentence is temporarily unavailable." }));
     return () => { cancelled = true; };
@@ -137,7 +146,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   useEffect(() => {
     if (screen !== "practice" || !words.length) return;
     const session = {
-      mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed,
+      mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, practiceContext, duelScore,
     };
     localStorage.setItem(sessionKey, JSON.stringify(session));
     setSavedSession(session);
@@ -152,17 +161,45 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     if (localMode) persist();
     else saveTimerRef.current = window.setTimeout(persist, 350);
     return () => window.clearTimeout(saveTimerRef.current);
-  }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, getToken, sessionKey, localMode]);
+  }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, getToken, sessionKey, localMode, practiceContext, duelScore]);
+
+  useEffect(() => {
+    if (screen !== 'practice' || !practiceContext?.deadline) return;
+    const tick = () => {
+      const seconds = Math.max(0, Math.ceil((practiceContext.deadline - Date.now()) / 1000));
+      setRemaining(seconds);
+      if (!seconds) {
+        window.clearTimeout(saveTimerRef.current);
+        setScreen('results');
+        localStorage.removeItem(sessionKey);
+        setResumeAvailable(false); setSavedSession(null);
+        saveQueueRef.current.then(() => getToken()).then(token => token && deleteSavedProgress(token)).catch(() => {});
+      }
+    };
+    tick(); const timer = window.setInterval(tick, 250);
+    return () => window.clearInterval(timer);
+  }, [screen, practiceContext?.deadline, getToken, sessionKey]);
+
+  function preparedPractice(config) {
+    answerLockRef.current = false;
+    setWords(config.words); setMode(config.mode); setLevel(config.level); setWordListId(config.listId);
+    setIndex(0); setCorrect(0); setStreak(0); setBestStreak(0); setSetOffset(0);
+    setAnswer(''); setFeedback(null); setRevealed(false); setHint(null);
+    setShuffleSeed(null); setPracticeContext(config); setDuelScore([0,0]);
+    setRemaining(config.deadline ? 120 : null); setScreen('practice');
+  }
 
   function playWord() {
     if (localMode) { desktopSpeak(currentWord).catch(() => setMessage("Your local speech voice is unavailable.")); return; }
-    if (dictionary.word === currentWord && dictionary.audio_url) {
+    if (dictionary.word === currentWord && dictionary.audio_url && !studio.data.audio.voice) {
       if (audioRef.current) audioRef.current.pause();
       const audio = new Audio(dictionary.audio_url);
+      audio.playbackRate = studio.data.audio.rate / .72;
+      audio.volume = studio.data.audio.volume;
       audioRef.current = audio;
-      audio.play().catch(() => speakWithBrowser(currentWord));
+      audio.play().catch(() => speakWithBrowser(currentWord, studio.data.audio));
     } else {
-      speakWithBrowser(currentWord);
+      speakWithBrowser(currentWord, studio.data.audio);
     }
   }
 
@@ -172,6 +209,8 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     try {
       const response = await getPracticeSet(level, nextOffset, false, wordListId, nextOffset ? shuffleSeed : null);
       const selectedWords = response.words;
+      setPracticeContext(null);
+      answerLockRef.current = false;
       setWords(selectedWords);
       setSetOffset(response.offset);
       setShuffleSeed(response.shuffle_seed || null);
@@ -195,6 +234,8 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     try {
       const saved = savedSession || JSON.parse(localStorage.getItem(sessionKey));
       if (!saved?.words?.length) return;
+      setPracticeContext(saved.practiceContext || null);
+      setDuelScore(saved.duelScore || [0,0]);
       setMode(saved.mode);
       setLevel(saved.level);
       const savedWordListId = saved.wordListId || "champions-2024";
@@ -209,6 +250,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
       setStreak(saved.streak || 0);
       setBestStreak(saved.bestStreak || 0);
       setAnswer(saved.answer || "");
+      answerLockRef.current = Boolean(saved.feedback);
       setFeedback(saved.feedback || null);
       setRevealed(Boolean(saved.revealed));
       setScreen("practice");
@@ -219,8 +261,11 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   }
 
   function checkAnswer(value = answer) {
-    if (!value.trim() || feedback) return;
-    const isCorrect = value.trim().toLocaleLowerCase() === currentWord.toLocaleLowerCase();
+    if (!value.trim() || feedback || answerLockRef.current || !current || (practiceContext?.deadline && Date.now() >= practiceContext.deadline)) return;
+    answerLockRef.current = true;
+    const isCorrect = value.trim().normalize('NFC').toLocaleLowerCase() === currentWord.normalize('NFC').toLocaleLowerCase();
+    studio.record(currentWord, isCorrect, current.level || level, current.listId || wordListId, practiceContext?.kind || mode);
+    if (practiceContext?.kind === 'duel' && isCorrect) setDuelScore(scores => scores.map((score, player) => player === index % 2 ? score + 1 : score));
     setAnswer(value);
     setFeedback(isCorrect ? "correct" : "incorrect");
     if (isCorrect) {
@@ -236,7 +281,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   }
 
   async function nextQuestion() {
-    if (index >= words.length - 1) {
+    if (index >= words.length - 1 || (practiceContext?.kind === 'compete' && feedback === 'incorrect')) {
       localStorage.removeItem(sessionKey);
       setResumeAvailable(false);
       setSavedSession(null);
@@ -247,6 +292,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
       setScreen("results");
       return;
     }
+    answerLockRef.current = false;
     setIndex((value) => value + 1);
     setAnswer("");
     setFeedback(null);
@@ -275,9 +321,10 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     <main className="app-shell">
       <header className="topbar">
         <button className="brand" onClick={() => setScreen("home")}><span>bee</span>bright</button>
-        <div className="top-actions">{!localMode && <a href="/download.html" className="settings-button">Desktop app</a>}<div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
+        <div className="top-actions"><button className="settings-button" onClick={() => { setFeature(''); setScreen('tools'); }}>Practice tools</button>{!localMode && <a href="/download.html" className="settings-button">Desktop app</a>}<div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
       </header>
 
+      {screen === 'tools' && <PracticeTools feature={feature} setFeature={setFeature} studio={studio} localMode={localMode} onStart={preparedPractice} onClose={() => setScreen('home')} />}
       {screen === "home" && (
         <section className="home-page page-width">
           <div className="hero-copy">
@@ -349,6 +396,8 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
           </div>
 
           <div className="practice-content">
+            {practiceContext && <div className="challenge-banner"><strong>{practiceContext.title}</strong>{remaining !== null && <span role="timer">{Math.floor(remaining/60)}:{String(remaining%60).padStart(2,'0')} remaining</span>}{practiceContext.kind === 'duel' && <span>{practiceContext.players[index%2]}’s turn · {duelScore[0]} : {duelScore[1]}</span>}</div>}
+            <button className="text-button favorite-word" onClick={() => studio.favorite(currentWord)}>{studio.data.favorites.includes(currentWord) ? '★ Saved word' : '☆ Save word'}</button>
             <p className="eyebrow">{activeMode.name.toUpperCase()} · {labelForLevel(level).toUpperCase()}</p>
 
             {mode === "flash" ? (
@@ -356,7 +405,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
                 <small>DOUBLE CLICK OR PRESS ENTER TO {revealed ? "REVIEW" : "REVEAL"}</small>
                 <h2>{revealed ? currentWord : safeDefinition}</h2>
                 <p>{revealed ? safeDefinition : safeSentence}</p>
-                {revealed && <button className="primary" onClick={nextQuestion}>Next word <ArrowRight size={16} /></button>}
+                {revealed && <div><button className="primary" onClick={() => { checkAnswer(currentWord); nextQuestion(); }}>I knew it <ArrowRight size={16} /></button><button className="outline" onClick={() => { checkAnswer('[not known]'); nextQuestion(); }}>Review again</button></div>}
               </div>
             ) : (
               <>
@@ -405,9 +454,10 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
           <Sparkles size={50} />
           <p className="eyebrow">SET COMPLETE</p>
           <h1>You finished strong.</h1>
-          <p className="lead">You completed {words.length} questions in {activeMode.name}. Your next set is ready when you are.</p>
-          <div className="result-grid"><div><b>{correct}</b><span>correct answers</span></div><div><b>{bestStreak}</b><span>best streak</span></div><div><b>{words.length ? Math.round((correct / words.length) * 100) : 0}%</b><span>score</span></div></div>
-          <button className="primary" onClick={() => startPractice(setOffset + words.length)}>Start next set <ArrowRight size={16} /></button>
+          <p className="lead">You practiced {practiceContext ? index + (feedback ? 1 : 0) : words.length} questions in {activeMode.name}. Your next set is ready when you are.</p>
+          <div className="result-grid"><div><b>{correct}</b><span>correct answers</span></div><div><b>{bestStreak}</b><span>best streak</span></div><div><b>{(practiceContext ? index + (feedback ? 1 : 0) : words.length) ? Math.round((correct / (practiceContext ? index + (feedback ? 1 : 0) : words.length)) * 100) : 0}%</b><span>score</span></div></div>
+          {practiceContext?.kind === 'duel' && <p>{practiceContext.players[0]}: {duelScore[0]} · {practiceContext.players[1]}: {duelScore[1]} · {duelScore[0] === duelScore[1] ? 'Tie!' : practiceContext.players[duelScore[0] > duelScore[1] ? 0 : 1] + ' wins!'}</p>}
+          {practiceContext ? <button className="primary" onClick={() => { setFeature(practiceContext.kind); setScreen('tools'); }}>Back to {practiceContext.title}</button> : <button className="primary" onClick={() => startPractice(setOffset + words.length)}>Start next set <ArrowRight size={16} /></button>}
           <button className="text-button center-button" onClick={() => setScreen("setup")}>Choose another mode</button>
         </section>
       )}

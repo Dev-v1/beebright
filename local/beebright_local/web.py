@@ -74,7 +74,7 @@ class LocalHandler(BaseHTTPRequestHandler):
             return self._send(403, {'error': 'Open BeeBright locally to use practice.'})
         try:
             size = int(self.headers.get('Content-Length', '0'))
-            if not 0 < size <= 1_048_576 or self.headers.get_content_type() != 'application/json':
+            if not 0 < size <= 67_108_864 or self.headers.get_content_type() != 'application/json':
                 raise ValueError('Invalid local request.')
             data = json.loads(self.rfile.read(size))
             if not isinstance(data, dict):
@@ -96,7 +96,7 @@ class LocalHandler(BaseHTTPRequestHandler):
             self._send(400, {'error': str(exc)})
 
 
-def run_web(port=8765):
+def run_web(port=8765, feature=None):
     if not 1 <= port <= 65535:
         raise ValueError('Choose a port from 1 to 65535.')
     for candidate in range(port, min(port + 20, 65536)):
@@ -107,7 +107,7 @@ def run_web(port=8765):
             continue
     else:
         raise RuntimeError('The local ports are busy. Close other servers and try again.')
-    url = f'http://beebright.localhost:{server.server_address[1]}/'
+    url = f'http://beebright.localhost:{server.server_address[1]}/' + (f'?feature={feature}' if feature else '')
     print(f'BeeBright local web: {url}', flush=True)
     print(f'Alternative: http://127.0.0.1:{server.server_address[1]}/', flush=True)
     print('Keep this terminal open. Press Ctrl+C to stop. Progress stays on this computer.', flush=True)
