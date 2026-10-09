@@ -15,7 +15,8 @@ function Invoke-WebRequest {
 & (Join-Path $Repo 'local/install.ps1') -SkipLaunch
 $Bee = Join-Path $env:LOCALAPPDATA 'BeeBright'
 if (-not (Get-Command beebright.cmd -ErrorAction SilentlyContinue)) { throw 'Installer did not expose the beebright command.' }
-Push-Location "$Bee/current"
+$Package = Join-Path "$Bee/packages" (Get-Content "$Bee/active-package.json" -Raw | ConvertFrom-Json).package
+Push-Location $Package
 try {
     & "$Bee/runtime-3.15/python.exe" (Join-Path $Repo "tools/test_local_ui.py")
     if ($LASTEXITCODE) { throw 'Installed runtime could not open the desktop UI.' }

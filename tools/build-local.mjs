@@ -39,7 +39,7 @@ function collect(dir,prefix) {
 collect(path.join(frontend,'dist-local'),'beebright_local/ui');
 files.set('beebright_local/ui/CHANGELOG.md',fs.readFileSync(path.join(local,'CHANGELOG.md')));
 files.set('beebright_local/ui/bee.svg',fs.readFileSync(path.join(frontend,'public/bee.svg')));
-for(const name of ['App.jsx','api.js','hints.js','local-api.js','local-main.jsx','styles.css','fonts.css','studio.jsx','studio-core.js']) {
+for(const name of ['App.jsx','api.js','hints.js','local-api.js','local-main.jsx','styles.css','fonts.css','studio.jsx','studio-core.js','arcade-core.js','arcade.jsx','arcade.css','games-2d.js','games-3d.js']) {
   let source=fs.readFileSync(path.join(frontend,'src',name));
   if(name==='App.jsx') source=Buffer.from(source.toString().replace('../../../../local/release.json','../../release.json'));
   files.set('ui-source/src/'+name,source);
@@ -47,6 +47,7 @@ for(const name of ['App.jsx','api.js','hints.js','local-api.js','local-main.jsx'
 for(const name of ['package.json','package-lock.json','vite.config.js','local.html']) {
   files.set('ui-source/'+name,fs.readFileSync(path.join(frontend,name)));
 }
+files.set('THIRD_PARTY_THREE_LICENSE.txt',fs.readFileSync(path.join(frontend,'node_modules/three/LICENSE')));
 files.set('LICENSE',fs.readFileSync(path.join(root,'LICENSE')));
 for (const [name, data] of Object.entries({hints,lists,distractors:readJson('distractors.json')})) {
   files.set(`beebright_local/data/${name}.json`,Buffer.from(JSON.stringify(data)));

@@ -1,9 +1,10 @@
 import { PracticeTools, useStudio } from "./studio.jsx";
+import { breakAfter } from "./arcade-core.js";
 import { practiceSetSize } from "./studio-core.js";
 import release from '../../../../local/release.json';
 import { desktopSpeak } from "./local-api.js";
 import { hideSpelling, sentenceHint } from "./hints.js";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -30,6 +31,8 @@ import {
   getWordLists,
   saveProgress,
 } from "./api.js";
+
+const Arcade = lazy(() => import("./arcade.jsx"));
 
 const SESSION_KEY = "beebright-session-v2";
 
@@ -67,6 +70,8 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   const studio = useStudio(userId, localMode);
   const [feature, setFeature] = useState(() => localMode ? new URLSearchParams(window.location.search).get('feature') || '' : '');
   const [practiceContext, setPracticeContext] = useState(null);
+  const [breakState, setBreakState] = useState(null);
+  const transitionLockRef = useRef(false);
   const [remaining, setRemaining] = useState(null);
   const [duelScore, setDuelScore] = useState([0, 0]);
   const [installPlatform, setInstallPlatform] = useState("windows");
@@ -146,9 +151,9 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   }, [currentWord, screen]);
 
   useEffect(() => {
-    if (screen !== "practice" || !words.length) return;
+    if (!["practice", "break"].includes(screen) || !words.length) return;
     const session = {
-      mode, level, wordListId, setOffset, shuffleSeed, words: words.map(({hint, ...word}) => level === "pairs" ? {...word, hint} : word), index, correct, streak, bestStreak, answer, feedback, revealed, practiceContext, duelScore,
+      mode, level, wordListId, setOffset, shuffleSeed, words: words.map(({hint, ...word}) => level === "pairs" ? {...word, hint} : word), index, correct, streak, bestStreak, answer, feedback, revealed, practiceContext, duelScore, breakState,
     };
     localStorage.setItem(sessionKey, JSON.stringify(session));
     setSavedSession(session);
@@ -163,7 +168,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     if (localMode) persist();
     else saveTimerRef.current = window.setTimeout(persist, 350);
     return () => window.clearTimeout(saveTimerRef.current);
-  }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, getToken, sessionKey, localMode, practiceContext, duelScore]);
+  }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, getToken, sessionKey, localMode, practiceContext, duelScore, breakState]);
 
   useEffect(() => {
     if (screen !== 'practice' || !practiceContext?.deadline) return;
@@ -173,9 +178,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
       if (!seconds) {
         window.clearTimeout(saveTimerRef.current);
         setScreen('results');
-        localStorage.removeItem(sessionKey);
-        setResumeAvailable(false); setSavedSession(null);
-        saveQueueRef.current.then(() => getToken()).then(token => token && deleteSavedProgress(token)).catch(() => {});
+        clearSession();
       }
     };
     tick(); const timer = window.setInterval(tick, 250);
@@ -184,6 +187,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
 
   function preparedPractice(config) {
     answerLockRef.current = false;
+    transitionLockRef.current = false; setBreakState(null);
     setWords(config.words); setMode(config.mode); setLevel(config.level); setWordListId(config.listId);
     setIndex(0); setCorrect(0); setStreak(0); setBestStreak(0); setSetOffset(0);
     setAnswer(''); setFeedback(null); setRevealed(false); setHint(null);
@@ -212,6 +216,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
       const response = await getPracticeSet(level, nextOffset, false, wordListId, nextOffset ? shuffleSeed : null);
       const selectedWords = response.words;
       setPracticeContext(null);
+      transitionLockRef.current = false; setBreakState(null);
       answerLockRef.current = false;
       setWords(selectedWords);
       setSetOffset(response.offset);
@@ -255,7 +260,9 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
       answerLockRef.current = Boolean(saved.feedback);
       setFeedback(saved.feedback || null);
       setRevealed(Boolean(saved.revealed));
-      setScreen("practice");
+      setBreakState(saved.breakState || null);
+      transitionLockRef.current = false;
+      setScreen(saved.breakState ? "break" : "practice");
     } catch {
       localStorage.removeItem(sessionKey);
       setResumeAvailable(false);
@@ -282,24 +289,39 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     }
   }
 
-  async function nextQuestion() {
+  function clearSession() {
+    localStorage.removeItem(sessionKey);
+    setResumeAvailable(false); setSavedSession(null);
+    window.clearTimeout(saveTimerRef.current);
+    // Keep deletion in the same queue as saves; a new set cannot race an old deletion.
+    saveQueueRef.current = saveQueueRef.current.catch(() => {}).then(async () => {
+      const token = await getToken();
+      if (token) await deleteSavedProgress(token);
+    }).catch(() => {});
+  }
+
+  function finishBreak() {
+    if (breakState?.after === 'results') clearSession();
+    setScreen(breakState?.after || 'practice');
+    setBreakState(null);
+  }
+
+  function nextQuestion() {
+    if (transitionLockRef.current) return;
+    transitionLockRef.current = true;
+    const checkpoint = breakAfter(index + 1, words.length, Boolean(practiceContext));
     if (index >= words.length - 1 || (practiceContext?.kind === 'compete' && feedback === 'incorrect')) {
-      localStorage.removeItem(sessionKey);
-      setResumeAvailable(false);
-      setSavedSession(null);
-      window.clearTimeout(saveTimerRef.current);
-      setScreen("results");
-      await saveQueueRef.current;
-      getToken().then((token) => token && deleteSavedProgress(token)).catch(() => {});
+      if (checkpoint) { setBreakState(checkpoint); setScreen('break'); }
+      else { clearSession(); setScreen('results'); }
       return;
     }
     answerLockRef.current = false;
     setIndex((value) => value + 1);
-    setAnswer("");
-    setFeedback(null);
-    setRevealed(false);
-    setHint(null);
+    setAnswer(''); setFeedback(null); setRevealed(false); setHint(null);
+    if (checkpoint) { setBreakState(checkpoint); setScreen('break'); }
   }
+
+  useEffect(() => { transitionLockRef.current = false; }, [index, screen]);
 
   function chooseWordList(nextId) {
     const selected = wordLists.find((item) => item.id === nextId);
@@ -325,7 +347,8 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
         <div className="top-actions"><button className="settings-button" onClick={() => { setFeature(''); setScreen('tools'); }}>Practice tools</button>{!localMode && <a href="/download.html" className="settings-button">Desktop app</a>}<div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
       </header>
 
-      {screen === 'tools' && <PracticeTools feature={feature} setFeature={setFeature} studio={studio} localMode={localMode} getToken={getToken} onStart={preparedPractice} onClose={() => setScreen('home')} />}
+      {screen === 'break' && <Suspense fallback={<section className="page-width"><p>Opening your break arcade…</p></section>}><Arcade localMode={localMode} breakState={breakState} onTakeBreak={() => setBreakState(state => ({...state, deadline: Date.now() + state.minutes * 60000}))} onFinishBreak={finishBreak} scores={studio.data.games} onScore={(id, score) => studio.change(data => ({...data, games: {...data.games, [id]: Math.max(data.games?.[id] || 0, score)}}))} /></Suspense>}
+      {screen === 'tools'  && <PracticeTools feature={feature} setFeature={setFeature} studio={studio} localMode={localMode} getToken={getToken} onStart={preparedPractice} onClose={() => setScreen('home')} />}
       {screen === "home" && (
         <section className="home-page page-width">
           <div className="hero-copy">
