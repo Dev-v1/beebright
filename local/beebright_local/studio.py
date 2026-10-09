@@ -17,7 +17,9 @@ def profiles():
     value = engine.read_json('profiles.json', {'active': 'default', 'players': [{'id': 'default', 'name': 'Me'}]})
     if not isinstance(value, dict) or not isinstance(value.get('players'), list) or not value['players']:
         raise ValueError('Player registry is damaged. Restore a backup.')
-    ids = {p.get('id') for p in value['players'] if isinstance(p, dict)}
+    if any(not isinstance(p, dict) or not re.fullmatch(r'(default|[a-f0-9]{16})', str(p.get('id', ''))) or not isinstance(p.get('name'), str) for p in value['players']):
+        raise ValueError('Player registry is damaged. Restore a backup.')
+    ids = {p['id'] for p in value['players']}
     if value.get('active') not in ids or not re.fullmatch(r'(default|[a-f0-9]{16})', str(value.get('active', ''))):
         raise ValueError('Player registry is damaged. Restore a backup.')
     return value
