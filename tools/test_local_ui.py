@@ -53,7 +53,7 @@ def test(w):
         w.evaluate_js("document.querySelector('.studio-card .primary').click()")
         wait(w,"document.querySelector('.practice-content') !== null")
         assert w.evaluate_js("document.querySelector('.progress-area').innerText.includes('OF 10')")
-        w.evaluate_js("document.querySelector('.favorite-word').click()")
+        w.evaluate_js("if(document.querySelector('.favorite-word').innerText.includes('Save word'))document.querySelector('.favorite-word').click()")
         tool('Favorite words')
         wait(w,"document.querySelector('.favorite-list button') !== null")
         tool('Mock spelling bee')
@@ -98,7 +98,7 @@ def test(w):
         # Verify actual rendered contrast, including the former white-on-white button.
         w.evaluate_js("document.querySelector('.brand').click()")
         wait(w,"document.querySelector('.hero-copy h1') !== null")
-        assert w.evaluate_js("""(() => {
+        assert w.evaluate_js(r"""(() => {
             const rgb = s => s.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4});
             const lum = s => {const c=rgb(s);return c[0]*.2126+c[1]*.7152+c[2]*.0722};
             const contrast = (a,b) => (Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05);

@@ -146,7 +146,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   useEffect(() => {
     if (screen !== "practice" || !words.length) return;
     const session = {
-      mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, practiceContext, duelScore,
+      mode, level, wordListId, setOffset, shuffleSeed, words: words.map(({hint, ...word}) => level === "pairs" ? {...word, hint} : word), index, correct, streak, bestStreak, answer, feedback, revealed, practiceContext, duelScore,
     };
     localStorage.setItem(sessionKey, JSON.stringify(session));
     setSavedSession(session);
@@ -185,7 +185,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     setWords(config.words); setMode(config.mode); setLevel(config.level); setWordListId(config.listId);
     setIndex(0); setCorrect(0); setStreak(0); setBestStreak(0); setSetOffset(0);
     setAnswer(''); setFeedback(null); setRevealed(false); setHint(null);
-    setShuffleSeed(null); setPracticeContext(config); setDuelScore([0,0]);
+    setShuffleSeed(null); const {words: _selectedWords, ...context} = config; setPracticeContext(context); setDuelScore([0,0]);
     setRemaining(config.deadline ? 120 : null); setScreen('practice');
   }
 
@@ -261,7 +261,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   }
 
   function checkAnswer(value = answer) {
-    if (!value.trim() || feedback || answerLockRef.current || !current || (practiceContext?.deadline && Date.now() >= practiceContext.deadline)) return;
+    if (!studio.ready || !value.trim() || feedback || answerLockRef.current || !current || (practiceContext?.deadline && Date.now() >= practiceContext.deadline)) return;
     answerLockRef.current = true;
     const isCorrect = value.trim().normalize('NFC').toLocaleLowerCase() === currentWord.normalize('NFC').toLocaleLowerCase();
     studio.record(currentWord, isCorrect, current.level || level, current.listId || wordListId, practiceContext?.kind || mode);
@@ -324,7 +324,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
         <div className="top-actions"><button className="settings-button" onClick={() => { setFeature(''); setScreen('tools'); }}>Practice tools</button>{!localMode && <a href="/download.html" className="settings-button">Desktop app</a>}<div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
       </header>
 
-      {screen === 'tools' && <PracticeTools feature={feature} setFeature={setFeature} studio={studio} localMode={localMode} onStart={preparedPractice} onClose={() => setScreen('home')} />}
+      {screen === 'tools' && <PracticeTools feature={feature} setFeature={setFeature} studio={studio} localMode={localMode} getToken={getToken} onStart={preparedPractice} onClose={() => setScreen('home')} />}
       {screen === "home" && (
         <section className="home-page page-width">
           <div className="hero-copy">
@@ -397,7 +397,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
 
           <div className="practice-content">
             {practiceContext && <div className="challenge-banner"><strong>{practiceContext.title}</strong>{remaining !== null && <span role="timer">{Math.floor(remaining/60)}:{String(remaining%60).padStart(2,'0')} remaining</span>}{practiceContext.kind === 'duel' && <span>{practiceContext.players[index%2]}’s turn · {duelScore[0]} : {duelScore[1]}</span>}</div>}
-            <button className="text-button favorite-word" onClick={() => studio.favorite(currentWord)}>{studio.data.favorites.includes(currentWord) ? '★ Saved word' : '☆ Save word'}</button>
+            <button className="text-button favorite-word" disabled={!studio.ready} onClick={() => studio.favorite(currentWord)}>{studio.data.favorites.includes(currentWord) ? '★ Saved word' : '☆ Save word'}</button>
             <p className="eyebrow">{activeMode.name.toUpperCase()} · {labelForLevel(level).toUpperCase()}</p>
 
             {mode === "flash" ? (
