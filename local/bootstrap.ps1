@@ -130,11 +130,12 @@ try {
                 Copy-Item "$NewPackage\bootstrap.ps1" "$BeeRoot\bootstrap.ps1" -Force
                 $Pointer = Join-Path $BeeRoot 'active-package.json'
                 $PointerStage = $Pointer + '.' + [guid]::NewGuid().ToString('N') + '.tmp'
+                $PointerBackup = $PointerStage + '.backup'
                 try {
                     @{package=$Name} | ConvertTo-Json -Compress | Set-Content -LiteralPath $PointerStage -Encoding Ascii
-                    if (Test-Path $Pointer) { [IO.File]::Replace($PointerStage, $Pointer, $null) }
+                    if (Test-Path $Pointer) { [IO.File]::Replace($PointerStage, $Pointer, $PointerBackup) }
                     else { [IO.File]::Move($PointerStage, $Pointer) }
-                } finally { if (Test-Path $PointerStage) { Remove-Item -LiteralPath $PointerStage -Force } }
+                } finally { foreach ($TemporaryPointer in @($PointerStage, $PointerBackup)) { if (Test-Path $TemporaryPointer) { Remove-Item -LiteralPath $TemporaryPointer -Force } } }
                 $Current = $NewPackage
                 Write-Host 'BeeBright is up to date.'
             } finally {
