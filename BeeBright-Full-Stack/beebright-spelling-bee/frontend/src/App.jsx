@@ -289,7 +289,6 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
       setScreen("results");
       await saveQueueRef.current;
       getToken().then((token) => token && deleteSavedProgress(token)).catch(() => {});
-      setScreen("results");
       return;
     }
     answerLockRef.current = false;
