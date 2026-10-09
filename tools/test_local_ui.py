@@ -21,6 +21,7 @@ def test(w):
             wait(w,"document.querySelector('.mode-grid') !== null")
             w.evaluate_js("Array.from(document.querySelectorAll('.mode-grid button')).find(b=>b.innerText.includes("+repr(mode)+")).click()")
             wait(w,"document.querySelectorAll('.level-buttons button').length === 3")
+            assert w.evaluate_js("document.querySelector('.word-list-picker select').value === 'study-2027'")
             w.evaluate_js("document.querySelector('.set-panel .primary').click()")
             wait(w,"document.querySelector('.practice-content') !== null")
             if mode=='Flash Cards':

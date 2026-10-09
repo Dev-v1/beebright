@@ -1,4 +1,12 @@
-param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '', [Parameter(Position=1)][string]$Target = '')
+param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '', [Parameter(Position=1)][string]$Target = '', [Alias('v', '-v', '-version')][switch]$Version)
+if ($Version) {
+    $ErrorActionPreference = 'Stop'
+    $ReleaseFile = Join-Path $env:LOCALAPPDATA 'BeeBright\current\release.json'
+    if (-not (Test-Path $ReleaseFile)) { throw 'Installed BeeBright version is unavailable. Run beebright update.' }
+    $Release = Get-Content $ReleaseFile -Raw | ConvertFrom-Json
+    Write-Output "BeeBright $($Release.version)"
+    return
+}
 if ($Command -notin @('', 'update', 'web', 'create') -or ($Command -eq 'create' -and $Target -ne 'web') -or ($Command -ne 'create' -and $Target)) { throw 'Usage: beebright | beebright update | beebright web | beebright create web' }
 $UpdateOnly = $Command -eq 'update'
 if ($UpdateOnly) { $SkipLaunch = $true }
@@ -33,8 +41,8 @@ try {
                 if ((Get-FileHash $Zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Manifest.sha256) { throw 'Update checksum did not match.' }
                 Expand-Archive -LiteralPath $Zip -DestinationPath $Stage
                 if (-not (Test-Path "$Stage\beebright_local\app.py")) { throw 'Update is missing the desktop app.' }
-                $Version = (Get-Content "$Stage\version.json" -Raw | ConvertFrom-Json).version
-                if ($Version -ne $Manifest.version) { throw 'Update version did not match.' }
+                $PackageVersion = (Get-Content "$Stage\version.json" -Raw | ConvertFrom-Json).version
+                if ($PackageVersion -ne $Manifest.version) { throw 'Update version did not match.' }
                 $Old = Join-Path $BeeRoot 'previous'
                 if (Test-Path $Old) { Remove-Item $Old -Recurse -Force }
                 if (Test-Path $Current) { Move-Item $Current $Old }

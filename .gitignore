@@ -18,3 +18,5 @@
 /local/beebright_local/ui/
 /local/ui-source/
 **/dist-local/
+
+/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/install.sh

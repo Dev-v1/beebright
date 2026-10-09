@@ -48,7 +48,7 @@ class DesktopApi:
             return hint_for(word, self._hints)
         if route == '/api/practice' and method == 'GET':
             q = parse_qs(parsed.query)
-            record = next((r for r in self._lists if r['id'] == q.get('word_list_id', ['champions-2024'])[0]), None)
+            record = next((r for r in self._lists if r['id'] == q.get('word_list_id', ['study-2027'])[0]), None)
             if record is None:
                 raise ValueError('Unknown local word list.')
             level = q.get('level', ['one_bee'])[0]
@@ -112,8 +112,8 @@ class DesktopApi:
             subprocess.run(args, input=word, text=True, creationflags=subprocess.CREATE_NO_WINDOW, timeout=60, check=True)
         elif sys.platform == 'darwin':
             subprocess.run(['say', '--', word], check=True, timeout=60)
-        elif shutil.which('espeak'):
-            subprocess.run(['espeak', '-s', '130', '--', word], check=True, timeout=60)
+        elif shutil.which('espeak') or shutil.which('espeak-ng'):
+            subprocess.run([shutil.which('espeak') or shutil.which('espeak-ng'), '-s', '130', '--', word], check=True, timeout=60)
         else:
             raise RuntimeError('Install an offline speech voice such as espeak.')
         return True

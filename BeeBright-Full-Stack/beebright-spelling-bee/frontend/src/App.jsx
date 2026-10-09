@@ -1,3 +1,4 @@
+import release from '../../../../local/release.json';
 import { desktopSpeak } from "./local-api.js";
 import { hideSpelling, sentenceHint } from "./hints.js";
 import { useEffect, useRef, useState } from "react";
@@ -59,12 +60,14 @@ function speakWithBrowser(word) {
 }
 
 function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMode = false }) {
+  const [installPlatform, setInstallPlatform] = useState("windows");
+  const installCommands = { windows: "irm https://beebright.vercel.app/install.ps1 | iex", macos: "curl -fsSL https://beebright.vercel.app/install.sh | sh", linux: "curl -fsSL https://beebright.vercel.app/install.sh | sh" };
   const [screen, setScreen] = useState("home");
   const [mode, setMode] = useState("choice");
   const [levels, setLevels] = useState([]);
   const [level, setLevel] = useState("one_bee");
   const [wordLists, setWordLists] = useState([]);
-  const [wordListId, setWordListId] = useState("champions-2024");
+  const [wordListId, setWordListId] = useState("study-2027");
   const [setOffset, setSetOffset] = useState(0);
   const [shuffleSeed, setShuffleSeed] = useState(null);
   const [words, setWords] = useState([]);
@@ -285,13 +288,15 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
             {message && <p className="status-message">{message}</p>}
           </div>
 
-          <aside className="warmup-card">
+          <div className="home-side"><aside className="warmup-card">
             <Sparkles className="warmup-spark" size={46} />
             <p>QUICK WARM-UP</p>
             <h2>100 words.<br />One focused set.</h2>
             <button onClick={() => setScreen("setup")}>Choose your mode <ArrowRight size={17} /></button>
             <div><span>✓ Learn as you go</span><span>✓ Progress saved</span></div>
           </aside>
+          {!localMode && <section className="terminal-download"><p className="eyebrow">PRACTICE ON YOUR COMPUTER</p><h3>BeeBright {release.version}</h3><p>The latest terminal release. Practice locally with no account.</p><label htmlFor="install-platform">Your operating system</label><select id="install-platform" value={installPlatform} onChange={(event) => setInstallPlatform(event.target.value)}><option value="windows">Windows · PowerShell</option><option value="macos">macOS · Terminal</option><option value="linux">Linux · Terminal</option></select><code>{installCommands[installPlatform]}</code><p>{installPlatform === "windows" ? "Paste into PowerShell, then type beebright." : "Paste into Terminal, open a new terminal, then type beebright. Practice opens in your browser."}</p></section>}
+          </div>
 
           <div className="mode-grid">
             {MODES.map(({ key, name, description, icon: Icon }) => (

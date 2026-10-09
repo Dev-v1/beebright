@@ -1,6 +1,6 @@
 # BeeBright Local
 
-A native desktop spelling practice app using the website’s exact React components, CSS, icons, and bundled fonts. No account, admin panel, server, or cloud progress database. Includes Flash Cards, Fill in the Blank, Multiple Choice, and Type the Word, with definitions, word origins, and sentences that hide the target spelling. Speech uses a voice installed on your computer.
+A native desktop spelling practice app using the website’s exact React components, CSS, icons, and bundled fonts. No account, admin panel, or cloud progress database. Practice connects only to a server on this computer. Includes Flash Cards, Fill in the Blank, Multiple Choice, and Type the Word, with definitions, word origins, and sentences that hide the target spelling. Speech uses a voice installed on your computer.
 
 ## Windows install
 
@@ -32,6 +32,16 @@ beebright update
 
 It checks the latest verified package and preserves your local progress. An explicit update reports a connection failure instead of claiming success. Each normal launch also checks for an update. Packages are verified with SHA-256 and installed through a staging directory. If the internet is unavailable, the installed app opens normally. Progress and settings live separately in `%LOCALAPPDATA%\BeeBright\userdata` and survive updates. Installation and updates require internet; practice does not.
 
+## macOS and Linux install
+
+```sh
+curl -fsSL https://beebright.vercel.app/install.sh | sh
+```
+
+The installer downloads Astral uv from its official source and installs a private Python 3.14 runtime, requiring no administrator access. It adds `~/.local/bin` to your bash or zsh profile. Open a new terminal and type `beebright`, or immediately use `~/.local/bin/beebright`. The same UI opens in your default browser; keep the terminal open and use Ctrl+C to stop. No pywebview, login or cloud storage is needed. Install `espeak` or `espeak-ng` for Linux offline speech. macOS uses its built-in `say` voice.
+
+`beebright update`, `beebright web`, `beebright create web`, and all four version flags also work here. Verified updates preserve `~/.local/share/BeeBright/userdata`. Python, uv and the app live under `~/.local/share/BeeBright`; other Python installations stay separate.
+
 ## Open BeeBright in a browser
 
 Open the public website:
@@ -59,7 +69,7 @@ python -m pip install -r requirements.txt
 python -m beebright_local
 ```
 
-On macOS, speech uses `say`; on Linux, install a pywebview GTK/Qt renderer and `espeak`. The one-command installer and automatic launch updates are currently for Windows x64.
+On macOS, speech uses `say`; on Linux, install a pywebview GTK/Qt renderer and `espeak`. The terminal installer and verified updates support macOS and Linux too; their default UI opens in the browser.
 
 ## How website fixes reach the local edition
 
@@ -72,6 +82,19 @@ This repository's sync workflow checks the canonical main branch hourly, copies 
 BeeBright code and original content retain the website's Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license. See `LICENSE`. Third-party dictionary adaptations retain their own attribution and license metadata, including CC BY-SA 4.0 for Wiktionary adaptations. Dictionary reference links are in the bundled hint records; original examples are labeled as such.
 
 The old Tkinter window has been replaced by the shared website UI in a desktop WebView2 window. Practice does not connect to Clerk, Render, Neon, Google Fonts, or dictionary APIs. Attribution links open only when clicked. Earlier locally saved sessions are migrated. The old Python 3.13 runtime is not removed automatically; uninstall it through Windows Installed apps if it is no longer needed.
+
+## Check the installed version
+
+Run any of these in your terminal:
+
+```powershell
+beebright -v
+beebright --v
+beebright --version
+beebright -version
+```
+
+Each prints the installed release, such as `BeeBright 1.7`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
 
 ## Uninstall BeeBright on Windows
 
@@ -92,3 +115,14 @@ Remove-Item -LiteralPath $BeeRoot -Recurse -Force -ErrorAction SilentlyContinue
 ```
 
 Open a new terminal afterward. To keep your progress for a future reinstall, copy `%LOCALAPPDATA%\BeeBright\userdata` somewhere safe before running these commands. Removing the local app does not delete your website account or its cloud progress.
+
+## Uninstall BeeBright on macOS or Linux
+
+Close local practice and stop its terminal with Ctrl+C first. This removes the app, its private Python and uv, and saved local progress:
+
+```sh
+rm -rf "$HOME/.local/share/BeeBright"
+rm -f "$HOME/.local/bin/beebright"
+```
+
+Optionally remove the line ending `# BeeBright` from `~/.zshrc` or `~/.bashrc`. Back up `~/.local/share/BeeBright/userdata` before uninstalling to retain progress.
