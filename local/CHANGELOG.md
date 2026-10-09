@@ -1,6 +1,6 @@
 # BeeBright releases
 
-## 2.1.1
+## 2.1 bugfix
 
 - Pause local games and release their keyboard controls while Settings is open.
 - Keep Neon Dash and Marble Run course selections independent.
