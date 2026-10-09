@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FEATURES, dailyWords, missedWords, summary, normalizeStudio, achievements, pairWords, originMatches, choicesFor} from './studio-core.js';
+import {FEATURES, dailyWords, missedWords, summary, normalizeStudio, achievements, pairWords, originMatches, choicesFor, practiceSetSize} from './studio-core.js';
 import {sentenceHint} from './hints.js';
+test('2027 practice includes a full level while other lists keep their normal set size',()=>{
+ assert.equal(practiceSetSize('study-2027'),150);
+ assert.equal(practiceSetSize('champions-2024'),100);
+ assert.equal(practiceSetSize('custom-list'),100);
+});
 test('twenty features and stable daily challenge independent of catalog order',()=>{
  assert.equal(FEATURES.length,20); assert.equal(new Set(FEATURES.map(f=>f[0])).size,20);
  const words=Array.from({length:150},(_,i)=>({word:'word'+i}));

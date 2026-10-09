@@ -1,5 +1,11 @@
 # BeeBright releases
 
+## 2.0 (fixed)
+
+- Every 2027 level now runs all 150 words in one shuffled practice set on the website, desktop app, and local browser.
+- The warm-up, setup button, and question counter show the full set size. Other word lists keep their normal 100-question sets.
+- All 450 supplied words and their existing definitions, origins, and blank sentences are retained.
+
 ## 2.0
 
 - Twenty new commands: daily, review, compete, doctor, stats, profile, backup, restore, sprint, lists, practice, audio, origins, pairs, favorites, worksheet, remind, achievements, duel and changelog.

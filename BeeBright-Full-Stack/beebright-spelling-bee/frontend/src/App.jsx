@@ -1,4 +1,5 @@
 import { PracticeTools, useStudio } from "./studio.jsx";
+import { practiceSetSize } from "./studio-core.js";
 import release from '../../../../local/release.json';
 import { desktopSpeak } from "./local-api.js";
 import { hideSpelling, sentenceHint } from "./hints.js";
@@ -99,6 +100,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   const sessionKey = `${SESSION_KEY}:${userId}`;
 
   const current = words[index];
+  const setSize = practiceSetSize(wordListId);
   const currentWord = current?.word || "";
   const choices = current?.options || [];
   const activeMode = MODES.find((item) => item.key === mode) || MODES[2];
@@ -341,7 +343,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
           <div className="home-side"><aside className="warmup-card">
             <Sparkles className="warmup-spark" size={46} />
             <p>QUICK WARM-UP</p>
-            <h2>100 words.<br />One focused set.</h2>
+            <h2>{setSize} words.<br />One focused set.</h2>
             <button onClick={() => setScreen("setup")}>Choose your mode <ArrowRight size={17} /></button>
             <div><span>✓ Learn as you go</span><span>✓ Progress saved</span></div>
           </aside>
@@ -372,12 +374,12 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
               ))}
             </div>
             <aside className="set-panel">
-              <div className="hundred">100</div>
+              <div className="hundred">{setSize}</div>
               <h2>One focused set</h2>
               <p>Your score and winning streak stay visible without taking over the screen.</p>
               <div className="word-list-picker"><span>WORD LIST</span><select value={wordListId} onChange={(event) => chooseWordList(event.target.value)}>{wordLists.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select></div>
               <div className="level-picker"><span>WORD LIST LEVEL</span><div className="level-buttons">{levels.map((item) => <button key={item.key} className={level === item.key ? "selected" : ""} onClick={() => setLevel(item.key)}>{item.label}{item.description && <small>{item.description}</small>}<small>{item.count.toLocaleString()} words</small></button>)}</div></div>
-              <button className="primary full" disabled={busy || !levels.length} onClick={() => startPractice(0)}>{busy ? "Loading..." : "Start 100 questions"}<ArrowRight size={17} /></button>
+              <button className="primary full" disabled={busy || !levels.length} onClick={() => startPractice(0)}>{busy ? "Loading..." : `Start ${setSize} questions`}<ArrowRight size={17} /></button>
             </aside>
           </div>
           {message && <p className="status-message centered">{message}</p>}

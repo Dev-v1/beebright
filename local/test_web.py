@@ -53,7 +53,7 @@ class LocalWebTests(unittest.TestCase):
         self.assertTrue(any(row['id'] == 'study-2027' for row in lists))
         status, practice = self.call('request', path='/api/practice?level=one_bee&word_list_id=study-2027')
         self.assertEqual(status, 200)
-        self.assertEqual(len(practice['words']), 100)
+        self.assertEqual(len(practice['words']), 150)
         word = practice['words'][0]['word']
         status, hint = self.call('request', path='/api/dictionary/' + word)
         self.assertEqual(status, 200)

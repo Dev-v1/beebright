@@ -22,8 +22,10 @@ def test(w):
             w.evaluate_js("Array.from(document.querySelectorAll('.mode-grid button')).find(b=>b.innerText.includes("+repr(mode)+")).click()")
             wait(w,"document.querySelectorAll('.level-buttons button').length === 3")
             assert w.evaluate_js("document.querySelector('.word-list-picker select').value === 'study-2027'")
+            assert w.evaluate_js("document.querySelector('.set-panel .primary').innerText.includes('Start 150 questions')")
             w.evaluate_js("document.querySelector('.set-panel .primary').click()")
             wait(w,"document.querySelector('.practice-content') !== null")
+            assert w.evaluate_js("document.querySelector('.progress-area').innerText.includes('OF 150')")
             if mode=='Flash Cards':
                 w.evaluate_js("document.querySelector('.flash-card').dispatchEvent(new MouseEvent('dblclick',{bubbles:true}))")
                 wait(w,"document.querySelector('.flash-card.revealed') !== null")
