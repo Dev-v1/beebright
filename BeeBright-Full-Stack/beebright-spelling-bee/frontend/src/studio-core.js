@@ -1,3 +1,4 @@
+import {normalizeScores} from "./arcade-core.js";
 export const practiceSetSize = (wordListId) => wordListId === 'study-2027' ? 150 : 100;
 
 export const FEATURES = [
@@ -22,11 +23,11 @@ export const FEATURES = [
   ['duel','Head-to-head','Two players alternate turns on the same device.'],
   ['changelog','Release notes','See what changed in BeeBright.'],
 ];
-export function freshStudio() { return {events:[], favorites:[], audio:{rate:.72, volume:1, voice:''}}; }
+export function freshStudio() { return {events:[], favorites:[], games:normalizeScores(), audio:{rate:.72, volume:1, voice:''}}; }
 export function normalizeStudio(value) {
   const empty=freshStudio();
   if(!value || typeof value!=='object') return empty;
-  return {...empty, events:Array.isArray(value.events)?value.events.filter(e=>e && typeof e.word==='string' && typeof e.correct==='boolean').slice(-5000).map(e=>({...e,at:Number.isFinite(e.at)&&Math.abs(e.at)<8640000000000000?e.at:0})):[], favorites:Array.isArray(value.favorites)?[...new Set(value.favorites.filter(w=>typeof w==='string'))].slice(0,5000):[], audio:{...empty.audio,...value.audio,rate:Math.min(1.5,Math.max(.3,Number(value.audio?.rate)||.72)),volume:Number.isFinite(Number(value.audio?.volume))?Math.min(1,Math.max(0,Number(value.audio.volume))):1}};
+  return {...empty, games:normalizeScores(value.games), events:Array.isArray(value.events)?value.events.filter(e=>e && typeof e.word==='string' && typeof e.correct==='boolean').slice(-5000).map(e=>({...e,at:Number.isFinite(e.at)&&Math.abs(e.at)<8640000000000000?e.at:0})):[], favorites:Array.isArray(value.favorites)?[...new Set(value.favorites.filter(w=>typeof w==='string'))].slice(0,5000):[], audio:{...empty.audio,...value.audio,rate:Math.min(1.5,Math.max(.3,Number(value.audio?.rate)||.72)),volume:Number.isFinite(Number(value.audio?.volume))?Math.min(1,Math.max(0,Number(value.audio.volume))):1}};
 }
 export function shuffle(words, seed=String(Math.random())) {
   let state=2166136261;

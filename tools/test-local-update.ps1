@@ -14,9 +14,20 @@ $Archive = Join-Path $Repo 'BeeBright-Full-Stack/beebright-spelling-bee/frontend
 $global:BeeTestManifest = Get-Content (Join-Path $Repo 'BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/manifest.json') -Raw | ConvertFrom-Json
 function Invoke-RestMethod { return $global:BeeTestManifest }
 function Invoke-WebRequest { param($Uri, $OutFile, $TimeoutSec, [switch]$UseBasicParsing) Copy-Item $Archive $OutFile }
-& (Join-Path $Repo 'local/bootstrap.ps1') -SkipLaunch
-if ((Get-Content "$Bee/current/version.json" -Raw | ConvertFrom-Json).version -ne $global:BeeTestManifest.version) { throw 'Update did not install.' }
+New-Item -ItemType Directory -Force -Path "$Bee/current/beebright_local" | Out-Null
+Set-Content "$Bee/current/beebright_local/app.py" '# running legacy app'
+$LegacyLock = [IO.File]::Open("$Bee/current/beebright_local/app.py", 'Open', 'Read', 'Read')
+try { & (Join-Path $Repo 'local/bootstrap.ps1') -SkipLaunch } finally { $LegacyLock.Dispose() }
+$Package = Join-Path "$Bee/packages" (Get-Content "$Bee/active-package.json" -Raw | ConvertFrom-Json).package
+if (-not (Test-Path "$Bee/current/beebright_local/app.py")) { throw 'Update moved the locked legacy package.' }
+if ((Get-Content "$Package/version.json" -Raw | ConvertFrom-Json).version -ne $global:BeeTestManifest.version) { throw 'Update did not install.' }
 if ((Get-Content "$Bee/userdata/progress.json" -Raw) -notmatch 'keep-me') { throw 'Update erased progress.' }
+$HeldPackage = $Package
+$PackageLock = [IO.File]::Open("$HeldPackage/beebright_local/app.py", 'Open', 'Read', 'Read')
+Remove-Item "$HeldPackage/bootstrap.ps1"
+try { & (Join-Path $Repo 'local/bootstrap.ps1') update } finally { $PackageLock.Dispose() }
+$Package = Join-Path "$Bee/packages" (Get-Content "$Bee/active-package.json" -Raw | ConvertFrom-Json).package
+if ($Package -eq $HeldPackage -or -not (Test-Path "$HeldPackage/beebright_local/app.py")) { throw 'Locked package repair was unsafe.' }
 $global:BeeTestLaunched = $false
 function Start-Process { $global:BeeTestLaunched = $true; throw 'Update command must not launch the UI.' }
 & (Join-Path $Repo 'local/bootstrap.ps1') update
@@ -27,7 +38,7 @@ $UpdateFailed = $false
 try { & (Join-Path $Repo 'local/bootstrap.ps1') update } catch { $UpdateFailed = $true }
 if (-not $UpdateFailed) { throw 'Explicit update falsely succeeded while offline.' }
 & (Join-Path $Repo 'local/bootstrap.ps1') -SkipLaunch
-if (-not (Test-Path "$Bee/current/beebright_local/app.py")) { throw 'Offline fallback lost installed app.' }
+if (-not (Test-Path "$Package/beebright_local/app.py")) { throw 'Offline fallback lost installed app.' }
 $global:BeeTestOpened = ''
 function Start-Process { param($FilePath) $global:BeeTestOpened = $FilePath }
 & (Join-Path $Repo 'local/bootstrap.ps1') web
@@ -38,7 +49,7 @@ if (-not $InvalidCommandFailed) { throw 'Invalid create command did not report u
 Write-Host 'Update installation, progress preservation, offline fallback, and PowerShell syntax passed.'
 
 # Exercise the real Windows PowerShell argument binder for every spelling.
-$ExpectedRelease = Get-Content "$Bee/current/release.json" -Raw | ConvertFrom-Json
+$ExpectedRelease = Get-Content "$Package/release.json" -Raw | ConvertFrom-Json
 foreach ($Flag in @('-v', '--v', '--version', '-version')) {
     $Output = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Repo 'local/bootstrap.ps1') $Flag
     if ($LASTEXITCODE -ne 0 -or ($Output -join "`n") -ne "BeeBright $($ExpectedRelease.version)") {

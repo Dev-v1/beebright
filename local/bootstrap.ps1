@@ -1,5 +1,14 @@
 param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '', [Parameter(Position=1)][string]$Target = '', [Alias('v', '-v', '-version')][switch]$Version, [Parameter(ValueFromRemainingArguments=$true)][string[]]$ExtraArguments)
 $BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
+function Get-BeePackage {
+    $Pointer = Join-Path $BeeRoot 'active-package.json'
+    if (Test-Path $Pointer) {
+        $Name = (Get-Content $Pointer -Raw | ConvertFrom-Json).package
+        if ($Name -notmatch '^[a-f0-9]{40}-[a-f0-9]{8}$') { throw 'Invalid installed package pointer. Run the install command again.' }
+        return Join-Path (Join-Path $BeeRoot 'packages') $Name
+    }
+    return Join-Path $BeeRoot 'current'
+}
 if ($Command -eq 'help') {
     Write-Output @'
 BeeBright commands
@@ -56,7 +65,7 @@ if ($Command -eq 'uninstall') {
 }
 if ($Version) {
     $ErrorActionPreference = 'Stop'
-    $ReleaseFile = Join-Path $env:LOCALAPPDATA 'BeeBright\current\release.json'
+    $ReleaseFile = Join-Path (Get-BeePackage) 'release.json'
     if (-not (Test-Path $ReleaseFile)) { throw 'Installed BeeBright version is unavailable. Run beebright update.' }
     $Release = Get-Content $ReleaseFile -Raw | ConvertFrom-Json
     Write-Output "BeeBright $($Release.version)"
@@ -67,7 +76,7 @@ if ($Command -in $Features) {
     $ErrorActionPreference = 'Stop'
     $env:BEEBRIGHT_DATA_DIR = Join-Path $BeeRoot 'userdata'
     $Runner = "import runpy,sys; sys.path.insert(0,sys.argv.pop(1)); runpy.run_module('beebright_local',run_name='__main__')"
-    $Arguments = @('-c', $Runner, (Join-Path $BeeRoot 'current'), $Command)
+    $Arguments = @('-c', $Runner, (Get-BeePackage), $Command)
     if ($Target) { $Arguments += $Target }
     if ($ExtraArguments) { $Arguments += $ExtraArguments }
     & (Join-Path $BeeRoot 'runtime-3.15/python.exe') @Arguments
@@ -81,7 +90,7 @@ $ErrorActionPreference = 'Stop'
 if ($Command -eq 'web') { Start-Process 'https://beebright.vercel.app/'; return }
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
-$Current = Join-Path $BeeRoot 'current'
+$Current = Get-BeePackage
 $Mutex = New-Object Threading.Mutex($false, 'Local\BeeBrightUpdater')
 $Locked = $false
 try {
@@ -111,14 +120,22 @@ try {
                 if (-not (Test-Path "$Stage\beebright_local\app.py")) { throw 'Update is missing the desktop app.' }
                 $PackageVersion = (Get-Content "$Stage\version.json" -Raw | ConvertFrom-Json).version
                 if ($PackageVersion -ne $Manifest.version) { throw 'Update version did not match.' }
-                $Old = Join-Path $BeeRoot 'previous'
-                if (Test-Path $Old) { Remove-Item $Old -Recurse -Force }
-                if (Test-Path $Current) { Move-Item $Current $Old }
-                try { Move-Item $Stage $Current } catch {
-                    if (Test-Path $Old) { Move-Item $Old $Current }
-                    throw
-                }
-                Copy-Item "$Current\bootstrap.ps1" "$BeeRoot\bootstrap.ps1" -Force
+                # Never rename or remove a package a running app/server may still use.
+                $Packages = Join-Path $BeeRoot 'packages'
+                New-Item -ItemType Directory -Force -Path $Packages | Out-Null
+                $Name = $Manifest.version + '-' + [guid]::NewGuid().ToString('N').Substring(0,8)
+                $NewPackage = Join-Path $Packages $Name
+                Move-Item -LiteralPath $Stage -Destination $NewPackage
+                if (-not (Test-Path "$NewPackage\beebright_local\web.py") -or -not (Test-Path "$NewPackage\beebright_local\ui\local.html") -or -not (Test-Path "$NewPackage\release.json") -or -not (Test-Path "$NewPackage\bootstrap.ps1")) { throw 'Update package is incomplete.' }
+                Copy-Item "$NewPackage\bootstrap.ps1" "$BeeRoot\bootstrap.ps1" -Force
+                $Pointer = Join-Path $BeeRoot 'active-package.json'
+                $PointerStage = $Pointer + '.' + [guid]::NewGuid().ToString('N') + '.tmp'
+                try {
+                    @{package=$Name} | ConvertTo-Json -Compress | Set-Content -LiteralPath $PointerStage -Encoding Ascii
+                    if (Test-Path $Pointer) { [IO.File]::Replace($PointerStage, $Pointer, $null) }
+                    else { [IO.File]::Move($PointerStage, $Pointer) }
+                } finally { if (Test-Path $PointerStage) { Remove-Item -LiteralPath $PointerStage -Force } }
+                $Current = $NewPackage
                 Write-Host 'BeeBright is up to date.'
             } finally {
                 if (Test-Path $Zip) { Remove-Item $Zip -Force }

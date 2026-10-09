@@ -24,13 +24,13 @@ beebright
 
 The installer adds the command to your user PATH and installs an official signed Python 3.15.0 runtime under `%LOCALAPPDATA%\BeeBright\runtime-3.15`, plus pywebview/Python.NET and Microsoft WebView2 when needed. No administrator privileges are required. Windows x64 is supported by this installer. You can review `install.ps1` before running it.
 
-To update without opening the app, close BeeBright and run:
+To update without opening the app, run:
 
 ```powershell
 beebright update
 ```
 
-It checks the latest verified package and preserves your local progress. An explicit update reports a connection failure instead of claiming success. Each normal launch also checks for an update. Packages are verified with SHA-256 and installed through a staging directory. If the internet is unavailable, the installed app opens normally. Progress and settings live separately in `%LOCALAPPDATA%\BeeBright\userdata` and survive updates. Installation and updates require internet; practice does not.
+It checks the latest verified package and preserves your local progress. An explicit update reports a connection failure instead of claiming success. Each normal launch also checks for an update. Packages are verified with SHA-256 and installed through a staging directory. On Windows 2.1, new packages have separate folders; a running app keeps its current files and the next launch uses the update. Previous packages remain until uninstall, so an open app is never broken by cleanup. If an older updater reports a Move-Item lock error, run the install command once to replace it. If the internet is unavailable, the installed app opens normally. Progress and settings live separately in `%LOCALAPPDATA%\BeeBright\userdata` and survive updates. Installation and updates require internet; practice does not.
 
 ## macOS and Linux install
 
@@ -132,6 +132,14 @@ Type `beebright help` to list every command. Windows opens its desktop window; m
 Reminders work while the computer is awake and you are signed in. Reopen BeeBright after restarting to resume reminders. Example: `beebright remind 18:30`, and `beebright remind off` to stop. They do not require cloud services. Practice history is limited to the most recent 5,000 answers. Origin groups match language names in supplied histories; words can appear in several groups. List completion means a word has been answered correctly at least once, rather than a claim of permanent mastery.
 
 Website practice tools save statistics and favorites in the current browser, separately for each account. Local profiles stay on the computer. The two backup formats are separate; neither exports Clerk credentials or website account data.
+
+## Break arcade (2.1)
+
+Normal practice offers optional 10-minute breaks after each 50 words and a 25-minute break on completing the set. Skip a break or end it early whenever you want. The timer continues while a game is paused or the window is hidden; expired breaks show a return button without forcing you into another question. Saved breaks retain their original deadline. Timed challenges are not interrupted.
+
+The website has Sky Hopper, Sheep Escape, Gravity Flip, Pocket Bowling (five frames; pins count without strike/spare bonuses), and Neon Rally. Local editions also have Neon Dash with five original courses and optional original synthesized music, Marble Run 3D with three courses, and Space Survival 3D. Games have no learning tasks or bee themes. Keyboard and touch controls are included. Scores are saved per local player, or in the website browser for the signed-in account. No games require Render requests or game servers.
+
+Three.js is MIT licensed; its license is included in the source ZIP. The two 3D games require WebGL 2. If unavailable, the six local 2D games still work. Graphics use low-poly meshes, no shadows, a 1.5x pixel-density cap and release GPU resources when leaving a game. The 3D engine loads only on demand. All original art and music are generated locally; there are no third-party music downloads.
 
 ## Uninstall
 
