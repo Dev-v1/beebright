@@ -21,7 +21,7 @@ class TerminalTests(unittest.TestCase):
         cwd = Path(__file__).parent
         for flag in ('-v', '--v', '--version', '-version'):
             result = subprocess.run([sys.executable, '-m', 'beebright_local', flag], cwd=cwd, capture_output=True, text=True, check=True)
-            self.assertEqual(result.stdout.strip(), 'BeeBright 1.8')
+            self.assertEqual(result.stdout.strip(), 'BeeBright ' + json.loads((cwd / 'release.json').read_text())['version'])
         with tempfile.TemporaryDirectory() as tmp:
             current = Path(tmp) / 'current'; current.mkdir()
             (current / 'release.json').write_text('{"version":"1.8"}')
@@ -71,6 +71,22 @@ class TerminalTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, 'checksum'):
                     bootstrap.update()
                 self.assertEqual(json.loads((current / 'version.json').read_text())['version'], version)
+
+    def test_same_revision_repairs_incomplete_installation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); current = root / 'current'; current.mkdir()
+            version = 'a' * 40
+            (current / 'version.json').write_text(json.dumps({'version': version}))
+            stream = io.BytesIO()
+            with zipfile.ZipFile(stream, 'w') as package:
+                package.writestr('version.json', json.dumps({'version': version}))
+                package.writestr('beebright_local/web.py', '# server')
+                package.writestr('bootstrap.py', '# launcher')
+            archive = stream.getvalue()
+            manifest = {'version': version, 'sha256': hashlib.sha256(archive).hexdigest(), 'url': 'https://beebright.vercel.app/local/beebright-local.zip'}
+            with patch.object(bootstrap, 'ROOT', root), patch.object(bootstrap, 'CURRENT', current), patch.object(bootstrap, 'download', side_effect=lambda url: archive if url.endswith('.zip') else json.dumps(manifest).encode()):
+                bootstrap.update()
+            self.assertTrue((current / 'beebright_local/web.py').is_file())
 
 
 if __name__ == '__main__':

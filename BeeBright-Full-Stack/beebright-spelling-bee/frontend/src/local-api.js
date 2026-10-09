@@ -1,7 +1,7 @@
 // Offline bridge for the native window or the loopback browser server.
 let bridge;
 function desktopBridge() {
-  if (!bridge) bridge = new Promise((resolve) => {
+  if (!bridge) bridge = new Promise((resolve, reject) => {
     const token = document.querySelector('meta[name="beebright-local-web"]')?.content;
     if (token) {
       const call = async (operation, payload) => {
@@ -20,7 +20,10 @@ function desktopBridge() {
         speak: (word) => call('speak', { word }),
       });
     } else if (window.pywebview?.api) resolve(window.pywebview.api);
-    else window.addEventListener('pywebviewready', () => resolve(window.pywebview.api), { once: true });
+    else {
+      const timeout = window.setTimeout(() => reject(new Error('The local practice bridge did not start. Close BeeBright and run beebright update.')), 10000);
+      window.addEventListener('pywebviewready', () => { window.clearTimeout(timeout); resolve(window.pywebview.api); }, { once: true });
+    }
   });
   return bridge;
 }

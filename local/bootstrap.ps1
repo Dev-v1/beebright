@@ -62,7 +62,8 @@ try {
         }
         $Installed = ''
         if (Test-Path "$Current\version.json") { $Installed = (Get-Content "$Current\version.json" -Raw | ConvertFrom-Json).version }
-        if ($Installed -ne $Manifest.version) {
+        $Complete = (Test-Path "$Current\beebright_local\app.py") -and (Test-Path "$Current\beebright_local\web.py") -and (Test-Path "$Current\beebright_local\ui\local.html") -and (Test-Path "$Current\release.json") -and (Test-Path "$Current\bootstrap.ps1")
+        if ($Installed -ne $Manifest.version -or -not $Complete) {
             Write-Host 'Updating BeeBright...'
             $Stage = Join-Path $BeeRoot ('stage-' + [guid]::NewGuid().ToString('N'))
             $Zip = $Stage + '.zip'
