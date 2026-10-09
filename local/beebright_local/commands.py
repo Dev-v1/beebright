@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import shutil
 import sys
 import time
 from . import engine, studio
@@ -14,7 +15,10 @@ from . import engine, studio
 def set_reminder(value):
     if value != 'off' and not re.fullmatch(r'(?:[01]\d|2[0-3]):[0-5]\d', value):
         raise ValueError('Use a local time such as 18:30, or off.')
-    engine.save_json('reminder.json', {'time': value, 'last': None})
+    if value != 'off' and sys.platform not in ('win32','darwin') and not shutil.which('notify-send'):
+        raise ValueError('Install notify-send (the libnotify package) to use local reminders on Linux.')
+    prior = engine.read_json('reminder.json', {}) or {}
+    engine.save_json('reminder.json', {'time': value, 'last': prior.get('last') if prior.get('time') == value else None})
     if value != 'off':
         kwargs = {'stdin': subprocess.DEVNULL, 'stdout': subprocess.DEVNULL, 'stderr': subprocess.DEVNULL}
         if sys.platform == 'win32': kwargs['creationflags'] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP

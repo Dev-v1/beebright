@@ -55,11 +55,14 @@ class StudioTests(unittest.TestCase):
             terminal('profile',['switch','Me'])
         self.assertTrue((self.root/'backup.json').is_file())
     def test_reminder_validation_and_detached_worker(self):
-        with patch('subprocess.Popen') as spawn:
+        with patch('subprocess.Popen') as spawn, patch('shutil.which', return_value='/usr/bin/notify-send'):
             spawn.return_value.pid=12345
             with self.assertRaises(ValueError):set_reminder('24:75')
             self.assertEqual(set_reminder('18:30'),{'time':'18:30'})
             self.assertIn('--reminder-worker',spawn.call_args.args[0])
+            engine.save_json('reminder.json', {'time':'18:30','last':'2026-10-09'})
+            set_reminder('18:30')
+            self.assertEqual(engine.read_json('reminder.json')['last'], '2026-10-09')
             self.assertEqual(set_reminder('off'),{'time':'off'})
     def test_all_twenty_ui_commands_dispatch_without_launching_in_test(self):
         self.assertEqual(len(studio.COMMANDS),20)

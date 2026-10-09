@@ -172,8 +172,8 @@ def main(args=None):
         return
     os.environ['BEEBRIGHT_DATA_DIR'] = str(ROOT / 'userdata')
     sys.path.insert(0, str(CURRENT))
-    from beebright_local.web import run_web
-    run_web()
+    from beebright_local.commands import launch
+    launch(web=True)
 
 
 if __name__ == '__main__':
