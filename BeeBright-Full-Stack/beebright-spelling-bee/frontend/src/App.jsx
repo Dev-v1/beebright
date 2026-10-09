@@ -86,6 +86,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   const [savedSession, setSavedSession] = useState(null);
   const audioRef = useRef(null);
   const saveTimerRef = useRef(null);
+  const saveQueueRef = useRef(Promise.resolve());
   const sessionKey = `${SESSION_KEY}:${userId}`;
 
   const current = words[index];
@@ -142,16 +143,16 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     setSavedSession(session);
     setResumeAvailable(true);
     window.clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = window.setTimeout(async () => {
-      try {
+    const persist = () => {
+      saveQueueRef.current = saveQueueRef.current.catch(() => {}).then(async () => {
         const token = await getToken();
         if (token) await saveProgress(token, session);
-      } catch {
-        // Local storage remains a same-device fallback.
-      }
-    }, 350);
+      }).catch(() => {});
+    };
+    if (localMode) persist();
+    else saveTimerRef.current = window.setTimeout(persist, 350);
     return () => window.clearTimeout(saveTimerRef.current);
-  }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, getToken, sessionKey]);
+  }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, getToken, sessionKey, localMode]);
 
   function playWord() {
     if (localMode) { desktopSpeak(currentWord).catch(() => setMessage("Your local speech voice is unavailable.")); return; }
@@ -234,11 +235,14 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     }
   }
 
-  function nextQuestion() {
+  async function nextQuestion() {
     if (index >= words.length - 1) {
       localStorage.removeItem(sessionKey);
       setResumeAvailable(false);
       setSavedSession(null);
+      window.clearTimeout(saveTimerRef.current);
+      setScreen("results");
+      await saveQueueRef.current;
       getToken().then((token) => token && deleteSavedProgress(token)).catch(() => {});
       setScreen("results");
       return;

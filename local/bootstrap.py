@@ -40,7 +40,7 @@ def update():
         or not (url == 'https://beebright.vercel.app/local/beebright-local.zip'
                 or re.fullmatch(r'https://github\.com/Dev-v1/beebright-local/releases/download/desktop-[a-f0-9]{12}/beebright-local-source\.zip', url))):
         raise RuntimeError('Invalid update manifest.')
-    if (CURRENT / 'version.json').exists() and json.loads((CURRENT / 'version.json').read_text())['version'] == version:
+    if all((CURRENT / name).is_file() for name in ('version.json', 'beebright_local/web.py', 'beebright_local/app.py', 'beebright_local/ui/local.html', 'bootstrap.py', 'release.json')) and json.loads((CURRENT / 'version.json').read_text()).get('version') == version:
         print('BeeBright is already up to date.')
         return
     archive = download(url)
