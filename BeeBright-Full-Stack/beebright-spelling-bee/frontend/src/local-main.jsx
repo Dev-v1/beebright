@@ -33,7 +33,7 @@ function LocalApp() {
   }
   if (!ready) return <main className="configuration-page"><div><span className="bee-mark">🐝</span><h1>{startupError ? "Could not open your spelling studio" : "Opening your spelling studio…"}</h1>{startupError && <><p role="alert">{startupError}</p><p>Close BeeBright, run beebright update in your terminal, then open it again.</p><button className="primary" onClick={() => window.location.reload()}>Try again</button></>}</div></main>;
   return <>
-    <div hidden={settings}><App key={generation} userId={"local-device:" + profileId} getToken={getLocalToken} isAdmin={false} localMode onOpenSettings={() => setSettings(true)} /></div>
+    <div hidden={settings}><App key={generation} userId={"local-device:" + profileId} getToken={getLocalToken} isAdmin={false} localMode inactive={settings} onOpenSettings={() => setSettings(true)} /></div>
     {settings && <main className="settings-page">
       <header className="topbar"><button className="brand" onClick={() => setSettings(false)}><span>bee</span>bright</button><button className="outline" onClick={() => setSettings(false)}><ArrowLeft size={15} /> Back to practice</button></header>
       <section className="settings-content"><div className="settings-main"><p className="eyebrow">APPEARANCE & LOCAL PRACTICE</p><h1>Settings</h1><p className="settings-intro">Choose how your spelling studio looks. Progress stays on this laptop.</p>

@@ -148,7 +148,7 @@ def main(args=None):
         webbrowser.open('https://beebright.vercel.app/')
         return
     features = ['daily', 'review', 'compete', 'doctor', 'stats', 'profile', 'backup', 'restore', 'sprint', 'lists', 'practice', 'audio', 'origins', 'pairs', 'favorites', 'worksheet', 'remind', 'achievements', 'duel', 'changelog']
-    if args and args[0] in features:
+    if (args and args[0] in features) or args in (['test','game'], ['check','game']):
         os.environ['BEEBRIGHT_DATA_DIR'] = str(ROOT / 'userdata')
         sys.path.insert(0, str(CURRENT))
         from beebright_local.commands import launch

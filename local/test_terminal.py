@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 import zipfile
+import runpy
 
 spec = importlib.util.spec_from_file_location('bee_bootstrap', Path(__file__).parent / 'bootstrap.py')
 bootstrap = importlib.util.module_from_spec(spec)
@@ -48,6 +49,22 @@ class TerminalTests(unittest.TestCase):
             self.assertFalse(root.exists()); self.assertFalse(command.exists())
             self.assertEqual(unrelated.read_text(), 'keep')
             self.assertEqual(profile.read_text(), 'keep this\n')
+
+    def test_private_menu_routes_without_network_or_help_entries(self):
+        from beebright_local import commands
+        for verb in ('test', 'check'):
+            with patch.object(bootstrap, 'update', side_effect=AssertionError('Menu must work offline')), patch.object(commands, 'launch') as launch:
+                bootstrap.main([verb, 'game'])
+                launch.assert_called_once_with(verb, ['game'], web=True)
+            with patch.object(commands, 'launch') as launch, patch.object(sys, 'argv', ['beebright', verb, 'game']):
+                runpy.run_module('beebright_local', run_name='__main__')
+                launch.assert_called_once_with('arcade-preview', [], False, 8765)
+            with patch('beebright_local.web.run_web') as web:
+                commands.launch(verb, ['game'], web=True)
+                web.assert_called_once_with(8765, 'arcade-preview')
+        result = subprocess.run([sys.executable, '-m', 'beebright_local', '--help'], cwd=Path(__file__).parent, capture_output=True, text=True, check=True)
+        for text in (bootstrap.HELP, result.stdout):
+            self.assertNotIn('test game', text); self.assertNotIn('check game', text); self.assertNotIn('arcade-preview', text)
 
     def test_verified_update_preserves_data_and_rejects_tampering(self):
         with tempfile.TemporaryDirectory() as tmp:

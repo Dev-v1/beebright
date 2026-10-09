@@ -72,7 +72,8 @@ if ($Version) {
     return
 }
 $Features = @('daily', 'review', 'compete', 'doctor', 'stats', 'profile', 'backup', 'restore', 'sprint', 'lists', 'practice', 'audio', 'origins', 'pairs', 'favorites', 'worksheet', 'remind', 'achievements', 'duel', 'changelog')
-if ($Command -in $Features) {
+$PrivateGame = ($Command -in @('test', 'check')) -and ($Target -eq 'game') -and (-not $ExtraArguments)
+if ($Command -in $Features -or $PrivateGame) {
     $ErrorActionPreference = 'Stop'
     $env:BEEBRIGHT_DATA_DIR = Join-Path $BeeRoot 'userdata'
     $Runner = "import runpy,sys; sys.path.insert(0,sys.argv.pop(1)); runpy.run_module('beebright_local',run_name='__main__')"

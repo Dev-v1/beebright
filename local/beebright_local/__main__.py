@@ -1,5 +1,6 @@
 import argparse
 import json
+import sys
 from pathlib import Path
 from .studio import COMMANDS
 
@@ -11,7 +12,10 @@ parser.add_argument('--port', type=int, default=8765)
 parser.add_argument('--reminder-worker', action='store_true', help=argparse.SUPPRESS)
 parser.add_argument('command', nargs='?', choices=COMMANDS)
 parser.add_argument('arguments', nargs='*')
-args = parser.parse_args()
+raw = sys.argv[1:]
+private_game = raw[-2:] in (['test', 'game'], ['check', 'game'])
+args = parser.parse_args(raw[:-2] if private_game else raw)
+if private_game: args.command = 'arcade-preview'
 try:
     from .commands import launch, reminder_worker
     if args.reminder_worker: reminder_worker()
