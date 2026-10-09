@@ -35,7 +35,8 @@ export function PracticeTools({feature,setFeature,studio,localMode,getToken,onSt
   else if(kind==='compete'||kind==='sprint'||kind==='duel')sessionMode='type';
   if(!selected.length){setNotice('No words available for this selection yet.');return;}
   selected=kind==='daily'?selected:shuffle(selected);
-  if(kind!=='sprint')selected=selected.slice(0,kind==='daily'?10:Math.max(1,Math.min(100,Number(count)||20)));
+  if(kind==='sprint')selected=selected.slice(0,100);
+  else selected=selected.slice(0,kind==='daily'?10:Math.max(1,Math.min(100,Number(count)||20)));
   onStart({words:selected.map(w=>({...w, options:choicesFor(w.word,catalog.distractors?.[w.word]||[])})),mode:sessionMode,kind,level:kind==='pairs'?'pairs':level,listId:list,deadline:kind==='sprint'?Date.now()+120000:null,players:duelNames.map((n,i)=>n.trim()||'Player '+(i+1)),title:meta?.[1]||'Practice'});
  }
  async function backup(){await studio.flush();const v=localMode?await request('/backup'):{app:'BeeBright browser backup',format:1,studio:data,session:JSON.parse(localStorage.getItem('beebright-session-v2:'+studio.userId)||'null')};download(v,'beebright-backup-'+new Date().toISOString().slice(0,10)+'.json');setNotice('Backup downloaded. Keep it somewhere safe.');}

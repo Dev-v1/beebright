@@ -38,6 +38,8 @@ class StudioTests(unittest.TestCase):
         studio.save('progress.json',None)
         studio.restore(json.loads(json.dumps(backup)))
         self.assertEqual(studio.read('progress.json')['words'][0]['word'],'piñata')
+        self.assertEqual(DesktopApi().settings()['theme'], 'light')
+        with patch('builtins.print'): self.assertTrue(terminal('stats', []))
         backup['profiles']['players'][0]['id']='../../escape'
         before=(self.root/'profiles.json').read_text()
         with self.assertRaises(ValueError):studio.restore(backup)

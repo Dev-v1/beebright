@@ -124,7 +124,7 @@ class DesktopApi:
                 if theme not in ('light', 'dark'):
                     raise ValueError('Unknown appearance.')
                 studio.save('settings.json', {'theme': theme})
-            saved = studio.read('settings.json', {})
+            saved = studio.read('settings.json', {}) or {}
             return {'theme': saved.get('theme', 'dark' if saved.get('dark') else 'light'), 'profileId': studio.profiles()['active']}
 
     def voices(self):
@@ -149,7 +149,7 @@ class DesktopApi:
     def speak(self, word):
         if not isinstance(word, str) or (word not in self._hints and word not in {'compliment','complement','accept','except','principal','principle','stationary','stationery','desert','dessert','peace','piece','their','there','weather','whether'}):
             raise ValueError('Unknown practice word.')
-        audio = studio.read('studio.json', {}).get('audio', {})
+        audio = (studio.read('studio.json', {}) or {}).get('audio', {})
         rate = min(1.5, max(.3, float(audio.get('rate', .72))))
         voice = str(audio.get('voice', ''))
         volume = min(100, max(0, round(float(audio.get('volume', 1))*100)))

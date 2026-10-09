@@ -98,7 +98,7 @@ def restore(value):
         raise ValueError('Invalid active player.')
     for player in players:
         for name in ('progress.json','settings.json','studio.json'):
-            engine.save_json(name if player['id'] == 'default' else f"players/{player['id']}/{name}", data[player['id']].get(name))
+            engine.save_json(name if player['id'] == 'default' else f"players/{player['id']}/{name}", data[player['id']].get(name) if name == 'progress.json' else data[player['id']].get(name) or {})
     engine.save_json('profiles.json', registry)
     return registry
 

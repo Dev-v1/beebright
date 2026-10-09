@@ -88,11 +88,11 @@ def terminal(command, args):
         if len(args) != 1: raise ValueError('Use beebright remind [HH:MM | off].')
         value = set_reminder(args[0]); print(f"Practice reminder: {value['time']}. Reminders run while you are signed in; reopen BeeBright after restarting your computer."); return True
     if command == 'stats':
-        events = studio.read('studio.json', {}).get('events', [])
+        events = (studio.read('studio.json', {}) or {}).get('events', [])
         right = sum(bool(e.get('correct')) for e in events)
         print(f"Answers: {len(events)} | Accuracy: {round(100*right/len(events)) if events else 0}% | Words practiced: {len({e['word'] for e in events})}"); return True
     if command == 'lists':
-        events = studio.read('studio.json', {}).get('events', [])
+        events = (studio.read('studio.json', {}) or {}).get('events', [])
         mastered = {e['word'] for e in events if e.get('correct')}
         lists, _, _ = engine.load_catalog()
         for r in lists:
