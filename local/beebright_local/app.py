@@ -120,14 +120,14 @@ class DesktopApi:
 
 
 def run(smoke_test=None):
-    if sys.platform == 'win32' and sys.version_info < (3, 14):
+    if sys.platform == 'win32' and sys.version_info < (3, 15):
         # An older installed launcher is still executing during its first update.
         # Re-enter the updated launcher so it can migrate the runtime before opening the UI.
         launcher = USER_DATA.parent / 'bootstrap.ps1'
         if launcher.exists():
             subprocess.Popen(['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(launcher)])
             return
-        raise RuntimeError('BeeBright needs Python 3.14. Run the install command again.')
+        raise RuntimeError('BeeBright needs Python 3.15. Run the install command again.')
     import webview
     ui = Path(__file__).parent / 'ui' / 'local.html'
     if not ui.exists():

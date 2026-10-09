@@ -1,4 +1,34 @@
 param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '', [Parameter(Position=1)][string]$Target = '', [Alias('v', '-v', '-version')][switch]$Version)
+$BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
+if ($Command -eq 'help') {
+    Write-Output @'
+BeeBright commands
+  beebright                 Open local spelling practice; check for updates first.
+  beebright update          Update the app and private Python runtime.
+  beebright web             Open https://beebright.vercel.app/.
+  beebright create web      Open local practice in a browser; Ctrl+C stops it.
+  beebright -v              Show the installed version (also --v, --version, -version).
+  beebright help            Show this command list without internet access.
+  beebright uninstall       Remove BeeBright, its private runtimes and local saved progress.
+Close BeeBright and stop local web practice before uninstalling.
+'@
+    return
+}
+if ($Command -eq 'uninstall') {
+    $ErrorActionPreference = 'Stop'
+    $Running = Get-Process -ErrorAction SilentlyContinue | Where-Object {
+        try { $_.Path -and $_.Path.StartsWith($BeeRoot + '\', [StringComparison]::OrdinalIgnoreCase) } catch { $false }
+    }
+    if ($Running) { throw 'Close BeeBright and stop local web practice with Ctrl+C, then run beebright uninstall again.' }
+    $BeeBin = Join-Path $BeeRoot 'bin'
+    $UserPath = [string][Environment]::GetEnvironmentVariable('Path', 'User')
+    $CleanPath = ($UserPath -split ';' | Where-Object { $_.Trim().TrimEnd('\') -ine $BeeBin.TrimEnd('\') }) -join ';'
+    [Environment]::SetEnvironmentVariable('Path', $CleanPath, 'User')
+    $env:Path = ($env:Path -split ';' | Where-Object { $_.Trim().TrimEnd('\') -ine $BeeBin.TrimEnd('\') }) -join ';'
+    if (Test-Path $BeeRoot) { Remove-Item -LiteralPath $BeeRoot -Recurse -Force }
+    Write-Output 'BeeBright uninstalled. Private runtimes and local saved progress were removed.'
+    return
+}
 if ($Version) {
     $ErrorActionPreference = 'Stop'
     $ReleaseFile = Join-Path $env:LOCALAPPDATA 'BeeBright\current\release.json'
@@ -7,7 +37,7 @@ if ($Version) {
     Write-Output "BeeBright $($Release.version)"
     return
 }
-if ($Command -notin @('', 'update', 'web', 'create') -or ($Command -eq 'create' -and $Target -ne 'web') -or ($Command -ne 'create' -and $Target)) { throw 'Usage: beebright | beebright update | beebright web | beebright create web' }
+if ($Command -notin @('', 'update', 'web', 'create') -or ($Command -eq 'create' -and $Target -ne 'web') -or ($Command -ne 'create' -and $Target)) { throw 'Usage: beebright | update | web | create web | help | uninstall | --version' }
 $UpdateOnly = $Command -eq 'update'
 if ($UpdateOnly) { $SkipLaunch = $true }
 $ErrorActionPreference = 'Stop'
@@ -70,19 +100,19 @@ $Bin = Join-Path $BeeRoot 'bin'
 New-Item -ItemType Directory -Force -Path $Bin | Out-Null
 $Launcher = '@echo off' + "`r`n" + 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\BeeBright\bootstrap.ps1" %*' + "`r`n"
 Set-Content -Path "$Bin\beebright.cmd" -Value $Launcher -Encoding Ascii
-$Python = Join-Path $BeeRoot 'runtime-3.14\pythonw.exe'
+$Python = Join-Path $BeeRoot 'runtime-3.15\pythonw.exe'
 if (-not (Test-Path $Python)) {
-    Write-Host 'BeeBright now uses Python 3.14. Installing the updated runtime...'
+    Write-Host 'BeeBright now uses Python 3.15. Installing the updated runtime...'
     Invoke-WebRequest 'https://beebright.vercel.app/install.ps1' -OutFile "$BeeRoot\install-new.ps1" -UseBasicParsing
     & "$BeeRoot\install-new.ps1" -SkipLaunch
-    if (-not (Test-Path $Python)) { throw 'Python 3.14 installation failed. Run the install command again.' }
+    if (-not (Test-Path $Python)) { throw 'Python 3.15 installation failed. Run the install command again.' }
 }
 if (-not (Test-Path $Python)) { throw 'BeeBright runtime is missing. Run the install command again.' }
 if ($SkipLaunch) { return }
 if ($Command -eq 'create') {
     Push-Location $Current
     try {
-        & (Join-Path $BeeRoot 'runtime-3.14\python.exe') -m beebright_local --web
+        & (Join-Path $BeeRoot 'runtime-3.15\python.exe') -m beebright_local --web
         if ($LASTEXITCODE) { throw 'The local web server stopped with an error.' }
     } finally { Pop-Location }
     return

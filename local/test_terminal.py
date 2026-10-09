@@ -21,15 +21,33 @@ class TerminalTests(unittest.TestCase):
         cwd = Path(__file__).parent
         for flag in ('-v', '--v', '--version', '-version'):
             result = subprocess.run([sys.executable, '-m', 'beebright_local', flag], cwd=cwd, capture_output=True, text=True, check=True)
-            self.assertEqual(result.stdout.strip(), 'BeeBright 1.7')
+            self.assertEqual(result.stdout.strip(), 'BeeBright 1.8')
         with tempfile.TemporaryDirectory() as tmp:
             current = Path(tmp) / 'current'; current.mkdir()
-            (current / 'release.json').write_text('{"version":"1.7"}')
+            (current / 'release.json').write_text('{"version":"1.8"}')
             with patch.object(bootstrap, 'CURRENT', current), patch.object(bootstrap, 'update', side_effect=AssertionError('Version must work offline')), patch.object(bootstrap.webbrowser, 'open', side_effect=AssertionError('Version must not open UI')):
                 for flag in ('-v', '--v', '--version', '-version'):
                     with patch('sys.stdout', new_callable=io.StringIO) as output:
                         bootstrap.main([flag])
-                        self.assertEqual(output.getvalue().strip(), 'BeeBright 1.7')
+                        self.assertEqual(output.getvalue().strip(), 'BeeBright 1.8')
+
+    def test_help_and_uninstall_are_offline_and_scoped(self):
+        with patch.object(bootstrap, 'download', side_effect=AssertionError('No network for help')), patch('sys.stdout', new_callable=io.StringIO) as output:
+            bootstrap.main(['help'])
+            self.assertIn('beebright uninstall', output.getvalue())
+            self.assertIn('beebright create web', output.getvalue())
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp)
+            root = home / '.local/share/BeeBright'; root.mkdir(parents=True)
+            (root / 'runtime-3.15').mkdir(); (root / 'userdata').mkdir()
+            command = home / '.local/bin/beebright'; command.parent.mkdir(parents=True); command.write_text('launcher')
+            unrelated = home / '.local/bin/other'; unrelated.write_text('keep')
+            profile = home / '.zshrc'; profile.write_text('keep this\nexport PATH="$HOME/.local/bin:$PATH" # BeeBright\n')
+            with patch.object(bootstrap, 'ROOT', root), patch.object(Path, 'home', return_value=home), patch.object(bootstrap, 'download', side_effect=AssertionError('No network for uninstall')):
+                bootstrap.main(['uninstall'])
+            self.assertFalse(root.exists()); self.assertFalse(command.exists())
+            self.assertEqual(unrelated.read_text(), 'keep')
+            self.assertEqual(profile.read_text(), 'keep this\n')
 
     def test_verified_update_preserves_data_and_rejects_tampering(self):
         with tempfile.TemporaryDirectory() as tmp:
