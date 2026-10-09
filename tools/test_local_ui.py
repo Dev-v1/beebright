@@ -14,6 +14,29 @@ def wait(w,expr):
     raise AssertionError(expr)
 def test(w):
     try:
+        if os.environ.get('BEEBRIGHT_TEST_GAME_MENU'):
+            from beebright_local import studio
+            previous = studio.read('progress.json')
+            history = studio.read('studio.json', {})
+            wait(w,"document.querySelectorAll('.game-card').length===8")
+            assert w.evaluate_js("document.querySelector('.break-clock')===null && document.querySelector('.break-offer')===null")
+            w.evaluate_js("(()=>{const e=document.querySelector('[aria-label=\"Neon Dash course\"]');e.value='4';e.dispatchEvent(new Event('change',{bubbles:true}));})()")
+            w.evaluate_js("(()=>{const e=document.querySelector('[aria-label=\"Marble Run course\"]');e.value='2';e.dispatchEvent(new Event('change',{bubbles:true}));})()")
+            assert w.evaluate_js("document.querySelector('[aria-label=\"Neon Dash course\"]').value==='4' && document.querySelector('[aria-label=\"Marble Run course\"]').value==='2'")
+            w.evaluate_js("Array.from(document.querySelectorAll('.game-card')).find(c=>c.querySelector('h2').innerText==='Pocket Bowling').querySelector('button').click()")
+            wait(w,"document.querySelector('.game-overlay .primary') !== null && !document.querySelector('.game-overlay .primary').disabled")
+            w.evaluate_js("document.querySelector('.game-overlay .primary').click()")
+            wait(w,"document.querySelector('.game-overlay')===null")
+            w.evaluate_js("Array.from(document.querySelectorAll('.top-actions button')).find(b=>b.innerText.includes('Settings')).click()")
+            wait(w,"document.querySelector('.settings-page')!==null && document.querySelector('.game-overlay h2').innerText==='Paused'")
+            assert w.evaluate_js("(()=>{const e=new KeyboardEvent('keydown',{key:'ArrowUp',bubbles:true,cancelable:true});window.dispatchEvent(e);return !e.defaultPrevented;})()")
+            w.evaluate_js("document.querySelector('.settings-page .outline').click()")
+            wait(w,"document.querySelector('.settings-page')===null")
+            assert w.evaluate_js("document.querySelector('.game-overlay h2').innerText==='Paused'")
+            assert studio.read('progress.json')==previous
+            assert studio.read('studio.json', {})==history
+            print('Local diagnostic menu, independent courses, Settings pause, keyboard release and unchanged progress passed.')
+            return
         wait(w,"document.querySelector('.hero-copy h1') !== null")
         assert w.evaluate_js("!document.body.innerText.includes('Request another word list') && !document.body.innerText.includes('Admin')")
         for mode in ['Flash Cards','Fill in the Blank','Multiple Choice','Type the Word']:
@@ -174,5 +197,12 @@ if os.environ.get('BEEBRIGHT_TEST_LOCAL_WEB'):
         server.server_close()
         thread.join()
 else:
-    run(test)
+    if os.environ.get('BEEBRIGHT_TEST_GAME_MENU'):
+        import runpy
+        from unittest.mock import patch
+        verb=os.environ['BEEBRIGHT_TEST_GAME_MENU']
+        with patch('beebright_local.commands.launch', side_effect=lambda command,*args:run(test, feature=command)), patch.object(sys,'argv',['beebright',verb,'game']):
+            runpy.run_module('beebright_local',run_name='__main__')
+    else:
+        run(test)
 if failure: raise failure[0]

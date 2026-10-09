@@ -66,7 +66,7 @@ function speakWithBrowser(word, audioSettings = {}) {
   window.speechSynthesis.speak(utterance);
 }
 
-function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMode = false }) {
+function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMode = false, inactive = false }) {
   const studio = useStudio(userId, localMode);
   const [feature, setFeature] = useState(() => localMode ? new URLSearchParams(window.location.search).get('feature') || '' : '');
   const [practiceContext, setPracticeContext] = useState(null);
@@ -76,7 +76,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   const [duelScore, setDuelScore] = useState([0, 0]);
   const [installPlatform, setInstallPlatform] = useState("windows");
   const installCommands = { windows: "irm https://beebright.vercel.app/install.ps1 | iex", macos: "curl -fsSL https://beebright.vercel.app/install.sh | sh", linux: "curl -fsSL https://beebright.vercel.app/install.sh | sh" };
-  const [screen, setScreen] = useState(() => feature ? "tools" : "home");
+  const [screen, setScreen] = useState(() => localMode && feature === "arcade-preview" ? "arcade-preview" : feature ? "tools" : "home");
   const [mode, setMode] = useState("choice");
   const [levels, setLevels] = useState([]);
   const [level, setLevel] = useState("one_bee");
@@ -347,7 +347,8 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
         <div className="top-actions"><button className="settings-button" onClick={() => { setFeature(''); setScreen('tools'); }}>Practice tools</button>{!localMode && <a href="/download.html" className="settings-button">Desktop app</a>}<div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
       </header>
 
-      {screen === 'break' && <Suspense fallback={<section className="page-width"><p>Opening your break arcade…</p></section>}><Arcade localMode={localMode} breakState={breakState} onTakeBreak={() => setBreakState(state => ({...state, deadline: Date.now() + state.minutes * 60000}))} onFinishBreak={finishBreak} scores={studio.data.games} onScore={(id, score) => studio.change(data => ({...data, games: {...data.games, [id]: Math.max(data.games?.[id] || 0, score)}}))} /></Suspense>}
+      {localMode && screen === 'arcade-preview' && <Suspense fallback={<section className="page-width"><p>Opening your game menu…</p></section>}><Arcade localMode preview inactive={inactive} scores={studio.data.games} onScore={() => {}} /></Suspense>}
+      {screen === 'break' && <Suspense fallback={<section className="page-width"><p>Opening your break arcade…</p></section>}><Arcade localMode={localMode} inactive={inactive} breakState={breakState} onTakeBreak={() => setBreakState(state => ({...state, deadline: Date.now() + state.minutes * 60000}))} onFinishBreak={finishBreak} scores={studio.data.games} onScore={(id, score) => studio.change(data => ({...data, games: {...data.games, [id]: Math.max(data.games?.[id] || 0, score)}}))} /></Suspense>}
       {screen === 'tools'  && <PracticeTools feature={feature} setFeature={setFeature} studio={studio} localMode={localMode} getToken={getToken} onStart={preparedPractice} onClose={() => setScreen('home')} />}
       {screen === "home" && (
         <section className="home-page page-width">

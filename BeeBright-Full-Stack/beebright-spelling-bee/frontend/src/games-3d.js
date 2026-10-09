@@ -9,6 +9,7 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus}) {
  const materials=[],geometries=[];function material(color){const m=new THREE.MeshStandardMaterial({color,roughness:.72,metalness:.1});materials.push(m);return m;}
  const teal=material('#88ded6'),purple=material('#b5a0fa'),stone=material('#8a93ae'),green=material('#abec9e'),pink=material('#f6a4bf');
  function mesh(geometry,mat,x,y,z){geometries.push(geometry);const m=new THREE.Mesh(geometry,mat);m.position.set(x,y,z);scene.add(m);return m;}
+ let redraw=true;
  let animation,last=0,t=0,paused=false,done=false,score=0,status='',spawn=0,shield=3,immune=0,cooldown=0;
  let items=[],platforms=[],crystals=[],bullets=[],p={x:0,y:.65,z:3,vx:0,vz:0,vy:0},grounded=true,collected=0;
  const marble=id==='marble';
@@ -51,8 +52,8 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus}) {
    if(t>=90){score+=1000;finish(true,'You survived the full 90-second asteroid run!');}notify(`Shields ${'●'.repeat(shield)}${'○'.repeat(3-shield)} · ${Math.ceil(90-t)}s · ${Math.floor(score)} points`);
   }
  }
- function loop(now){const dt=last?Math.min(.034,(now-last)/1000):0;last=now;if(!paused&&!done)update(dt);renderer.render(scene,camera);animation=requestAnimationFrame(loop);}
+ function loop(now){const dt=last?Math.min(.034,(now-last)/1000):0;last=now;if(!paused&&!done){update(dt);redraw=true;}if(redraw){renderer.render(scene,camera);redraw=false;}animation=requestAnimationFrame(loop);}
  const contextLost=e=>{e.preventDefault();finish(false,'3D graphics were interrupted. Restart the game or choose a 2D game.');};canvas.addEventListener('webglcontextlost',contextLost);
  animation=requestAnimationFrame(loop);
- return {pause(value){paused=value;input.previousAction=Boolean(input.action);},setMuted(){},dispose(){cancelAnimationFrame(animation);canvas.removeEventListener('webglcontextlost',contextLost);for(const g of new Set(geometries))g.dispose();for(const m of materials)m.dispose();renderer.dispose();renderer.forceContextLoss();}};
+ return {pause(value){paused=value;redraw=true;input.previousAction=Boolean(input.action);},setMuted(){},dispose(){cancelAnimationFrame(animation);canvas.removeEventListener('webglcontextlost',contextLost);for(const g of new Set(geometries))g.dispose();for(const m of materials)m.dispose();renderer.dispose();renderer.forceContextLoss();}};
 }

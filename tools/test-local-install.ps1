@@ -25,6 +25,13 @@ try {
         & "$Bee/runtime-3.15/python.exe" (Join-Path $Repo "tools/test_local_ui.py")
         if ($LASTEXITCODE) { throw 'Loopback browser UI or local HTTP bridge failed.' }
     } finally { Remove-Item Env:BEEBRIGHT_TEST_LOCAL_WEB }
+    foreach ($Verb in @('test','check')) {
+        $env:BEEBRIGHT_TEST_GAME_MENU = $Verb
+        try {
+            & "$Bee/runtime-3.15/python.exe" (Join-Path $Repo "tools/test_local_ui.py")
+            if ($LASTEXITCODE) { throw 'Local diagnostic menu failed.' }
+        } finally { Remove-Item Env:BEEBRIGHT_TEST_GAME_MENU }
+    }
 } finally { Pop-Location }
 # Reproduce reinstall after BeeBright removal with Python 3.15 left elsewhere.
 $Existing = Join-Path $env:LOCALAPPDATA 'Programs/Python/Python315'

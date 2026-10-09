@@ -109,6 +109,8 @@ def terminal(command, args):
 
 
 def launch(command=None, args=None, web=False, port=8765):
+    if command in ('test', 'check') and args == ['game']:
+        command, args = 'arcade-preview', []
     if command and terminal(command, args or []): return
     if not command:
         reminder = engine.read_json('reminder.json', {}).get('time', 'off')

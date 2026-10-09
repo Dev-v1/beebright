@@ -59,6 +59,7 @@ foreach ($Flag in @('-v', '--v', '--version', '-version')) {
 Write-Host 'All four offline installed-version flags passed.'
 
 $Help = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Repo 'local/bootstrap.ps1') help
+if (($Help -join "`n") -match '(test game|check game|arcade-preview)') { throw 'Private diagnostic commands appeared in help.' }
 if ($LASTEXITCODE -ne 0 -or ($Help -join "`n") -notmatch 'beebright uninstall') { throw 'Help did not list commands.' }
 $SavedUserPath = [Environment]::GetEnvironmentVariable('Path', 'User')
 $Unrelated = Join-Path $env:LOCALAPPDATA 'unrelated-python'

@@ -1,5 +1,12 @@
 # BeeBright releases
 
+## 2.1 bugfix
+
+- Pause local games and release their keyboard controls while Settings is open.
+- Keep Neon Dash and Marble Run course selections independent.
+- Avoid repeatedly drawing paused or finished games, reducing unnecessary graphics work.
+- Preserve existing spelling progress, word lists, break timers and the 2.1 Windows updater fix.
+
 ## 2.1
 
 - Windows updates install immutable packages and atomically switch a pointer, fixing folder locks while the app or local server is running. Existing sessions keep using their old package until closed; progress stays separate.

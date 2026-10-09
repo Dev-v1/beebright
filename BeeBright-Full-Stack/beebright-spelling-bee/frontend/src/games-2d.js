@@ -6,6 +6,7 @@ const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function mount2D(canvas,{id,level=0,input,onFinish,onStatus,muted=false}) {
  const c=canvas.getContext('2d'); if(!c)throw Error('Canvas graphics are unavailable.');
  canvas.width=W;canvas.height=H;
+ let redraw=true;
  let frame,paused=false,done=false,t=0,last=0,score=0,objects=[],spawn=0,audio=null,beat=-1;
  const rng=()=>Math.random();
  const course=DASH_LEVELS[level]||DASH_LEVELS[0];
@@ -77,7 +78,7 @@ export function mount2D(canvas,{id,level=0,input,onFinish,onStatus,muted=false})
    stars();const d=t*course.speed;for(let i=0;i<10;i++)rect(i*130-(d*.3%130),350-(i%4)*40,90,100,'#49468d50',10);rect(0,422,W,78,'#353765');rect(0,422,W,3,'#adbfff');for(const x of course.spikes){c.fillStyle='#f59cc1';c.beginPath();c.moveTo(x-d+p.x,422);c.lineTo(x-d+p.x+16,390);c.lineTo(x-d+p.x+32,422);c.fill();}for(const b of course.blocks)rect(b.x-d+p.x,422-b.h,b.w,b.h,'#728edb',4);c.save();c.translate(p.x+15,p.y+15);c.rotate(p.y<392?t*6:0);rect(-15,-15,30,30,'#d6faff',5);rect(-8,-8,16,16,'#6386bd',3);c.restore();rect(20,20,760,5,'#ffffff20',3);rect(20,20,760*Math.min(1,d/course.length),5,'#bdcaff',3);
   }
  }
- function loop(now){const dt=last?Math.min((now-last)/1000,.034):0;last=now;if(!paused&&!done){const action=Boolean(input.action&&!input.previousAction);input.previousAction=Boolean(input.action);update(dt,action);}draw();frame=requestAnimationFrame(loop);}
+ function loop(now){const dt=last?Math.min((now-last)/1000,.034):0;last=now;if(!paused&&!done){const action=Boolean(input.action&&!input.previousAction);input.previousAction=Boolean(input.action);update(dt,action);redraw=true;}if(redraw){draw();redraw=false;}frame=requestAnimationFrame(loop);}
  frame=requestAnimationFrame(loop);
- return {pause(value){paused=value;input.previousAction=Boolean(input.action);if(audio) value?audio.suspend():audio.resume();},setMuted(value){muted=value;if(value&&audio)audio.suspend();},dispose(){cancelAnimationFrame(frame);if(audio)audio.close().catch(()=>{});}};
+ return {pause(value){paused=value;redraw=true;input.previousAction=Boolean(input.action);if(audio) value?audio.suspend():audio.resume();},setMuted(value){muted=value;if(value&&audio)audio.suspend();},dispose(){cancelAnimationFrame(frame);if(audio)audio.close().catch(()=>{});}};
 }
