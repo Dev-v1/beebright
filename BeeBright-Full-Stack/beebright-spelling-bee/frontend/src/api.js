@@ -1,4 +1,5 @@
 import { desktopRequest } from "./local-api.js";
+import { practiceSetSize } from "./studio-core.js";
 // This is the one place the frontend reads your Render backend URL.
 // In Vercel, create an environment variable named VITE_API_BASE_URL.
 // Example: https://your-beebright-api.onrender.com
@@ -50,7 +51,7 @@ export function getPracticeSet(level, offset = 0, randomize = false, wordListId 
     word_list_id: wordListId,
     level,
     offset: String(offset),
-    limit: "100",
+    limit: String(practiceSetSize(wordListId)),
     randomize: String(randomize),
   });
   if (shuffleSeed) query.set("shuffle_seed", shuffleSeed);

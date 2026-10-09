@@ -79,7 +79,8 @@ class DesktopApi:
             level = q.get('level', ['one_bee'])[0]
             source = record['levels'][level]
             offset = max(0, int(q.get('offset', ['0'])[0]))
-            limit = max(1, min(100, int(q.get('limit', ['100'])[0])))
+            default_limit = '150' if record['id'] == 'study-2027' else '100'
+            limit = max(1, min(150, int(q.get('limit', [default_limit])[0])))
             if offset >= len(source):
                 offset = 0
                 q.pop('shuffle_seed', None)

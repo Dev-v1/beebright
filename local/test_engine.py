@@ -28,13 +28,33 @@ class DesktopBridgeTests(unittest.TestCase):
     def test_paging_and_no_cloud_routes(self):
         from beebright_local.app import DesktopApi
         api=DesktopApi()
-        a=api.request('/api/practice?word_list_id=study-2027&level=three_bee')
-        b=api.request('/api/practice?word_list_id=study-2027&level=three_bee&offset=100&shuffle_seed='+a['shuffle_seed'])
+        a=api.request('/api/practice?word_list_id=study-2027&level=three_bee&limit=100')
+        b=api.request('/api/practice?word_list_id=study-2027&level=three_bee&limit=100&offset=100&shuffle_seed='+a['shuffle_seed'])
         self.assertEqual(len(a['words']),100)
         self.assertEqual(len(b['words']),50)
         self.assertFalse({w['word'] for w in a['words']} & {w['word'] for w in b['words']})
         for route in ['/api/admin/overview','/api/access','/api/word-list-requests','https://example.com/api/progress']:
             self.assertIn('error',api.request(route))
+
+    def test_full_study_runs_cover_each_level_and_reshuffle(self):
+        from beebright_local.app import DesktopApi
+        api = DesktopApi()
+        lists, _, _ = load_catalog()
+        study = next(r for r in lists if r['id'] == 'study-2027')
+        for level, expected in study['levels'].items():
+            path = '/api/practice?word_list_id=study-2027&level=' + level
+            for query in ['', '&limit=150']:
+                result = api.request(path + query)
+                words = [w['word'] for w in result['words']]
+                self.assertEqual(len(words), 150)
+                self.assertEqual(set(words), set(expected))
+                self.assertFalse(result['has_more'])
+                resumed = api.request(path + '&shuffle_seed=' + result['shuffle_seed'])
+                self.assertEqual(result['words'], resumed['words'])
+                restarted = api.request(path + '&offset=150&shuffle_seed=' + result['shuffle_seed'])
+                self.assertEqual(restarted['offset'], 0)
+                self.assertNotEqual(restarted['shuffle_seed'], result['shuffle_seed'])
+        self.assertEqual(len(api.request('/api/practice?word_list_id=champions-2024')['words']), 100)
 
     def test_progress_and_theme_survive_restart(self):
         import tempfile

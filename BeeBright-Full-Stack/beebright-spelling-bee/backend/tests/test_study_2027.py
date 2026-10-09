@@ -31,17 +31,28 @@ def test_published_list_has_three_levels_and_grade_descriptions():
     assert {item['key']: (item['count'], item['description']) for item in study['levels']} == {
         key: (150, LIST['level_descriptions'][key]) for key in LIST['levels']}
     for level in LIST['levels']:
-        assert len(practice(level=level)['words']) == 100
+        for query in [{}, {'limit': 150}]:
+            result = practice(level=level, **query)
+            words = [item['word'] for item in result['words']]
+            assert len(words) == len(set(words)) == 150
+            assert set(words) == set(LIST['levels'][level])
+            assert not result['has_more']
+            assert practice(level=level, shuffle_seed=result['shuffle_seed'])['words'] == result['words']
+            restarted = practice(level=level, offset=150, shuffle_seed=result['shuffle_seed'])
+            assert restarted['offset'] == 0
+            assert restarted['shuffle_seed'] != result['shuffle_seed']
+    assert client.get('/api/practice').json()['limit'] == 100
+    assert client.get('/api/practice', params={'limit': 151}).status_code == 422
 
 
 def test_shuffled_pagination_covers_all_words_once_and_can_resume():
-    first = practice()
+    first = practice(limit=100)
     seed = first['shuffle_seed']
     first_words = [item['word'] for item in first['words']]
     assert seed and len(first_words) == 100 and first['has_more']
-    resumed = practice(shuffle_seed=seed)
+    resumed = practice(limit=100, shuffle_seed=seed)
     assert [item['word'] for item in resumed['words']] == first_words
-    second = practice(offset=100, shuffle_seed=seed)
+    second = practice(limit=100, offset=100, shuffle_seed=seed)
     second_words = [item['word'] for item in second['words']]
     assert len(second_words) == 50 and not second['has_more']
     assert second['offset'] == 100 and second['shuffle_seed'] == seed

@@ -1,3 +1,5 @@
+export const practiceSetSize = (wordListId) => wordListId === 'study-2027' ? 150 : 100;
+
 export const FEATURES = [
   ['daily','Daily challenge','The same 10 words for everyone today.'],
   ['review','Review missed words','Practice your most recent mistakes.'],

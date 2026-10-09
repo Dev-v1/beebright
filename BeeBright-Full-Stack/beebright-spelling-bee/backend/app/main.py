@@ -202,7 +202,7 @@ def practice_set(
     word_list_id: str = Query(default="champions-2024"),
     level: str = Query(default="one_bee"),
     offset: int = Query(default=0, ge=0),
-    limit: int = Query(default=100, ge=1, le=100),
+    limit: int | None = Query(default=None, ge=1, le=150),
     randomize: bool = Query(default=False),
     shuffle_seed: str | None = Query(default=None, min_length=1, max_length=128),
 ):
@@ -228,6 +228,7 @@ def practice_set(
     if level not in available_levels:
         raise HTTPException(status_code=404, detail="Unknown spelling-bee level.")
 
+    limit = limit if limit is not None else (150 if word_list_id == "study-2027" else 100)
     source = available_levels[level]
     if not source:
         raise HTTPException(status_code=404, detail="This level has no words.")

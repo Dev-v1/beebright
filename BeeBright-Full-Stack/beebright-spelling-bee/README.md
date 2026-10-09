@@ -18,8 +18,8 @@ The included generated word data contains the three difficulty sections found in
 - Type the Word: hear the word and type the complete spelling.
 - Merriam-Webster controls for pronunciation, definition, word origin, and example sentence.
 - One Bee, Two Bee, and Three Bee levels from the supplied 2024 PDF.
-- Exactly 100 questions per normal practice set.
-- Next-set support so the next 100 words can be practiced after finishing a set.
+- All 150 words per level in each 2027 study list practice set, shuffled without repeats.
+- Other lists use 100-question sets with next-set support. Completed 2027 runs start a fresh shuffle.
 - Compact correct-answer and current-streak display.
 - Wrong answers show your answer and the correct spelling side by side.
 - Clerk sign-in and sign-up pages with a protected practice experience.

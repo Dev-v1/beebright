@@ -94,7 +94,9 @@ beebright --version
 beebright -version
 ```
 
-Each prints the installed release, such as `BeeBright 2.0`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
+Each prints the installed release, such as `BeeBright 2.0 (fixed)`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
+
+The 2027 study list has 150 words in each of One Bee, Two Bee, and Three Bee. Each normal 2027 practice run includes all 150 in a shuffled order. Other lists use 100-question sets, and custom challenges keep their selected lengths.
 
 ## Commands
 
