@@ -5,6 +5,7 @@ import * as THREE from 'three';
 export function createGameRenderer(canvas,quality,onGraphics=()=>{}) {
  const high=quality==='high';let context;
  try {context=canvas.getContext('webgl2',{alpha:false,antialias:high,powerPreference:'high-performance'});}catch{}
+ if(!context){try{context=canvas.getContext('webgl2',{alpha:false,antialias:false,powerPreference:'default'});}catch{}}
  if(context){
   let renderer;
   try {renderer=new THREE.WebGLRenderer({canvas,context,antialias:high});}
@@ -27,6 +28,7 @@ export function createGameRenderer(canvas,quality,onGraphics=()=>{}) {
   ctx.fillStyle='#10182d';ctx.fillRect(0,0,800,500);const triangles=[];
   scene.traverse(object=>{
    if(!object.isMesh||!object.visible||object.userData.softwareHidden||!object.geometry?.attributes.position)return;
+   for(let parent=object.parent;parent;parent=parent.parent)if(!parent.visible)return;
    const pos=object.geometry.attributes.position,index=object.geometry.index;
    const color=(Array.isArray(object.material)?object.material[0]:object.material).color.clone().convertLinearToSRGB();
    const count=index?index.count:pos.count;
