@@ -39,7 +39,7 @@ function collect(dir,prefix) {
 collect(path.join(frontend,'dist-local'),'beebright_local/ui');
 files.set('beebright_local/ui/CHANGELOG.md',fs.readFileSync(path.join(local,'CHANGELOG.md')));
 files.set('beebright_local/ui/bee.svg',fs.readFileSync(path.join(frontend,'public/bee.svg')));
-for(const name of ['App.jsx','api.js','hints.js','local-api.js','local-main.jsx','styles.css','fonts.css','studio.jsx','studio-core.js','arcade-core.js','arcade.jsx','arcade.css','games-2d.js','games-3d.js']) {
+for(const name of ['App.jsx','api.js','hints.js','local-api.js','local-main.jsx','styles.css','fonts.css','studio.jsx','studio-core.js','arcade-core.js','arcade.jsx','arcade.css','games-2d.js','games-3d.js','game-renderer.js','game-mechanics.js']) {
   let source=fs.readFileSync(path.join(frontend,'src',name));
   if(name==='App.jsx') source=Buffer.from(source.toString().replace('../../../../local/release.json','../../release.json'));
   files.set('ui-source/src/'+name,source);

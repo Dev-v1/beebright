@@ -20,7 +20,7 @@ test('bowling completes five frames with bounded pin scoring; pause stops simula
 });
 test('gravity collision ends a run and produces a score; each 2D game mounts and cleans up',()=>{
  const h=harness('gravity');h.step(600);assert.equal(h.finished.won,false);assert.ok(h.finished.score>0);h.engine.dispose();
- for(const id of ['sky','sheep','rally','dash']){const g=harness(id);g.step(20);assert.equal(typeof g.status,'string');g.engine.dispose();assert.equal(g.cancelled,true);}
+ for(const id of ['sky','sheep','dash']){const g=harness(id);g.step(20);assert.equal(typeof g.status,'string');g.engine.dispose();assert.equal(g.cancelled,true);}
 });
 
 test('paused games render once instead of repeatedly drawing idle frames',()=>{

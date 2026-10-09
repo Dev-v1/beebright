@@ -11,6 +11,8 @@ def wait(w,expr):
             if w.evaluate_js(expr): return
         except Exception: pass
         time.sleep(.1)
+    try: print(w.evaluate_js("JSON.stringify({url:location.href,text:document.body.innerText.slice(0,1600)})"))
+    except Exception: pass
     raise AssertionError(expr)
 def test(w):
     try:
@@ -35,7 +37,22 @@ def test(w):
             assert w.evaluate_js("document.querySelector('.game-overlay h2').innerText==='Paused'")
             assert studio.read('progress.json')==previous
             assert studio.read('studio.json', {})==history
-            print('Local diagnostic menu, independent courses, Settings pause, keyboard release and unchanged progress passed.')
+            # Force embedded WebView to deny WebGL; the same 3D games must still run.
+            w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
+            wait(w,"document.querySelectorAll('.game-card').length===8")
+            w.evaluate_js("window.beeGetContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type==='webgl2'?null:window.beeGetContext.call(this,type,...args);}")
+            for title in ['Neon Rally','Marble Run 3D','Space Survival 3D']:
+                w.evaluate_js("Array.from(document.querySelectorAll('.game-card')).find(c=>c.querySelector('h2').innerText==="+repr(title)+").querySelector('button').click()")
+                wait(w,"document.querySelector('.game-overlay .primary')!==null && !document.querySelector('.game-overlay .primary').disabled")
+                assert w.evaluate_js("document.querySelector('.game-graphics').innerText.includes('Software 3D')")
+                w.evaluate_js("document.querySelector('.game-overlay .primary').click()")
+                wait(w,"document.querySelector('.game-overlay')===null")
+                time.sleep(.3)
+                w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
+                wait(w,"document.querySelectorAll('.game-card').length===8")
+            w.evaluate_js("HTMLCanvasElement.prototype.getContext=window.beeGetContext")
+            assert studio.read('progress.json')==previous and studio.read('studio.json', {})==history
+            print('Local diagnostic menu, course selection, Settings pause, keyboard release, progress preservation and three software 3D games passed.')
             return
         wait(w,"document.querySelector('.hero-copy h1') !== null")
         assert w.evaluate_js("!document.body.innerText.includes('Request another word list') && !document.body.innerText.includes('Admin')")
@@ -77,22 +94,24 @@ def test(w):
         assert w.evaluate_js("document.querySelector('.break-offer .primary').innerText.includes('10-minute')")
         w.evaluate_js("document.querySelector('.break-offer .primary').click()")
         wait(w,"document.querySelectorAll('.game-card').length===8")
+        w.evaluate_js("(()=>{const s=document.querySelector('[aria-label=\"Graphics quality\"]');s.value='high';s.dispatchEvent(new Event('change',{bubbles:true}));})()")
+        wait(w,"localStorage.getItem('beebright-arcade-quality')==='high'")
         original_deadline=w.evaluate_js("document.querySelector('.break-clock').innerText")
         for title in ['Sky Hopper','Sheep Escape','Gravity Flip','Pocket Bowling','Neon Rally','Neon Dash','Marble Run 3D','Space Survival 3D']:
             w.evaluate_js("Array.from(document.querySelectorAll('.game-card')).find(c=>c.querySelector('h2').innerText==="+repr(title)+").querySelector('button').click()")
-            wait(w,"document.querySelector('.game-overlay .primary') !== null && !document.querySelector('.game-overlay .primary').disabled || document.body.innerText.includes('3D graphics are unavailable')")
-            if w.evaluate_js("document.body.innerText.includes('3D graphics are unavailable')"):
-                if title not in ('Marble Run 3D','Space Survival 3D'): raise AssertionError('2D game failed')
-                print(title+': GPU unavailable on runner; graceful 2D fallback verified.')
-            else:
-                w.evaluate_js("document.querySelector('.game-overlay .primary').click()")
-                wait(w,"document.querySelector('.game-overlay') === null")
-                time.sleep(.15)
-                assert w.evaluate_js("document.querySelector('canvas').width>=800 && !document.querySelector('.arcade-player-bar').innerText.includes('NaN')")
-                if title in ('Marble Run 3D','Space Survival 3D'):
-                    assert w.evaluate_js("document.querySelector('canvas').getContext('webgl2') !== null")
-                w.evaluate_js("Array.from(document.querySelectorAll('.arcade-player-bar button')).find(b=>b.innerText==='Pause').click()")
-                wait(w,"document.querySelector('.game-overlay') !== null")
+            wait(w,"document.querySelector('.game-overlay .primary') !== null && !document.querySelector('.game-overlay .primary').disabled")
+            w.evaluate_js("document.querySelector('.game-overlay .primary').click()")
+            wait(w,"document.querySelector('.game-overlay') === null")
+            time.sleep(.3)
+            assert w.evaluate_js("document.querySelector('canvas').width>=800 && !document.querySelector('.arcade-player-bar').innerText.includes('NaN')")
+            if title in ('Neon Rally','Marble Run 3D','Space Survival 3D'):
+                assert w.evaluate_js("document.querySelector('.game-graphics').innerText.length>10")
+            if title=='Neon Rally':
+                w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown'}))")
+                wait(w,"document.querySelector('.arcade-player-bar').innerText.includes('REVERSE')")
+                w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keyup',{key:'ArrowDown'}))")
+            w.evaluate_js("Array.from(document.querySelectorAll('.arcade-player-bar button')).find(b=>b.innerText==='Pause').click()")
+            wait(w,"document.querySelector('.game-overlay') !== null")
             w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
             wait(w,"document.querySelectorAll('.game-card').length===8")
         # Leaving and resuming must retain the earned break and its original deadline.
