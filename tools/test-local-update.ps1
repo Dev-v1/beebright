@@ -36,3 +36,13 @@ $InvalidCommandFailed = $false
 try { & (Join-Path $Repo 'local/bootstrap.ps1') create invalid } catch { $InvalidCommandFailed = $true }
 if (-not $InvalidCommandFailed) { throw 'Invalid create command did not report usage.' }
 Write-Host 'Update installation, progress preservation, offline fallback, and PowerShell syntax passed.'
+
+# Exercise the real Windows PowerShell argument binder for every spelling.
+$ExpectedRelease = Get-Content "$Bee/current/release.json" -Raw | ConvertFrom-Json
+foreach ($Flag in @('-v', '--v', '--version', '-version')) {
+    $Output = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Repo 'local/bootstrap.ps1') $Flag
+    if ($LASTEXITCODE -ne 0 -or ($Output -join "`n") -ne "BeeBright $($ExpectedRelease.version)") {
+        throw "Version flag $Flag failed: $Output"
+    }
+}
+Write-Host 'All four offline installed-version flags passed.'

@@ -89,6 +89,8 @@ fs.writeFileSync(path.join(destination,'manifest.json'),JSON.stringify({version,
   url:'https://beebright.vercel.app/local/beebright-local.zip',
   sha256:crypto.createHash('sha256').update(archive).digest('hex')},null,2));
 fs.copyFileSync(path.join(local,'bootstrap.ps1'),path.join(destination,'bootstrap.ps1'));
+fs.copyFileSync(path.join(local,'install.sh'),path.join(app,'frontend/public/install.sh'));
+fs.copyFileSync(path.join(local,'bootstrap.py'),path.join(destination,'bootstrap.py'));
 fs.copyFileSync(path.join(local,'install.ps1'),path.join(app,'frontend/public/install.ps1'));
 // A local developer can run the desktop edition from this same generated package.
 if (process.argv.includes('--materialize')) {

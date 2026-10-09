@@ -7,13 +7,17 @@ permissions:
   contents: read
 jobs:
   shared-practice:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - run: npm ci
         working-directory: BeeBright-Full-Stack/beebright-spelling-bee/frontend
       - run: node tools/build-local.mjs --materialize
       - run: python3 -m unittest discover -s local -v
+      - run: sh -n local/install.sh
   windows-desktop:
     runs-on: windows-latest
     steps:

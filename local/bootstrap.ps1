@@ -1,4 +1,12 @@
-param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '', [Parameter(Position=1)][string]$Target = '')
+param([switch]$SkipLaunch, [Parameter(Position=0)][string]$Command = '', [Parameter(Position=1)][string]$Target = '', [Alias('v', '-v', '-version')][switch]$Version)
+if ($Version) {
+    $ErrorActionPreference = 'Stop'
+    $ReleaseFile = Join-Path $env:LOCALAPPDATA 'BeeBright\current\release.json'
+    if (-not (Test-Path $ReleaseFile)) { throw 'Installed BeeBright version is unavailable. Run beebright update.' }
+    $Release = Get-Content $ReleaseFile -Raw | ConvertFrom-Json
+    Write-Output "BeeBright $($Release.version)"
+    return
+}
 if ($Command -notin @('', 'update', 'web', 'create') -or ($Command -eq 'create' -and $Target -ne 'web') -or ($Command -ne 'create' -and $Target)) { throw 'Usage: beebright | beebright update | beebright web | beebright create web' }
 $UpdateOnly = $Command -eq 'update'
 if ($UpdateOnly) { $SkipLaunch = $true }
