@@ -46,7 +46,7 @@ def update():
     if hashlib.sha256(archive).hexdigest() != digest:
         raise RuntimeError('Update checksum did not match.')
     with tempfile.TemporaryDirectory(prefix='stage-', dir=ROOT) as tmp:
-        stage = Path(tmp) / 'current'
+        stage = (Path(tmp) / 'current').resolve()
         stage.mkdir()
         with zipfile.ZipFile(io.BytesIO(archive)) as package:
             for member in package.infolist():
