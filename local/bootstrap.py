@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import shutil
 import sys
+import subprocess
 import tempfile
 import urllib.request
 import webbrowser
@@ -71,8 +72,53 @@ def update():
     print('BeeBright is up to date.')
 
 
+HELP = """BeeBright commands
+  beebright                 Open local spelling practice; check for updates first.
+  beebright update          Update the app and private Python runtime.
+  beebright web             Open https://beebright.vercel.app/.
+  beebright create web      Open local practice in a browser; Ctrl+C stops it.
+  beebright -v              Show installed version (also --v, --version, -version).
+  beebright help            Show commands without internet access.
+  beebright uninstall       Remove BeeBright, private runtimes and local saved progress.
+Stop local practice with Ctrl+C before uninstalling.
+"""
+
+
+def uninstall():
+    home = Path.home()
+    expected = (home / '.local/share/BeeBright').resolve()
+    if ROOT.resolve() != expected:
+        raise RuntimeError('Uninstall is only available for an installed BeeBright copy.')
+    (home / '.local/bin/beebright').unlink(missing_ok=True)
+    for name in ('.bashrc', '.zshrc'):
+        profile = home / name
+        if profile.exists():
+            lines = profile.read_text().splitlines(keepends=True)
+            line = 'export PATH="$HOME/.local/bin:$PATH" # BeeBright'
+            profile.write_text(''.join(item for item in lines if item.strip() != line))
+    shutil.rmtree(ROOT)
+    print('BeeBright uninstalled. Private runtimes and local saved progress were removed.')
+
+
+def migrate_runtime(args):
+    if sys.version_info[:2] == (3, 15):
+        return
+    installer = CURRENT / 'install.sh'
+    if not installer.exists():
+        raise RuntimeError('Python 3.15 runtime is missing. Run the install command again.')
+    subprocess.run(['sh', str(installer)], check=True)
+    launcher = Path.home() / '.local/bin/beebright'
+    os.execv(str(launcher), [str(launcher), *args])
+
+
 def main(args=None):
     args = sys.argv[1:] if args is None else args
+    if args == ['help']:
+        print(HELP)
+        return
+    if args == ['uninstall']:
+        uninstall()
+        return
     if args in (['-v'], ['--v'], ['--version'], ['-version']):
         release = json.loads((CURRENT / 'release.json').read_text())
         print(f"BeeBright {release['version']}")
@@ -81,7 +127,7 @@ def main(args=None):
         webbrowser.open('https://beebright.vercel.app/')
         return
     if args not in ([], ['update'], ['create', 'web']):
-        raise RuntimeError('Usage: beebright [update | web | create web | --version]')
+        raise RuntimeError('Usage: beebright [update | web | create web | help | uninstall | --version]')
     ROOT.mkdir(parents=True, exist_ok=True)
     # Serialize package swaps without locking the whole practice session.
     import fcntl
@@ -93,6 +139,7 @@ def main(args=None):
             if args == ['update'] or not (CURRENT / 'beebright_local/web.py').exists():
                 raise
             print(f'Update unavailable; opening installed offline practice. {exc}')
+    migrate_runtime(args)
     if args == ['update']:
         return
     os.environ['BEEBRIGHT_DATA_DIR'] = str(ROOT / 'userdata')
@@ -104,6 +151,6 @@ def main(args=None):
 if __name__ == '__main__':
     try:
         main()
-    except (OSError, ValueError, RuntimeError, zipfile.BadZipFile) as exc:
+    except (OSError, ValueError, RuntimeError, zipfile.BadZipFile, subprocess.SubprocessError) as exc:
         print(f'BeeBright: {exc}', file=sys.stderr)
         sys.exit(1)

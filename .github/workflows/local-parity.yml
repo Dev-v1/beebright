@@ -18,6 +18,7 @@ jobs:
       - run: node tools/build-local.mjs --materialize
       - run: python3 -m unittest discover -s local -v
       - run: sh -n local/install.sh
+      - run: sh tools/test-posix-runtime.sh
   windows-desktop:
     runs-on: windows-latest
     steps:

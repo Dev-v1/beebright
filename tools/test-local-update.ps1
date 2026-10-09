@@ -7,8 +7,8 @@ foreach ($Script in @('install.ps1', 'bootstrap.ps1')) {
 }
 $env:LOCALAPPDATA = Join-Path $env:RUNNER_TEMP 'bee-update-test'
 $Bee = Join-Path $env:LOCALAPPDATA 'BeeBright'
-New-Item -ItemType Directory -Force -Path "$Bee/runtime-3.14", "$Bee/userdata" | Out-Null
-Set-Content "$Bee/runtime-3.14/pythonw.exe" ''
+New-Item -ItemType Directory -Force -Path "$Bee/runtime-3.15", "$Bee/userdata" | Out-Null
+Set-Content "$Bee/runtime-3.15/pythonw.exe" ''
 Set-Content "$Bee/userdata/progress.json" '{"sentinel":"keep-me"}'
 $Archive = Join-Path $Repo 'BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/beebright-local.zip'
 $global:BeeTestManifest = Get-Content (Join-Path $Repo 'BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local/manifest.json') -Raw | ConvertFrom-Json
@@ -46,3 +46,17 @@ foreach ($Flag in @('-v', '--v', '--version', '-version')) {
     }
 }
 Write-Host 'All four offline installed-version flags passed.'
+
+$Help = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Repo 'local/bootstrap.ps1') help
+if ($LASTEXITCODE -ne 0 -or ($Help -join "`n") -notmatch 'beebright uninstall') { throw 'Help did not list commands.' }
+$SavedUserPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+$Unrelated = Join-Path $env:LOCALAPPDATA 'unrelated-python'
+New-Item -ItemType Directory -Force $Unrelated | Out-Null
+try {
+    [Environment]::SetEnvironmentVariable('Path', ($SavedUserPath + ';' + "$Bee\bin"), 'User')
+    & (Join-Path $Repo 'local/bootstrap.ps1') uninstall
+    if (Test-Path $Bee) { throw 'Uninstall left the private runtime or local data behind.' }
+    if (-not (Test-Path $Unrelated)) { throw 'Uninstall removed unrelated files.' }
+    if (([Environment]::GetEnvironmentVariable('Path', 'User') -split ';') -contains "$Bee\bin") { throw 'Uninstall left the launcher on PATH.' }
+} finally { [Environment]::SetEnvironmentVariable('Path', $SavedUserPath, 'User') }
+Write-Host 'Offline help and scoped uninstall passed.'

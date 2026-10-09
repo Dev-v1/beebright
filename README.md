@@ -13,7 +13,7 @@ Spelling Bee Practice Website
 curl -fsSL https://beebright.vercel.app/install.sh | sh
 ```
 
-Open a new terminal and type `beebright`. The local UI opens in your browser, without login or cloud features. The installer manages its own Python 3.14 runtime. See `local/README.md` for platform details.
+Open a new terminal and type `beebright`. The local UI opens in your browser, without login or cloud features. The installer manages its own Python 3.15 runtime. See `local/README.md` for platform details.
 
 ## Check the installed version
 
@@ -26,35 +26,18 @@ beebright --version
 beebright -version
 ```
 
-Each prints the installed release, such as `BeeBright 1.7`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
+Each prints the installed release, such as `BeeBright 1.8`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
 
-## Uninstall BeeBright on Windows
+## Commands
 
-Close BeeBright first. These PowerShell commands remove BeeBright, its private Python runtime, and all saved local progress and settings. They also remove the BeeBright command from your user PATH. They leave other Python installations and the shared Microsoft WebView2 runtime in place.
+Run `beebright help` for descriptions of every command. Help and version checks work offline. `beebright update` installs the latest app and migrates older private runtimes to Python 3.15.
 
-```powershell
-$BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
-$BeeBin = Join-Path $BeeRoot 'bin'
-$UserPath = [string][Environment]::GetEnvironmentVariable('Path', 'User')
-$CleanPath = ($UserPath -split ';' | Where-Object {
-    $_.Trim().TrimEnd('\') -ine $BeeBin.TrimEnd('\')
-}) -join ';'
-[Environment]::SetEnvironmentVariable('Path', $CleanPath, 'User')
-$env:Path = ($env:Path -split ';' | Where-Object {
-    $_.Trim().TrimEnd('\') -ine $BeeBin.TrimEnd('\')
-}) -join ';'
-Remove-Item -LiteralPath $BeeRoot -Recurse -Force -ErrorAction SilentlyContinue
+## Uninstall
+
+Close BeeBright and stop local browser practice with Ctrl+C, then run:
+
+```text
+beebright uninstall
 ```
 
-Open a new terminal afterward. To keep your progress for a future reinstall, copy `%LOCALAPPDATA%\BeeBright\userdata` somewhere safe before running these commands. Removing the local app does not delete your website account or its cloud progress.
-
-## Uninstall on macOS or Linux
-
-Stop BeeBright with Ctrl+C, then remove the app, private runtime and local progress:
-
-```sh
-rm -rf "$HOME/.local/share/BeeBright"
-rm -f "$HOME/.local/bin/beebright"
-```
-
-Optionally remove the `# BeeBright` PATH line from `~/.zshrc` or `~/.bashrc`.
+This removes BeeBright, its private runtimes, terminal launcher, local saved progress and settings. Other Python installations, shared WebView2 and website account/progress remain. Back up your BeeBright `userdata` folder first if you want to retain progress. On Windows it is `%LOCALAPPDATA%\BeeBright\userdata`; on macOS/Linux it is `~/.local/share/BeeBright/userdata`.

@@ -22,7 +22,7 @@ Then run:
 beebright
 ```
 
-The installer adds the command to your user PATH and installs an official signed Python 3.14.8 runtime under `%LOCALAPPDATA%\BeeBright\runtime-3.14`, plus pywebview/Python.NET and Microsoft WebView2 when needed. No administrator privileges are required. Windows x64 is supported by this installer. You can review `install.ps1` before running it.
+The installer adds the command to your user PATH and installs an official signed Python 3.15.0 runtime under `%LOCALAPPDATA%\BeeBright\runtime-3.15`, plus pywebview/Python.NET and Microsoft WebView2 when needed. No administrator privileges are required. Windows x64 is supported by this installer. You can review `install.ps1` before running it.
 
 To update without opening the app, close BeeBright and run:
 
@@ -38,7 +38,7 @@ It checks the latest verified package and preserves your local progress. An expl
 curl -fsSL https://beebright.vercel.app/install.sh | sh
 ```
 
-The installer downloads Astral uv from its official source and installs a private Python 3.14 runtime, requiring no administrator access. It adds `~/.local/bin` to your bash or zsh profile. Open a new terminal and type `beebright`, or immediately use `~/.local/bin/beebright`. The same UI opens in your default browser; keep the terminal open and use Ctrl+C to stop. No pywebview, login or cloud storage is needed. Install `espeak` or `espeak-ng` for Linux offline speech. macOS uses its built-in `say` voice.
+The installer downloads Astral uv from its official source and installs a private Python 3.15 runtime, requiring no administrator access. It adds `~/.local/bin` to your bash or zsh profile. Open a new terminal and type `beebright`, or immediately use `~/.local/bin/beebright`. The same UI opens in your default browser; keep the terminal open and use Ctrl+C to stop. No pywebview, login or cloud storage is needed. Install `espeak` or `espeak-ng` for Linux offline speech. macOS uses its built-in `say` voice.
 
 `beebright update`, `beebright web`, `beebright create web`, and all four version flags also work here. Verified updates preserve `~/.local/share/BeeBright/userdata`. Python, uv and the app live under `~/.local/share/BeeBright`; other Python installations stay separate.
 
@@ -62,7 +62,7 @@ To run this mode directly from the source ZIP, use `python -m beebright_local --
 
 ## Run from source
 
-Download the release ZIP, extract it, and use Python 3.14 and the desktop dependencies:
+Download the release ZIP, extract it, and use Python 3.15 and the desktop dependencies:
 
 ```text
 python -m pip install -r requirements.txt
@@ -94,35 +94,18 @@ beebright --version
 beebright -version
 ```
 
-Each prints the installed release, such as `BeeBright 1.7`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
+Each prints the installed release, such as `BeeBright 1.8`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
 
-## Uninstall BeeBright on Windows
+## Commands
 
-Close BeeBright first. These PowerShell commands remove BeeBright, its private Python runtime, and all saved local progress and settings. They also remove the BeeBright command from your user PATH. They leave other Python installations and the shared Microsoft WebView2 runtime in place.
+Run `beebright help` for descriptions of every command. Help and version checks work offline. `beebright update` installs the latest app and migrates older private runtimes to Python 3.15.
 
-```powershell
-$BeeRoot = Join-Path $env:LOCALAPPDATA 'BeeBright'
-$BeeBin = Join-Path $BeeRoot 'bin'
-$UserPath = [string][Environment]::GetEnvironmentVariable('Path', 'User')
-$CleanPath = ($UserPath -split ';' | Where-Object {
-    $_.Trim().TrimEnd('\') -ine $BeeBin.TrimEnd('\')
-}) -join ';'
-[Environment]::SetEnvironmentVariable('Path', $CleanPath, 'User')
-$env:Path = ($env:Path -split ';' | Where-Object {
-    $_.Trim().TrimEnd('\') -ine $BeeBin.TrimEnd('\')
-}) -join ';'
-Remove-Item -LiteralPath $BeeRoot -Recurse -Force -ErrorAction SilentlyContinue
+## Uninstall
+
+Close BeeBright and stop local browser practice with Ctrl+C, then run:
+
+```text
+beebright uninstall
 ```
 
-Open a new terminal afterward. To keep your progress for a future reinstall, copy `%LOCALAPPDATA%\BeeBright\userdata` somewhere safe before running these commands. Removing the local app does not delete your website account or its cloud progress.
-
-## Uninstall BeeBright on macOS or Linux
-
-Close local practice and stop its terminal with Ctrl+C first. This removes the app, its private Python and uv, and saved local progress:
-
-```sh
-rm -rf "$HOME/.local/share/BeeBright"
-rm -f "$HOME/.local/bin/beebright"
-```
-
-Optionally remove the line ending `# BeeBright` from `~/.zshrc` or `~/.bashrc`. Back up `~/.local/share/BeeBright/userdata` before uninstalling to retain progress.
+This removes BeeBright, its private runtimes, terminal launcher, local saved progress and settings. Other Python installations, shared WebView2 and website account/progress remain. Back up your BeeBright `userdata` folder first if you want to retain progress. On Windows it is `%LOCALAPPDATA%\BeeBright\userdata`; on macOS/Linux it is `~/.local/share/BeeBright/userdata`.
