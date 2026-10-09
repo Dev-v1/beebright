@@ -41,8 +41,8 @@ try {
                 if ((Get-FileHash $Zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Manifest.sha256) { throw 'Update checksum did not match.' }
                 Expand-Archive -LiteralPath $Zip -DestinationPath $Stage
                 if (-not (Test-Path "$Stage\beebright_local\app.py")) { throw 'Update is missing the desktop app.' }
-                $Version = (Get-Content "$Stage\version.json" -Raw | ConvertFrom-Json).version
-                if ($Version -ne $Manifest.version) { throw 'Update version did not match.' }
+                $PackageVersion = (Get-Content "$Stage\version.json" -Raw | ConvertFrom-Json).version
+                if ($PackageVersion -ne $Manifest.version) { throw 'Update version did not match.' }
                 $Old = Join-Path $BeeRoot 'previous'
                 if (Test-Path $Old) { Remove-Item $Old -Recurse -Force }
                 if (Test-Path $Current) { Move-Item $Current $Old }
