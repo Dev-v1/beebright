@@ -5,7 +5,7 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
  const high=quality==='high',renderer=createGameRenderer(canvas,quality,onGraphics);
  const scene=new THREE.Scene();scene.background=new THREE.Color('#10182d');scene.fog=new THREE.Fog('#10182d',45,160);
  const camera=new THREE.PerspectiveCamera(58,1.6,.1,180);scene.add(new THREE.HemisphereLight(0xe0f5ff,0x253955,2.1));
- const light=new THREE.DirectionalLight(0xffffff,2.2);light.position.set(8,18,10);light.castShadow=high;light.shadow.mapSize.set(1024,1024);scene.add(light);
+ const light=new THREE.DirectionalLight(0xffffff,2.2);light.position.set(8,18,10);light.castShadow=high;light.shadow.mapSize.set(1024,1024);Object.assign(light.shadow.camera,{left:-24,right:24,top:24,bottom:-24,far:100});scene.add(light);
  const materials=[],geometries=[];const mat=color=>{const m=new THREE.MeshStandardMaterial({color,roughness:high?.35:.75,metalness:high?.3:.1});materials.push(m);return m;};
  const teal=mat('#8de9df'),purple=mat('#b4a2ef'),stone=mat('#7b93bd'),green=mat('#abec9e'),pink=mat('#f691ba'),white=mat('#e6efff');
  function mesh(geometry,material,x=0,y=0,z=0,parent=scene){geometries.push(geometry);const m=new THREE.Mesh(geometry,material);m.position.set(x,y,z);m.castShadow=high;m.receiveShadow=high;parent.add(m);return m;}
@@ -34,20 +34,20 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
   camera.position.set(0,8,14);camera.lookAt(0,0,-3);
  }else if(id==='rally'){
   p.x=27;p.y=.4;p.z=0;
-  box(0,-.25,0,100,.3,85,mat('#20384a'));const count=64;
+  box(0,-.25,0,100,.3,85,mat('#20384a')).userData.softwareHidden=true;const count=64;
   for(let i=0;i<count;i++){const a=i/count*Math.PI*2,b=(i+1)/count*Math.PI*2,x=27*Math.cos(a),z=18*Math.sin(a),x2=27*Math.cos(b),z2=18*Math.sin(b),d=new THREE.Vector3(x2-x,0,z2-z);const m=box((x+x2)/2,0,(z+z2)/2,7,.15,d.length()+.15,i%8===0?purple:stone);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),d.normalize());track.push(m);if(i%8===0)gates.push({x,z});if(high||i%4===0){mesh(new THREE.SphereGeometry(.18,6,4),pink,x*1.15,.5,z*1.15);}}
   box(0,0,0,30,.5,18,purple);box(0,2,0,12,4,7,stone);
   mesh(new THREE.BoxGeometry(2.8,.7,1.5),pink,0,.3,0,player);mesh(new THREE.BoxGeometry(1.15,.5,1.3),teal,-.1,.9,0,player);
   for(const x of [-.9,.9])for(const z of [-.85,.85]){const wheel=mesh(new THREE.CylinderGeometry(.34,.34,.24,10),stone,x,.15,z,player);wheel.rotation.x=Math.PI/2;}
   camera.position.set(40,24,25);camera.lookAt(p.x,0,p.z);
  }else{
-  ship(teal,1,player);p.y=0;p.z=7;camera.position.set(0,5,24);camera.lookAt(0,0,-16);
+  ship(teal,1,player);p.y=0;p.z=7;camera.fov=50;camera.updateProjectionMatrix();camera.position.set(0,4,19);camera.lookAt(0,0,-9);
   const n=high?500:160,pos=new Float32Array(n*3);for(let i=0;i<n;i++){pos[i*3]=(Math.random()-.5)*100;pos[i*3+1]=(Math.random()-.5)*80;pos[i*3+2]=-Math.random()*120;}
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geometries.push(geo);const m=new THREE.PointsMaterial({color:0xbecff6,size:.13});materials.push(m);scene.add(new THREE.Points(geo,m));
   // Visible nebula lanterns also appear in software projection.
   for(let i=0;i<14;i++)mesh(new THREE.OctahedronGeometry(.12),white,(i*13%42)-21,(i*7%23)-11,-20-i*6);
  }
- function nextWave(){wave++;for(let row=0;row<3;row++)for(let col=0;col<5;col++){const e=ship(row===0?pink:purple,.65);e.rotation.y=Math.PI;enemies.push({mesh:e,baseX:(col-2)*3,baseY:(row-1)*2.2,phase:col*.8+row,diving:false,dive:0,shot:1+Math.random()*3,hp:wave>3?2:1});}notify(`Wave ${wave} · Shields ${shield}/5`);}
+ function nextWave(){wave++;for(let row=0;row<3;row++)for(let col=0;col<5;col++){const e=ship(row===0?pink:purple,.95);e.rotation.y=Math.PI;enemies.push({mesh:e,baseX:(col-2)*3.3,baseY:(row-1)*2.2,phase:col*.8+row,diving:false,dive:0,shot:1+Math.random()*3,hp:wave>3?2:1});}notify(`Wave ${wave} · Shields ${shield}/5`);}
  function explosion(x,y,z){for(let i=0;i<(high?12:6);i++){particles.push({mesh:mesh(new THREE.OctahedronGeometry(.12),pink,x,y,z),vx:(Math.random()-.5)*7,vy:(Math.random()-.5)*7,vz:(Math.random()-.5)*7,life:.65});}}
  function laser(x,y,z,enemy=false){return {mesh:mesh(new THREE.BoxGeometry(enemy?.16:.12,.12,1.2),enemy?pink:green,x,y,z)};}
  function update(dt){t+=dt;const action=input.action&&!input.previousAction;input.previousAction=Boolean(input.action);
@@ -73,8 +73,8 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
    if(input.action&&fire<=0){fire=.16;shots.push(laser(p.x-.35,p.y,5),laser(p.x+.35,p.y,5));}
    if(!enemies.length){spawnTimer-=dt;if(spawnTimer<=0){if(wave>=5){score+=1500;finish(true,'All five invasion waves defeated!');return;}nextWave();}}
    for(const e of enemies){e.shot-=dt;if(!e.diving&&t>4&&Math.sin(t*.8+e.phase)>.995)e.diving=true;
-    if(e.diving){e.dive+=dt;const q=e.dive;e.mesh.position.set(e.baseX+Math.sin(q*3)*3,e.baseY-Math.sin(q*2)*2,-23+q*15);e.mesh.rotation.z=Math.sin(q*3)*.65;if(q>2.7){e.dive=0;e.diving=false;}}
-    else {e.mesh.position.set(e.baseX+Math.sin(t*.8)*2,e.baseY+Math.sin(t+e.phase)*.5,-23-Math.floor(e.phase/4)*3);e.mesh.rotation.z=Math.cos(t+e.phase)*.15;}
+    if(e.diving){e.dive+=dt;const q=e.dive;e.mesh.position.set(e.baseX+Math.sin(q*3)*3,e.baseY-Math.sin(q*2)*2,-17+q*15);e.mesh.rotation.z=Math.sin(q*3)*.65;if(q>2.7){e.dive=0;e.diving=false;}}
+    else {e.mesh.position.set(e.baseX+Math.sin(t*.8)*2,e.baseY+Math.sin(t+e.phase)*.5,-17-Math.floor(e.phase/4)*3);e.mesh.rotation.z=Math.cos(t+e.phase)*.15;}
     if(e.shot<=0){e.shot=Math.max(.9,3.5-wave*.4)+Math.random()*2;enemyShots.push(laser(e.mesh.position.x,e.mesh.position.y,e.mesh.position.z+1,true));}
     if(e.mesh.position.z>5&&Math.hypot(e.mesh.position.x-p.x,e.mesh.position.y-p.y)<1.3&&!immune){shield--;immune=1.6;e.hp=0;}
     for(const b of shots)if(Math.abs(b.mesh.position.z-e.mesh.position.z)<1.4&&Math.hypot(b.mesh.position.x-e.mesh.position.x,b.mesh.position.y-e.mesh.position.y)<1.2){e.hp--;b.mesh.position.z=-160;if(e.hp<=0){kills++;score+=100;explosion(e.mesh.position.x,e.mesh.position.y,e.mesh.position.z);if(kills%7===0)pickups.push({mesh:mesh(new THREE.OctahedronGeometry(.45),green,e.mesh.position.x,e.mesh.position.y,e.mesh.position.z)});}break;}
@@ -86,6 +86,7 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
    particles=particles.filter(a=>{a.life-=dt;a.mesh.position.x+=a.vx*dt;a.mesh.position.y+=a.vy*dt;a.mesh.position.z+=a.vz*dt;if(a.life<=0){remove(a.mesh);return false;}return true;});
    if(shield<=0)finish(false,`${kills} ships defeated across ${completedWaves} waves. Keep moving and watch for shield crystals.`);notify(`Wave ${wave}/5 · Shields ${Math.max(0,shield)}/5 · ${kills} ships · ${score} points`);
   }
+  if(high){light.position.copy(player.position).add(new THREE.Vector3(8,18,10));light.target=player;}
  }
  function loop(now){const dt=last?Math.min(.034,(now-last)/1000):0;last=now;if(!paused&&!done){update(dt);redraw=true;}if(redraw){renderer.render(scene,camera);redraw=false;}animation=requestAnimationFrame(loop);}
  const contextLost=e=>{e.preventDefault();finish(false,'The graphics context was interrupted. Retry, or open local practice in your browser.');};canvas.addEventListener('webglcontextlost',contextLost);renderer.render(scene,camera);animation=requestAnimationFrame(loop);

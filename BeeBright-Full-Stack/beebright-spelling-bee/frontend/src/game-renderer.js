@@ -26,9 +26,9 @@ export function createGameRenderer(canvas,quality,onGraphics=()=>{}) {
   scene.updateMatrixWorld();camera.updateMatrixWorld();
   ctx.fillStyle='#10182d';ctx.fillRect(0,0,800,500);const triangles=[];
   scene.traverse(object=>{
-   if(!object.isMesh||!object.visible||!object.geometry?.attributes.position)return;
+   if(!object.isMesh||!object.visible||object.userData.softwareHidden||!object.geometry?.attributes.position)return;
    const pos=object.geometry.attributes.position,index=object.geometry.index;
-   const color=(Array.isArray(object.material)?object.material[0]:object.material).color;
+   const color=(Array.isArray(object.material)?object.material[0]:object.material).color.clone().convertLinearToSRGB();
    const count=index?index.count:pos.count;
    for(let i=0;i<count;i+=3){const vertices=[];
     for(let j=0;j<3;j++){const n=index?index.getX(i+j):i+j;vertices.push(new THREE.Vector3().fromBufferAttribute(pos,n).applyMatrix4(object.matrixWorld).project(camera));}
