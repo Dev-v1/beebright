@@ -1,5 +1,16 @@
 # BeeBright releases
 
+## 2.2
+
+- Easier Neon Dash courses; blue blocks are safe platforms.
+- Momentum-based bowling with pin-to-pin collisions, gutters, power and spin.
+- Faster, tighter Gravity Flip barriers.
+- Lightweight 3D Neon Rally with braking, reverse and a chase camera.
+- Three original Marble Run courses with ramps, winding bridges and crystal checkpoints.
+- Space Survival invasion waves, diving and banking ships, twin lasers and shield pickups.
+- Optional persistent high-quality graphics, sharper resolution and 3D shadows.
+- Prefer the GPU for 3D; show graphics diagnostics and use software 3D when WebView does not offer WebGL 2.
+
 ## 2.1 bugfix
 
 - Pause local games and release their keyboard controls while Settings is open.
