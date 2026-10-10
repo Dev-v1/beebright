@@ -13,7 +13,7 @@ export function mount2D(canvas,{id,level=0,input,onFinish,onStatus,muted=false,q
  const course=DASH_LEVELS[level]||DASH_LEVELS[0];
  let p={x:140,y:250,w:28,h:28,vy:0,vx:0,angle:-Math.PI/2},gravity=1;
  let balls=0,round=1,pins=[],rolling=false,angle=0,rollAge=0,power=.75,spin=0,frameScore=0;
- const bridge=newBridgeRun(),dash=newDashRun();
+ const bridge=newBridgeRun(),dash=newDashRun();let trail=[];
  function resetPins(){pins=bowlingPins();}
  if(id==='bowling'){p.x=400;p.y=445;p.r=13;p.mass=7;resetPins();}
  if(id==='sheep'){p.x=165;p.y=250;}
@@ -45,7 +45,7 @@ export function mount2D(canvas,{id,level=0,input,onFinish,onStatus,muted=false,q
      else pins=pins.filter(pin=>!pin.down);
     }}
   }else if(id==='dash'){
-   const state=dashStep(dash,input,dt,course);p.y=dash.y;score=Math.floor(dash.distance/course.length*1000);if(state==='lost')finish(false,`${course.name} · ${Math.floor(score/10)}% reached. Try a gentler tap in flight modes.`);if(state==='won')finish(true,`${course.name} cleared through all four portals!`);
+   const oldMode=dash.mode,state=dashStep(dash,input,dt,course);p.y=dash.y;if(oldMode!==dash.mode)trail=[];trail.push({d:dash.distance,y:p.y+15});if(trail.length>55)trail.shift();score=Math.floor(dash.distance/course.length*1000);if(state==='lost')finish(false,`${course.name} · ${Math.floor(score/10)}% reached. Try a gentler tap in flight modes.`);if(state==='won')finish(true,`${course.name} cleared through all four portals!`);
 
   }
   onStatus(id==='bowling'?`Frame ${round}/5 · Roll ${Math.min(2,balls+Number(!rolling))}/2 · ${score} pins`:id==='sheep'?`Bridge ${Math.min(8,bridge.index+1)}/8 · ${bridge.phase==='growing'?'Hold…':bridge.phase==='ready'?'Hold to build':bridge.phase==='lowering'?'Lowering…':'Crossing'} · ${score}`:id==='dash'?`${course.name} · ${dash.mode.toUpperCase()} · ${Math.floor(score/10)}% · ${dash.lives} tries`:`Score ${score}`);
@@ -67,7 +67,7 @@ export function mount2D(canvas,{id,level=0,input,onFinish,onStatus,muted=false,q
    for(let i=2;i>=0;i--){const x=bridge.x-bridge.camera-i*19,y=bridge.y+Math.sin(t*12+i)*2;circle(x,y,12,'#fcf3df');circle(x+11,y+1,7,'#3a3a48');rect(x-7,y+10,3,9,'#303543');rect(x+5,y+10,3,9,'#303543');circle(x+13,y-1,1.5,'#fff');}
    text('Hold to grow ↑ · Release to lower →',400,45,20,'#fff','center');text('Land the tip inside the next island',400,74,14,'#c5eadb','center');
   }else if(id==='bowling'){
-   rect(260,20,280,460,'#be9169',12);for(let i=0;i<7;i++)rect(270+i*40,20,2,460,'#ffffff20');rect(260,320,280,3,'#fff6');for(const pin of pins){c.save();c.translate(pin.x,pin.y);c.rotate(pin.fall*(pin.vx<0?-1:1)*1.3);rect(-7,-16,14,30,pin.down?'#e4dac7':'#fbf7ed',6);rect(-5,-9,10,4,'#ed7285',2);c.restore();}text(`Power ${Math.round(power*100)}% · Spin ${Math.round(spin*100)}`,400,485,14,'#eff','center');c.strokeStyle='#cff7fa';c.setLineDash([8,9]);c.beginPath();c.moveTo(p.x,p.y);if(!rolling)c.lineTo(p.x+Math.sin(angle)*280,p.y-Math.cos(angle)*280);c.stroke();c.setLineDash([]);circle(p.x,p.y,14,'#292e61');circle(p.x-4,p.y-5,2,'#bdc0ed');
+   rect(260,20,280,460,'#be9169',12);for(let i=0;i<7;i++)rect(270+i*40,20,2,460,'#ffffff20');rect(260,320,280,3,'#fff6');for(const pin of pins){c.save();c.translate(pin.x,pin.y);c.rotate((pin.down?pin.fall*1.3:pin.tilt*.4)*(pin.vx<0?-1:1));rect(-7,-16,14,30,pin.down?'#e4dac7':'#fbf7ed',6);rect(-5,-9,10,4,'#ed7285',2);c.restore();}text(`Power ${Math.round(power*100)}% · Spin ${Math.round(spin*100)}`,400,485,14,'#eff','center');c.strokeStyle='#cff7fa';c.setLineDash([8,9]);c.beginPath();c.moveTo(p.x,p.y);if(!rolling)c.lineTo(p.x+Math.sin(angle)*280,p.y-Math.cos(angle)*280);c.stroke();c.setLineDash([]);circle(p.x,p.y,14,'#292e61');circle(p.x-4,p.y-5,2,'#bdc0ed');
   }else if(id==='dash'){
    stars();const d=dash.distance;for(let i=0;i<10;i++)rect(i*130-(d*.3%130),350-(i%4)*40,90,100,'#49468d50',10);
    rect(0,422,W,78,'#353765');rect(0,422,W,3,'#adbfff');
@@ -79,6 +79,7 @@ export function mount2D(canvas,{id,level=0,input,onFinish,onStatus,muted=false,q
     for(let x=0;x<W;x+=20){const band=dashCorridor(d+x-p.x,dash.mode);rect(x,0,21,band.top,'#454276');rect(x,band.bottom,21,H-band.bottom,'#454276');rect(x,band.top-4,21,4,'#f3a3cf');rect(x,band.bottom,21,4,'#87e8ef');}
    }
    for(const segment of course.segments.slice(1)){const x=segment.start-d+p.x;if(x> -80&&x<W+80){c.strokeStyle='#cbaaff';c.lineWidth=7;c.beginPath();c.ellipse(x,245,24,140,0,0,Math.PI*2);c.stroke();text(segment.mode.toUpperCase(),x,80,14,'#e5c9ff','center');}}
+   if(dash.mode==='wave'||dash.mode==='ship'){c.strokeStyle=dash.mode==='wave'?'#8aecd9':'#ffb47a';c.lineWidth=dash.mode==='wave'?4:2;c.beginPath();trail.forEach((a,i)=>c[i?'lineTo':'moveTo'](p.x+15-(d-a.d),a.y));c.stroke();}
    c.save();c.translate(p.x+15,p.y+15);if(dash.mode==='cube'){c.rotate(dash.grounded?0:t*6);rect(-15,-15,30,30,'#d6faff',5);rect(-8,-8,16,16,'#6386bd',3);}
    else if(dash.mode==='ball'){circle(0,0,15,'#a4f5e2');c.rotate(t*5);rect(-12,-3,24,6,'#4e88a4',2);}
    else{c.rotate(Math.atan2(dash.vy,course.speed)*.35);c.fillStyle=dash.mode==='ship'?'#ffe4a8':'#a4f5e2';c.beginPath();c.moveTo(20,0);c.lineTo(-15,-12);c.lineTo(-6,0);c.lineTo(-15,12);c.closePath();c.fill();if(dash.mode==='ship')rect(-25,-4,12,8,'#ff957a',3);}c.restore();

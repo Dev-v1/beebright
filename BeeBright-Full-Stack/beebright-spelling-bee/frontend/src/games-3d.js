@@ -50,9 +50,9 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
    const normal=new THREE.Vector3(-d.z,0,d.x).normalize();
    if(high||i%2===0)for(const side of [-1,1]){const edge=center.clone().addScaledVector(normal,side*(raceCourse.width/2+.25)),curb=box(edge.x,.07,edge.z,.55,.2,d.length()+.12,i%2?curbA:curbB);curb.quaternion.copy(road.quaternion);}
    if(high&&i%3===0){const stripe=box(center.x,.095,center.z,.12,.025,d.length()*.5,white);stripe.quaternion.copy(road.quaternion);}
-   if(i%Math.round(raceGeometry/12)===0)gates.push({x:a.x,z:a.z});
    if(i%8===0){const edge=center.clone().addScaledVector(normal,raceCourse.width/2+1.5);box(edge.x,2,edge.z,.12,4,.12,stone);mesh(new THREE.SphereGeometry(.24,high?12:6,6),curbB,edge.x,4.1,edge.z);}
   }
+  for(let i=0;i<12;i++){const point=curve.getPointAt(i/12);gates.push({x:point.x,z:point.z});}
   // Track-specific scenery stays outside the racing surface.
   const sceneryCount=high?64:20;for(let i=0;i<sceneryCount;i++){const a=i/sceneryCount*Math.PI*2,x=Math.cos(a)*(53+i%3*4),z=Math.sin(a)*(53+i%4*4);
    if(raceCourse.theme==='city'||raceCourse.theme==='harbor'){const h=4+i*7%18;box(x,h/2,z,3+i%3,h,4,mat(i%2?'#35476d':'#506382'));if(high)for(let j=1;j<h;j+=2)box(x,j,z+2.03,2,.35,.05,i%3?curbB:curbA);}
