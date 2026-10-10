@@ -1,5 +1,14 @@
 # BeeBright releases
 
+## 2.3
+
+- Four Neon Rally circuits with track selection and richer High quality cars, road surfaces, lighting, curbs and scenery.
+- Longer Neon Dash courses with cube, ship, ball and wave portals, mode checkpoints and three attempts.
+- Sheep Escape rebuilt as a hold-to-grow, release-to-lower bridge game.
+- Marble Run race courses with boosts, jump gaps, moving sweepers, crystal checkpoints, braking and a timer.
+- Keep the complete Space Survival ship inside the visible camera frame.
+- Bowling uses narrower pin contact, damped momentum and tipping energy instead of counting every moving pin as fallen.
+
 ## 2.2
 
 - Easier Neon Dash courses; blue blocks are safe platforms.
