@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {collideDiscs,bowlingPins,bowlingStep,driveStep,marblePath,marbleSupport,marbleSurfaces,marbleStep,MARBLE_RADIUS,RALLY_COURSES,roadDistance,bridgeLanding,newBridgeRun,bridgeStep,newDashRun,dashStep,dashCorridor,keepInFrame} from './game-mechanics.js';
+import {collideDiscs,bowlingPins,bowlingStep,driveStep,marblePath,marbleSupport,marbleSurfaces,marbleStep,marbleStart,MARBLE_RADIUS,RALLY_COURSES,roadDistance,bridgeLanding,newBridgeRun,bridgeStep,newDashRun,dashStep,dashCorridor,keepInFrame} from './game-mechanics.js';
 import {DASH_LEVELS} from './arcade-core.js';
 import {createGameRenderer} from './game-renderer.js';
 import {mount3D} from './games-3d.js';
@@ -118,4 +118,8 @@ test('rolling gravity, momentum and braking respond physically and diagonal stee
 test('marble jump detaches from the incline and lands back on its top surface',()=>{
  const surfaces=marbleSurfaces([{a:[0,0,0],b:[0,50,5],length:50,width:10,gap:false,index:0}]),p={x:0,z:10,y:1+.55*Math.hypot(1,.1),vx:0,vz:0,vy:0};marbleStep(p,{},1/60,surfaces,{jump:true});assert.equal(p.grounded,false);assert.ok(p.vy>7);
  for(let i=0;i<120;i++)marbleStep(p,{},1/60,surfaces);assert.equal(p.grounded,true);assert.ok(Math.abs((p.y-p.z*.1)/Math.hypot(1,.1)-.55)<.00001);
+});
+
+test('every Marble course spawns resting on its first incline',()=>{
+ for(let level=0;level<3;level++){const surfaces=marbleSurfaces(marblePath(level)),p={...marbleStart(surfaces),vx:0,vz:0,vy:0};marbleStep(p,{},1/60,surfaces);assert.equal(p.grounded,true);assert.ok(p.y>.5);}
 });

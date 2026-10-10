@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {createGameRenderer} from './game-renderer.js';
-import {clamp,driveStep,MARBLE_COURSES,marblePath,marbleSurfaces,marbleStep,RALLY_COURSES,roadDistance,keepInFrame} from './game-mechanics.js';
+import {clamp,driveStep,MARBLE_COURSES,marblePath,marbleSurfaces,marbleStep,marbleStart,RALLY_COURSES,roadDistance,keepInFrame} from './game-mechanics.js';
 export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,quality='light'}) {
  const renderer=createGameRenderer(canvas,quality,onGraphics),high=quality==='high'&&!renderer.software;
  const scene=new THREE.Scene();scene.background=new THREE.Color('#10182d');scene.fog=new THREE.Fog('#10182d',45,160);
@@ -35,6 +35,8 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
   const stripe=mat(high?'#294454':'#334d68');stripe.metalness=high?.8:.1;stripe.roughness=.2;for(const angle of [0,Math.PI/2])mesh(new THREE.TorusGeometry(.552,.017,high?8:4,high?64:24),stripe,0,0,0,ball).rotation.x=angle;
 
   surfaces=marbleSurfaces(segments);
+  Object.assign(p,marbleStart(surfaces));checkpoint={x:p.x,y:p.y,z:p.z};
+
   for(const surface of surfaces){
    const {x,y,z,dx,dz,length,width,slopeX,slopeZ}=surface,corners=[];
    for(const [along,side] of [[0,-1],[0,1],[length,1],[length,-1]]){const px=x+dx*along-dz*side*width/2,pz=z+dz*along+dx*side*width/2;corners.push([px,y+slopeX*(px-x)+slopeZ*(pz-z),pz]);}
@@ -49,7 +51,7 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
   }
   const end=course.points.at(-1);mesh(new THREE.TorusGeometry(1.4,.18,8,24),pink,end[0],end[2]+1.4,end[1]);
   for(let i=0;i<(high?40:12);i++){const x=(i%2?1:-1)*(20+i%6*4),z=-i*7,y=-8-i%4;mesh(high?new THREE.SphereGeometry(2+i%3,20,12):new THREE.IcosahedronGeometry(2+i%3,0),stone,x,y,z);}
-  camera.position.set(0,7,13);camera.lookAt(0,0,-4);
+  camera.position.set(p.x,p.y+5.7,p.z+9.5);camera.lookAt(p.x,p.y-.15,p.z-2.8);
  }else if(id==='rally'){
   raceCourse=RALLY_COURSES[level]||RALLY_COURSES[0];scene.background=new THREE.Color(({harbor:'#1a3d59',canyon:'#55364c',alpine:'#3a556c',city:'#0c142c'})[raceCourse.theme]);scene.fog=new THREE.Fog(scene.background,high?95:65,180);
   const curve=new THREE.CatmullRomCurve3(raceCourse.points.map(([x,z])=>new THREE.Vector3(x,0,z)),true,'centripetal');roadPoints=curve.getSpacedPoints(raceGeometry).slice(0,-1);const tangent=curve.getTangentAt(0);p.x=roadPoints[0].x;p.z=roadPoints[0].z;p.heading=Math.atan2(tangent.z,tangent.x);

@@ -62,6 +62,9 @@ function surfaceAt(s,x,z){const ox=x-s.x,oz=z-s.z,along=ox*s.dx+oz*s.dz,across=o
 }
 export function marbleSupport(segments,x,z){let best=null;for(const s of marbleSurfaces(segments)){const hit=surfaceAt(s,x,z);if(hit&&(!best||hit.height>best.height))best=hit;}return best;}
 export const MARBLE_RADIUS=.55;
+export function marbleStart(surfaces){const s=surfaces[0],n=Math.hypot(s.slopeX,1,s.slopeZ),x=s.x+s.dx*.8,z=s.z+s.dz*.8;
+ return {x:x-s.slopeX/n*MARBLE_RADIUS,z:z-s.slopeZ/n*MARBLE_RADIUS,y:s.y+s.slopeX*(x-s.x)+s.slopeZ*(z-s.z)+MARBLE_RADIUS/n};
+}
 function planeContact(s,p){
  const length=Math.hypot(s.slopeX,1,s.slopeZ),nx=-s.slopeX/length,ny=1/length,nz=-s.slopeZ/length;
  const distance=(p.y-s.y-s.slopeX*(p.x-s.x)-s.slopeZ*(p.z-s.z))/length;
