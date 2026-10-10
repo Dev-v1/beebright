@@ -126,6 +126,20 @@ def test(w):
             assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes("+repr(['Harbor Circuit','Canyon Switchback','Alpine Hairpins','Midnight Metro'][track])+")")
             w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
             wait(w,"document.querySelectorAll('.game-card').length===8")
+        # Start every revised Marble course in High quality and move the follow camera.
+        for course in range(3):
+            w.evaluate_js("(()=>{const s=document.querySelector('[aria-label=\"Marble Run course\"]');s.value='"+str(course)+"';s.dispatchEvent(new Event('change',{bubbles:true}));})()")
+            w.evaluate_js("Array.from(document.querySelectorAll('.game-card')).find(c=>c.querySelector('h2').innerText==='Marble Run 3D').querySelector('button').click()")
+            wait(w,"document.querySelector('.game-overlay .primary')!==null && !document.querySelector('.game-overlay .primary').disabled")
+            w.evaluate_js("document.querySelector('.game-overlay .primary').click()")
+            wait(w,"document.querySelector('.game-overlay')===null")
+            w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowUp'}))")
+            time.sleep(1)
+            w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keyup',{key:'ArrowUp'}))")
+            assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes("+repr(['Skyline Sprint','Switchback Foundry','Cloudbreak Gauntlet'][course])+") && !document.querySelector('.arcade-player-bar').innerText.includes('NaN') && document.querySelector('.game-graphics').innerText.length>10")
+            w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
+            wait(w,"document.querySelectorAll('.game-card').length===8")
+        print('Three revised High quality Marble courses start, move and draw without UI errors.')
         # Hold the canvas to build the bridge, release it, and check actual game status.
         w.evaluate_js("Array.from(document.querySelectorAll('.game-card')).find(c=>c.querySelector('h2').innerText==='Sheep Escape').querySelector('button').click()")
         wait(w,"document.querySelector('.game-overlay .primary')!==null && !document.querySelector('.game-overlay .primary').disabled")

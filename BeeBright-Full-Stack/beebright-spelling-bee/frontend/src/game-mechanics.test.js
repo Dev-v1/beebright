@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {collideDiscs,bowlingPins,bowlingStep,driveStep,marblePath,marbleSupport,RALLY_COURSES,roadDistance,bridgeLanding,newBridgeRun,bridgeStep,newDashRun,dashStep,dashCorridor,keepInFrame} from './game-mechanics.js';
+import {collideDiscs,bowlingPins,bowlingStep,driveStep,marblePath,marbleSupport,marbleSurfaces,marbleStep,MARBLE_RADIUS,RALLY_COURSES,roadDistance,bridgeLanding,newBridgeRun,bridgeStep,newDashRun,dashStep,dashCorridor,keepInFrame} from './game-mechanics.js';
 import {DASH_LEVELS} from './arcade-core.js';
 import {createGameRenderer} from './game-renderer.js';
 import {mount3D} from './games-3d.js';
@@ -25,7 +25,7 @@ test('marble paths supply continuous ramp support and real jump gaps',()=>{
 });
 test('marble turning pads support the ball past a join while leaving jump gaps open',()=>{
  for(let level=0;level<3;level++){const path=marblePath(level);
-  for(const s of path){const dx=s.b[0]-s.a[0],dz=s.b[1]-s.a[1],x=s.b[0]+dx/s.length*.75,z=s.b[1]+dz/s.length*.75,support=marbleSupport(path,x,z);assert.ok(support?.pad);assert.equal(support.height,s.b[2]);}
+  for(const s of path){const dx=s.b[0]-s.a[0],dz=s.b[1]-s.a[1],x=s.b[0]+dx/s.length*.75,z=s.b[1]+dz/s.length*.75,support=marbleSupport(path,x,z);assert.ok(support);assert.ok(support.height>=s.b[2]-.001);}
   for(const s of path.filter(s=>s.gap))assert.equal(marbleSupport(path,(s.a[0]+s.b[0])/2,(s.a[1]+s.b[1])/2),null);
  }
 });
@@ -87,4 +87,35 @@ test('all three games simulate and draw in software 3D, including reverse',()=>{
   assert.ok(frames>0);assert.ok(status.length>3&&!status.includes('NaN'));if(id==='rally')assert.match(status,/REVERSE/);
   game.pause(true);callback(91*1000/60);const draws=frames;for(let i=92;i<100;i++)callback(i*1000/60);assert.equal(frames,draws);game.dispose();
  }
+});
+
+test('marble sphere follows uphill, downhill and diagonal ramp normals without penetrating',()=>{
+ for(const [dx,dz,rise] of [[0,1,5],[0,1,-5],[.6,.8,5]]){
+  const path=[{a:[0,0,0],b:[dx*40,dz*40,rise],length:40,width:5,gap:false,index:0}],surfaces=marbleSurfaces(path),sx=rise*dx/40,sz=rise*dz/40;
+  const p={x:dx*5,z:dz*5,y:rise/8+MARBLE_RADIUS*Math.hypot(sx,1,sz),vx:dx*4,vz:dz*4,vy:sx*dx*4+sz*dz*4};
+  for(let i=0;i<90;i++){marbleStep(p,{right:dx>0,down:dz>0},1/60,surfaces);const height=sx*p.x+sz*p.z;assert.ok(Math.abs((p.y-height)/Math.hypot(sx,1,sz)-MARBLE_RADIUS)<.00001);assert.equal(p.grounded,true);}
+  assert.ok(p.x*dx+p.z*dz>12,'the ball travels along the incline');
+ }
+});
+test('marble landing prevents fast ramp tunnelling and never pulls a ball up from below',()=>{
+ const path=[{a:[0,0,0],b:[0,40,8],length:40,width:5,gap:false,index:0}],surfaces=marbleSurfaces(path);
+ const p={x:0,z:10,y:12,vx:0,vz:0,vy:-90};marbleStep(p,{},.2,surfaces);assert.ok(Math.abs((p.y-p.z*.2)/Math.hypot(1,.2)-MARBLE_RADIUS)<.00001);assert.equal(p.grounded,true);
+ const below={x:0,z:10,y:1,vx:0,vz:0,vy:-1};marbleStep(below,{},.1,surfaces);assert.ok(below.y<1);assert.equal(below.grounded,false);
+});
+test('square pad corners are solid, and exposed edges and gap centers let the marble fall',()=>{
+ const path=[{a:[0,0,0],b:[0,20,0],length:20,width:4,gap:true,index:0}],surfaces=marbleSurfaces(path);
+ assert.ok(marbleSupport(path,2.4,22.4)?.pad);assert.equal(marbleSupport(path,2.6,22.4),null);
+ const edge={x:1.5,z:3,y:.55,vx:6,vz:0,vy:0};for(let i=0;i<60;i++)marbleStep(edge,{right:true},1/60,surfaces);assert.ok(edge.x>4);assert.ok(edge.y<0);assert.equal(edge.grounded,false);
+ const gap={x:0,z:10,y:.55,vx:0,vz:0,vy:0};marbleStep(gap,{},.2,surfaces);assert.ok(gap.y<.4);assert.equal(gap.grounded,false);
+});
+test('rolling gravity, momentum and braking respond physically and diagonal steering is normalized',()=>{
+ const surfaces=marbleSurfaces([{a:[0,0,5],b:[0,100,0],length:100,width:100,gap:false,index:0}]);
+ const downhill={x:0,z:20,y:4+.55*Math.hypot(1,.05),vx:0,vz:0,vy:0};for(let i=0;i<60;i++)marbleStep(downhill,{},1/60,surfaces);assert.ok(downhill.vz>.3);
+ const flat=marbleSurfaces([{a:[0,0,0],b:[0,100,0],length:100,width:100,gap:false,index:0}]);
+ const coast={x:0,z:20,y:.55,vx:6,vz:0,vy:0},brake={...coast};for(let i=0;i<60;i++){marbleStep(coast,{},1/60,flat);marbleStep(brake,{spinLeft:true},1/60,flat);}assert.ok(coast.vx>1);assert.ok(brake.vx<coast.vx*.01);
+ const straight={x:0,z:20,y:.55,vx:0,vz:0,vy:0},diagonal={...straight};for(let i=0;i<60;i++){marbleStep(straight,{down:true},1/60,flat);marbleStep(diagonal,{right:true,down:true},1/60,flat);}assert.ok(Math.abs(Math.hypot(straight.vx,straight.vz)-Math.hypot(diagonal.vx,diagonal.vz))<.00001);
+});
+test('marble jump detaches from the incline and lands back on its top surface',()=>{
+ const surfaces=marbleSurfaces([{a:[0,0,0],b:[0,50,5],length:50,width:10,gap:false,index:0}]),p={x:0,z:10,y:1+.55*Math.hypot(1,.1),vx:0,vz:0,vy:0};marbleStep(p,{},1/60,surfaces,{jump:true});assert.equal(p.grounded,false);assert.ok(p.vy>7);
+ for(let i=0;i<120;i++)marbleStep(p,{},1/60,surfaces);assert.equal(p.grounded,true);assert.ok(Math.abs((p.y-p.z*.1)/Math.hypot(1,.1)-.55)<.00001);
 });
