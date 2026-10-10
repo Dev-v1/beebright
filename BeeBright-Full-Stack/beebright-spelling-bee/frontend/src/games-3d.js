@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {createGameRenderer} from './game-renderer.js';
-import {clamp,driveStep,MARBLE_COURSES,marblePath,marbleSupport,RALLY_COURSES,roadDistance,keepInFrame} from './game-mechanics.js';
+import {clamp,driveStep,MARBLE_COURSES,marblePath,marbleSurfaces,marbleStep,marbleStart,RALLY_COURSES,roadDistance,keepInFrame} from './game-mechanics.js';
 export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,quality='light'}) {
  const renderer=createGameRenderer(canvas,quality,onGraphics),high=quality==='high'&&!renderer.software;
  const scene=new THREE.Scene();scene.background=new THREE.Color('#10182d');scene.fog=new THREE.Fog('#10182d',45,160);
@@ -12,7 +12,7 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
  function box(x,y,z,w,h,d,material=stone){return mesh(new THREE.BoxGeometry(w,h,d),material,x,y,z);}
  let animation,last=0,t=0,paused=false,done=false,score=0,status='',redraw=true;
  const p={x:0,y:.56,z:3,vx:0,vz:0,vy:0,speed:0,heading:Math.PI/2};
- const player=new THREE.Group();scene.add(player);let ball,course,segments,crystals=[],taken=0,checkpoint={x:0,z:3,y:.56},falls=0,grounded=true;
+ const player=new THREE.Group();scene.add(player);let ball,course,segments,surfaces,crystals=[],taken=0,checkpoint={x:0,z:3,y:.56},falls=0,grounded=true;
  let laps=0,gate=1,gates=[],track=[],raceTime=0,raceCourse,roadPoints=[],wheels=[],hazards=[],boostUntil=0,boostCooldown=0,hazardCooldown=0;
  const raceGeometry=high?160:96;
  let enemies=[],shots=[],enemyShots=[],particles=[],pickups=[],wave=0,kills=0,shield=5,immune=0,fire=0,spawnTimer=0,completedWaves=0;
@@ -22,23 +22,36 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
  function ship(material,size=1,parent=scene){const group=new THREE.Group();parent.add(group);mesh(new THREE.ConeGeometry(.5*size,1.7*size,4),material,0,0,0,group).rotation.x=-Math.PI/2;mesh(new THREE.BoxGeometry(1.7*size,.13*size,.65*size),material,0,0,.35*size,group);mesh(new THREE.SphereGeometry(.23*size,8,6),white,0,.18*size,.1*size,group);return group;}
  function destroyShip(group){for(const child of [...group.children])remove(child);group.removeFromParent();}
  if(id==='marble'){
-  course=MARBLE_COURSES[level]||MARBLE_COURSES[0];segments=marblePath(level);ball=mesh(new THREE.SphereGeometry(.55,high?32:12,high?24:8),teal,0,0,0,player);
+  course=MARBLE_COURSES[level]||MARBLE_COURSES[0];segments=marblePath(level);
+  let marbleMaterial=teal;
+  if(high){
+   const sky=new Uint8Array(256*128*4);for(let y=0;y<128;y++)for(let x=0;x<256;x++){const i=(y*256+x)*4,h=y/127,sun=Math.exp(-((x-177)**2+(y-34)**2)/32);sky[i]=Math.min(255,90+140*h+150*sun);sky[i+1]=Math.min(255,150+85*h+100*sun);sky[i+2]=Math.min(255,220+20*h+45*sun);sky[i+3]=255;}
+   const environment=new THREE.DataTexture(sky,256,128);environment.mapping=THREE.EquirectangularReflectionMapping;environment.colorSpace=THREE.SRGBColorSpace;environment.needsUpdate=true;textures.push(environment);scene.environment=environment;scene.background=environment;scene.fog=new THREE.Fog('#c2d4e5',55,155);
+   const grain=new Uint8Array(64*64*4);for(let i=0;i<4096;i++){const n=160+(i*29+i%31*13)%70;grain[i*4]=grain[i*4+1]=grain[i*4+2]=n;grain[i*4+3]=255;}
+   const texture=new THREE.DataTexture(grain,64,64);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.needsUpdate=true;textures.push(texture);for(const m of [stone,purple]){m.map=texture;m.bumpMap=texture;m.bumpScale=.035;m.roughness=.7;m.metalness=.15;}teal.metalness=.65;teal.roughness=.27;
+   marbleMaterial=new THREE.MeshPhysicalMaterial({color:'#b2e3dd',roughness:.13,metalness:.35,clearcoat:1,clearcoatRoughness:.08,envMapIntensity:1.2});materials.push(marbleMaterial);light.intensity=3;light.color.set('#fff4de');
+  }
+  ball=mesh(new THREE.SphereGeometry(.55,high?48:16,high?32:12),marbleMaterial,0,0,0,player);
+  const stripe=mat(high?'#294454':'#334d68');stripe.metalness=high?.8:.1;stripe.roughness=.2;for(const angle of [0,Math.PI/2])mesh(new THREE.TorusGeometry(.552,.017,high?8:4,high?64:24),stripe,0,0,0,ball).rotation.x=angle;
+
+  surfaces=marbleSurfaces(segments);
+  Object.assign(p,marbleStart(surfaces));checkpoint={x:p.x,y:p.y,z:p.z};
+
+  for(const surface of surfaces){
+   const {x,y,z,dx,dz,length,width,slopeX,slopeZ}=surface,corners=[];
+   for(const [along,side] of [[0,-1],[0,1],[length,1],[length,-1]]){const px=x+dx*along-dz*side*width/2,pz=z+dz*along+dx*side*width/2;corners.push([px,y+slopeX*(px-x)+slopeZ*(pz-z),pz]);}
+   const vertices=[...corners,...corners.map(([x,y,z])=>[x,y-.35,z])],geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices.flat(),3));geometry.setIndex([0,1,2,0,2,3,4,6,5,4,7,6,0,4,5,0,5,1,1,5,6,1,6,2,2,6,7,2,7,3,3,7,4,3,4,0]);geometry.setAttribute('uv',new THREE.Float32BufferAttribute(vertices.flatMap(([x,,z])=>[x*.25,z*.25]),2));const flatGeometry=geometry.toNonIndexed();geometry.dispose();flatGeometry.computeVertexNormals();
+   mesh(flatGeometry,surface.pad?teal:surface.index%2?purple:stone);
+  }
   for(const s of segments){
-   for(const [start,end] of s.gap?[[0,.43],[.57,1]]:[[0,1]]){
-    const a=new THREE.Vector3(s.a[0],s.a[2]-.18,s.a[1]),b=new THREE.Vector3(s.b[0],s.b[2]-.18,s.b[1]),pa=a.clone().lerp(b,start),pb=a.clone().lerp(b,end),d=pb.clone().sub(pa);
-    const platform=box((pa.x+pb.x)/2,(pa.y+pb.y)/2,(pa.z+pb.z)/2,s.width,.35,d.length(),s.index%2?purple:stone);platform.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),d.clone().normalize());
-    if(course.rails.includes(s.index)){const normal=new THREE.Vector3(-d.z,0,d.x).normalize();for(const side of [-1,1]){const center=pa.clone().lerp(pb,.5).addScaledVector(normal,side*s.width/2),rail=box(center.x,center.y+.35,center.z,.14,.5,d.length(),teal);rail.quaternion.copy(platform.quaternion);}}
-    if(high){for(const side of [-1,1]){const trim=box(platform.position.x,platform.position.y-.05,platform.position.z,.06,.07,d.length(),teal);trim.quaternion.copy(platform.quaternion);trim.translateX(side*s.width/2);}}
-   }
    for(const u of [.2,.75]){const x=s.a[0]+(s.b[0]-s.a[0])*u,z=s.a[1]+(s.b[1]-s.a[1])*u,y=s.a[2]+(s.b[2]-s.a[2])*u;crystals.push({mesh:mesh(new THREE.OctahedronGeometry(.3),green,x,y+.85,z),taken:false,checkpoint:false});}
-   const joint=s.b;box(joint[0],joint[2]-.1,joint[1],s.width+1,.2,s.width+1,teal);
    if(s.index%3===2){const b=s.b;crystals.push({mesh:mesh(new THREE.TorusGeometry(.8,.09,6,16),green,b[0],b[2]+1,b[1]),taken:false,checkpoint:true});}
    if(course.hazards.includes(s.index)){const u=.55,group=new THREE.Group();group.position.set(s.a[0]+(s.b[0]-s.a[0])*u,s.a[2]+(s.b[2]-s.a[2])*u+.65,s.a[1]+(s.b[1]-s.a[1])*u);scene.add(group);mesh(new THREE.BoxGeometry(s.width*.85,.22,.35),pink,0,0,0,group);mesh(new THREE.CylinderGeometry(.22,.22,1.3,8),stone,0,-.15,0,group);hazards.push({group,r:s.width*.43,phase:s.index});}
    if(course.boosts.includes(s.index)){const u=.3,x=s.a[0]+(s.b[0]-s.a[0])*u,z=s.a[1]+(s.b[1]-s.a[1])*u,y=s.a[2]+(s.b[2]-s.a[2])*u;box(x,y+.025,z,s.width*.8,.05,1.7,green);}
   }
   const end=course.points.at(-1);mesh(new THREE.TorusGeometry(1.4,.18,8,24),pink,end[0],end[2]+1.4,end[1]);
-  for(let i=0;i<(high?40:12);i++){const x=(i%2?1:-1)*(20+i%6*4),z=-i*7,y=-8-i%4;mesh(new THREE.IcosahedronGeometry(2+i%3,0),purple,x,y,z);}
-  camera.position.set(0,7,13);camera.lookAt(0,0,-4);
+  for(let i=0;i<(high?40:12);i++){const x=(i%2?1:-1)*(20+i%6*4),z=-i*7,y=-8-i%4;mesh(high?new THREE.SphereGeometry(2+i%3,20,12):new THREE.IcosahedronGeometry(2+i%3,0),stone,x,y,z);}
+  camera.position.set(p.x,p.y+5.7,p.z+9.5);camera.lookAt(p.x,p.y-.15,p.z-2.8);
  }else if(id==='rally'){
   raceCourse=RALLY_COURSES[level]||RALLY_COURSES[0];scene.background=new THREE.Color(({harbor:'#1a3d59',canyon:'#55364c',alpine:'#3a556c',city:'#0c142c'})[raceCourse.theme]);scene.fog=new THREE.Fog(scene.background,high?95:65,180);
   const curve=new THREE.CatmullRomCurve3(raceCourse.points.map(([x,z])=>new THREE.Vector3(x,0,z)),true,'centripetal');roadPoints=curve.getSpacedPoints(raceGeometry).slice(0,-1);const tangent=curve.getTangentAt(0);p.x=roadPoints[0].x;p.z=roadPoints[0].z;p.heading=Math.atan2(tangent.z,tangent.x);
@@ -80,21 +93,16 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
  function laser(x,y,z,enemy=false){return {mesh:mesh(new THREE.BoxGeometry(enemy?.16:.12,.12,1.2),enemy?pink:green,x,y,z)};}
  function update(dt){t+=dt;const action=input.action&&!input.previousAction;input.previousAction=Boolean(input.action);
   if(id==='marble'){
-   const oldY=p.y,oldSupport=marbleSupport(segments,p.x,p.z),braking=Boolean(input.spinLeft);boostCooldown=Math.max(0,boostCooldown-dt);hazardCooldown=Math.max(0,hazardCooldown-dt);
-   p.vx+=(Number(Boolean(input.right))-Number(Boolean(input.left)))*22*dt;p.vz+=(Number(Boolean(input.down))-Number(Boolean(input.up)))*22*dt;
-   if(grounded&&oldSupport){p.vx-=oldSupport.slopeX*14*dt;p.vz-=oldSupport.slopeZ*14*dt;}
-   const boost=t<boostUntil,maxSpeed=boost?13:9.8,friction=braking?8:1.65;p.vx=clamp(p.vx*Math.exp(-friction*dt),-maxSpeed,maxSpeed);p.vz=clamp(p.vz*Math.exp(-friction*dt),-maxSpeed,maxSpeed);
-   if(action&&grounded){p.vy=8;grounded=false;}p.vy-=19*dt;p.x+=p.vx*dt;p.z+=p.vz*dt;p.y+=p.vy*dt;
-   const support=marbleSupport(segments,p.x,p.z);if(support&&p.vy<=0&&(grounded||oldY>=support.height+.35)&&p.y<=support.height+.55){p.y=support.height+.55;p.vy=0;grounded=true;}else if(!support||p.y>(support?.height||0)+.6)grounded=false;
-   if(support&&!support.pad&&course.rails.includes(support.index)){const s=segments[support.index],dx=s.b[0]-s.a[0],dz=s.b[1]-s.a[1],u=clamp(((p.x-s.a[0])*dx+(p.z-s.a[1])*dz)/(s.length*s.length),0,1),cx=s.a[0]+dx*u,cz=s.a[1]+dz*u,d=Math.hypot(p.x-cx,p.z-cz);if(d>s.width/2-.5){const scale=(s.width/2-.5)/d;p.x=cx+(p.x-cx)*scale;p.z=cz+(p.z-cz)*scale;p.vx*=.5;}}
+   boostCooldown=Math.max(0,boostCooldown-dt);hazardCooldown=Math.max(0,hazardCooldown-dt);
+   const boost=t<boostUntil,support=marbleStep(p,input,dt,surfaces,{jump:action,boost});grounded=p.grounded;
    if(support&&course.boosts.includes(support.index)&&support.u>.24&&support.u<.38&&grounded&&boostCooldown===0){const s=segments[support.index];p.vx=(s.b[0]-s.a[0])/s.length*13;p.vz=(s.b[1]-s.a[1])/s.length*13;boostUntil=t+1.5;boostCooldown=3;}
    for(const h of hazards){h.group.rotation.y=t*(1.1+level*.25)+h.phase;const dx=p.x-h.group.position.x,dz=p.z-h.group.position.z,along=dx*Math.cos(h.group.rotation.y)-dz*Math.sin(h.group.rotation.y),across=dx*Math.sin(h.group.rotation.y)+dz*Math.cos(h.group.rotation.y);if(hazardCooldown===0&&Math.abs(along)<h.r+.4&&Math.abs(across)<.48&&Math.abs(p.y-h.group.position.y)<.65){p.vx+=Math.sin(h.group.rotation.y)*5;p.vz+=Math.cos(h.group.rotation.y)*5;hazardCooldown=.65;}}
-   player.position.set(p.x,p.y,p.z);ball.rotation.x+=p.vz*dt/.55;ball.rotation.z-=p.vx*dt/.55;
+   player.position.set(p.x,p.y,p.z);const rollAxis=new THREE.Vector3(p.vz,0,-p.vx),rollSpeed=rollAxis.length();if(grounded&&rollSpeed>.001)ball.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(rollAxis.normalize(),rollSpeed*dt/.55));
    for(const c of crystals){c.mesh.rotation.y+=dt;if(!c.taken&&c.mesh.position.distanceTo(player.position)<1.2){c.taken=true;c.mesh.visible=false;if(c.checkpoint)checkpoint={x:p.x,y:p.y,z:p.z};else taken++;}}
-   if(p.y<-8){falls++;if(falls>=5)finish(false,'Five falls. Brake before bends and jump across the marked gaps.');else{Object.assign(p,checkpoint,{vx:0,vz:0,vy:0});grounded=true;boostUntil=0;}}
+   if(p.y<-8){falls++;if(falls>=5)finish(false,'Five falls. Brake before bends and jump across the marked gaps.');else{Object.assign(p,checkpoint,{vx:0,vz:0,vy:0});grounded=true;p.grounded=true;boostUntil=0;}}
    if(t>=course.time)finish(false,'Time is up. Use green boost pads and collect checkpoint rings.');
    const end=course.points.at(-1);if(Math.hypot(p.x-end[0],p.z-end[1])<1.7&&grounded){score=1200+taken*100+Math.max(0,Math.floor((course.time-t)*8))-falls*100;finish(true,`${course.name} complete · ${taken} crystals · ${Math.ceil(course.time-t)} seconds left.`);}
-   score=Math.max(score,Math.max(0,Math.floor(-p.z*5))+taken*100);camera.position.lerp(new THREE.Vector3(p.x,p.y+7,p.z+11),Math.min(1,dt*7));camera.lookAt(p.x,p.y-.4,p.z-5);notify(`${course.name} · ${Math.ceil(course.time-t)}s · ${taken} crystals · ${5-falls} lives${boost?' · BOOST':''}`);
+   score=Math.max(score,Math.max(0,Math.floor(-p.z*5))+taken*100);camera.position.lerp(new THREE.Vector3(p.x-p.vx*.12,p.y+5.7,p.z+9.5),1-Math.exp(-dt*9));camera.lookAt(p.x+p.vx*.13,p.y-.15,p.z-2.8+p.vz*.1);notify(`${course.name} · ${Math.ceil(course.time-t)}s · ${taken} crystals · ${5-falls} lives${boost?' · BOOST':''}`);
   }else if(id==='rally'){
    raceTime+=dt;const road=roadDistance(roadPoints,p.x,p.z)<raceCourse.width/2;driveStep(p,input,dt,road);p.x=clamp(p.x,-65,65);p.z=clamp(p.z,-65,65);
    player.position.set(p.x,.2,p.z);player.rotation.y=-p.heading;player.rotation.z=clamp((Number(Boolean(input.right))-Number(Boolean(input.left)))*p.speed*.007,-.12,.12);for(const wheel of wheels)wheel.rotation.y-=p.speed*dt/.35;

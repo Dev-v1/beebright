@@ -1,5 +1,11 @@
 # BeeBright releases
 
+## 2.4
+
+- Marble Run ramps and square turning pads share their visible geometry with sphere collision surfaces.
+- Fixed-step slope contact, gravity, momentum, normalized steering and braking. Remove all railings and edge clamps; exposed edges allow real falls.
+- Smoother marble-follow camera and richer High quality reflective materials, track textures and lighting.
+
 ## 2.3
 
 - Four Neon Rally circuits with track selection and richer High quality cars, road surfaces, lighting, curbs and scenery.

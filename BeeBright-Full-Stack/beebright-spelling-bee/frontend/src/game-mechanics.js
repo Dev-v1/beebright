@@ -43,20 +43,61 @@ export function driveStep(p,input,dt,onRoad=true){
 }
 // Continuous paths, ramps, bridges, banked bends and landing pads. Original layouts.
 export const MARBLE_COURSES=[
- {name:'Skyline Sprint',width:4.5,time:65,points:[[0,3,0],[0,-15,0],[7,-29,2],[7,-46,2],[-6,-59,3],[-6,-76,3],[5,-91,1],[5,-109,1],[0,-123,3],[0,-141,3],[-7,-155,2],[-7,-172,2]],gaps:[3,7],hazards:[2,5,9],boosts:[0,6],rails:[0,1]},
- {name:'Switchback Foundry',width:3.8,time:80,points:[[0,3,0],[0,-16,1],[-9,-30,3],[-9,-49,3],[8,-65,5],[8,-84,5],[-7,-100,3],[-7,-119,3],[6,-136,6],[6,-155,6],[-5,-171,2],[-5,-190,2],[0,-207,4]],gaps:[2,5,9],hazards:[1,4,7,10],boosts:[0,6],rails:[0]},
- {name:'Cloudbreak Gauntlet',width:3.2,time:90,points:[[0,3,0],[0,-17,2],[10,-34,4],[10,-53,4],[-9,-70,7],[-9,-89,7],[8,-105,4],[8,-125,4],[-8,-142,8],[-8,-163,8],[7,-181,5],[7,-201,5],[0,-220,3],[0,-240,6]],gaps:[2,5,8,11],hazards:[1,4,7,10,12],boosts:[0,6],rails:[]},
+ {name:'Skyline Sprint',width:4.5,time:65,points:[[0,3,0],[0,-15,0],[7,-29,2],[7,-46,2],[-6,-59,3],[-6,-76,3],[5,-91,1],[5,-109,1],[0,-123,3],[0,-141,3],[-7,-155,2],[-7,-172,2]],gaps:[3,7],hazards:[2,5,9],boosts:[0,6]},
+ {name:'Switchback Foundry',width:3.8,time:80,points:[[0,3,0],[0,-16,1],[-9,-30,3],[-9,-49,3],[8,-65,5],[8,-84,5],[-7,-100,3],[-7,-119,3],[6,-136,6],[6,-155,6],[-5,-171,2],[-5,-190,2],[0,-207,4]],gaps:[2,5,9],hazards:[1,4,7,10],boosts:[0,6]},
+ {name:'Cloudbreak Gauntlet',width:3.2,time:90,points:[[0,3,0],[0,-17,2],[10,-34,4],[10,-53,4],[-9,-70,7],[-9,-89,7],[8,-105,4],[8,-125,4],[-8,-142,8],[-8,-163,8],[7,-181,5],[7,-201,5],[0,-220,3],[0,-240,6]],gaps:[2,5,8,11],hazards:[1,4,7,10,12],boosts:[0,6]},
 ];
 export function marblePath(level){const c=MARBLE_COURSES[level]||MARBLE_COURSES[0];return c.points.slice(1).map((b,i)=>{const a=c.points[i],length=Math.hypot(b[0]-a[0],b[1]-a[1]);return {a,b,length,width:c.width,gap:c.gaps.includes(i),index:i};});}
-export function marbleSupport(segments,x,z){
- // Turning pads are real floor geometry, including the area beyond a segment's end.
- for(const s of segments)if(Math.hypot(x-s.b[0],z-s.b[1])<=s.width/2+.5)return {height:s.b[2],distance:0,index:s.index,u:1,pad:true,slopeX:0,slopeZ:0};
- let best=null;
- for(const s of segments){const dx=s.b[0]-s.a[0],dz=s.b[1]-s.a[1],raw=((x-s.a[0])*dx+(z-s.a[1])*dz)/(s.length*s.length),u=clamp(raw,0,1);
-  if(raw<-.02||raw>1.02||(s.gap&&u>.43&&u<.57))continue;
-  const distance=Math.hypot(x-s.a[0]-dx*u,z-s.a[1]-dz*u);
-  if(distance<=s.width/2&&(!best||distance<best.distance))best={height:s.a[2]+(s.b[2]-s.a[2])*u,distance,index:s.index,u,slopeX:(s.b[2]-s.a[2])*dx/(s.length*s.length),slopeZ:(s.b[2]-s.a[2])*dz/(s.length*s.length)};
- }return best;
+// The visible track and physics consume these same finite, planar rectangles.
+export function marbleSurfaces(segments){
+ const surfaces=[];
+ for(const s of segments){const dx=(s.b[0]-s.a[0])/s.length,dz=(s.b[1]-s.a[1])/s.length,rise=(s.b[2]-s.a[2])/s.length;
+  for(const [start,end] of s.gap?[[0,.43],[.57,1]]:[[0,1]])surfaces.push({x:s.a[0]+dx*s.length*start,z:s.a[1]+dz*s.length*start,y:s.a[2]+rise*s.length*start,dx,dz,length:s.length*(end-start),width:s.width,slopeX:rise*dx,slopeZ:rise*dz,index:s.index,start,end,pad:false});
+  const w=s.width+1;surfaces.push({x:s.b[0],z:s.b[1]-w/2,y:s.b[2],dx:0,dz:1,length:w,width:w,slopeX:0,slopeZ:0,index:s.index,start:1,end:1,pad:true});
+ }return surfaces;
+}
+function surfaceAt(s,x,z){const ox=x-s.x,oz=z-s.z,along=ox*s.dx+oz*s.dz,across=ox*-s.dz+oz*s.dx;
+ if(along<0||along>s.length||Math.abs(across)>s.width/2)return null;
+ return {...s,height:s.y+s.slopeX*ox+s.slopeZ*oz,distance:Math.abs(across),u:s.pad?1:s.start+(s.end-s.start)*along/s.length};
+}
+export function marbleSupport(segments,x,z){let best=null;for(const s of marbleSurfaces(segments)){const hit=surfaceAt(s,x,z);if(hit&&(!best||hit.height>best.height))best=hit;}return best;}
+export const MARBLE_RADIUS=.55;
+export function marbleStart(surfaces){const s=surfaces[0],n=Math.hypot(s.slopeX,1,s.slopeZ),x=s.x+s.dx*.8,z=s.z+s.dz*.8;
+ return {x:x-s.slopeX/n*MARBLE_RADIUS,z:z-s.slopeZ/n*MARBLE_RADIUS,y:s.y+s.slopeX*(x-s.x)+s.slopeZ*(z-s.z)+MARBLE_RADIUS/n};
+}
+function planeContact(s,p){
+ const length=Math.hypot(s.slopeX,1,s.slopeZ),nx=-s.slopeX/length,ny=1/length,nz=-s.slopeZ/length;
+ const distance=(p.y-s.y-s.slopeX*(p.x-s.x)-s.slopeZ*(p.z-s.z))/length;
+ const hit=surfaceAt(s,p.x-nx*distance,p.z-nz*distance);
+ return hit?{...hit,nx,ny,nz,distance:distance-MARBLE_RADIUS}:null;
+}
+function projectVelocity(p,c){const v=p.vx*c.nx+p.vy*c.ny+p.vz*c.nz;p.vx-=v*c.nx;p.vy-=v*c.ny;p.vz-=v*c.nz;return v;}
+// Fixed substeps and signed sphere/plane crossings prevent tunnelling on ramps.
+// Ground acceleration uses the solid-sphere rolling factor 1/(1+2/5).
+export function marbleStep(p,input,dt,surfaces,{jump=false,boost=false}={}){
+ const steps=Math.max(1,Math.ceil(dt*120)),h=dt/steps;let contact=null;
+ for(let i=0;i<steps;i++){
+  contact=null;for(const s of surfaces){const c=planeContact(s,p);if(c&&Math.abs(c.distance)<.025&&(!contact||c.height>contact.height))contact=c;}
+  if(contact){p.x-=contact.nx*contact.distance;p.y-=contact.ny*contact.distance;p.z-=contact.nz*contact.distance;projectVelocity(p,contact);p.grounded=true;}else p.grounded=false;
+  if(jump&&i===0&&contact){p.vx+=contact.nx*8;p.vy+=contact.ny*8;p.vz+=contact.nz*8;contact=null;p.grounded=false;}
+  let ax=Number(Boolean(input.right))-Number(Boolean(input.left)),az=Number(Boolean(input.down))-Number(Boolean(input.up));const inputLength=Math.hypot(ax,az)||1;ax/=inputLength;az/=inputLength;
+  const before={...p},acceleration=contact?24*5/7:3.5;
+  let fx=ax*acceleration,fy=-19,fz=az*acceleration;
+  if(contact){const dot=fx*contact.nx+fy*contact.ny+fz*contact.nz;fx-=dot*contact.nx;fy-=dot*contact.ny;fz-=dot*contact.nz;
+   // Gravity contributes rolling acceleration rather than free-fall acceleration.
+   fx+=19*contact.ny*contact.nx*(5/7-1);fy+=(-19+19*contact.ny*contact.ny)*(5/7-1);fz+=19*contact.ny*contact.nz*(5/7-1);
+  }
+  p.vx+=fx*h;p.vy+=fy*h;p.vz+=fz*h;
+  if(contact){const decay=Math.exp(-(input.spinLeft?8:1.2)*h);p.vx*=decay;p.vy*=decay;p.vz*=decay;const speed=Math.hypot(p.vx,p.vy,p.vz),limit=boost?13:9.8;if(speed>limit){p.vx*=limit/speed;p.vy*=limit/speed;p.vz*=limit/speed;}}
+  p.x+=p.vx*h;p.y+=p.vy*h;p.z+=p.vz*h;p.grounded=false;
+  // Resolve only contact approached from above, never rescue a ball below the track.
+  for(let pass=0;pass<2;pass++)for(const s of surfaces){const c=planeContact(s,p);if(!c||c.distance>.002)continue;
+   const oldDistance=(before.y-s.y-s.slopeX*(before.x-s.x)-s.slopeZ*(before.z-s.z))/Math.hypot(s.slopeX,1,s.slopeZ)-MARBLE_RADIUS;
+   const vn=p.vx*c.nx+p.vy*c.ny+p.vz*c.nz;if(oldDistance<-.025||vn>.1)continue;
+   const correction=-c.distance;p.x+=c.nx*correction;p.y+=c.ny*correction;p.z+=c.nz*correction;
+   if(vn<0)projectVelocity(p,c);p.grounded=true;contact=c;
+  }
+ }return p.grounded?contact:null;
 }
 
 export const RALLY_COURSES=[
