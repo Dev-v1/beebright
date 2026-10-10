@@ -44,6 +44,16 @@ test('long Dash levels switch four modes, respond to flight controls and respawn
 test('all flight corridors can be traversed with a simple hold/release pilot',()=>{
  for(const course of DASH_LEVELS)for(const index of [1,3]){const s=newDashRun();s.distance=course.segments[index].start;const end=course.segments[index].end;let n=0;while(s.distance<end-5&&n++<2000){const band=dashCorridor(s.distance,course.segments[index].mode),center=(band.top+band.bottom)/2-15;dashStep(s,{action:s.y+s.vy*.18>center},1/60,course);}assert.equal(s.lives,3,course.name+': '+course.segments[index].mode);}
 });
+test('every full Dash course is completable across all four modes without losing an attempt',()=>{
+ for(const course of DASH_LEVELS){const s=newDashRun();let outcome='playing',frames=0;
+  while(outcome==='playing'&&frames++<10000){let action=false;
+   if(s.mode==='cube')action=course.spikes.some(x=>x-s.distance<course.speed*.42&&x-s.distance> -20);
+   else if(s.mode==='ball'){const spikes=course.spikes.filter(x=>x>=course.segments[2].start),i=spikes.findIndex(x=>x>s.distance-45);if(i>=0&&spikes[i]-s.distance<320)action=s.gravity!==(i%2===0?-1:1);}
+   else{const band=dashCorridor(s.distance,s.mode);action=s.y+s.vy*.18>(band.top+band.bottom)/2-15;}
+   outcome=dashStep(s,{action},1/60,course);
+  }assert.equal(outcome,'won',course.name);assert.equal(s.lives,3);
+ }
+});
 test('Rally tracks differ and road proximity follows their curves, not an ellipse',()=>{
  assert.equal(RALLY_COURSES.length,4);assert.equal(new Set(RALLY_COURSES.map(c=>c.theme)).size,4);
  for(const c of RALLY_COURSES){const curve=new THREE.CatmullRomCurve3(c.points.map(([x,z])=>new THREE.Vector3(x,0,z)),true,'centripetal'),p=curve.getSpacedPoints(128).slice(0,-1);assert.ok(roadDistance(p,p[20].x,p[20].z)<.01);assert.ok(roadDistance(p,100,100)>c.width);assert.ok(curve.getLength()>150);}

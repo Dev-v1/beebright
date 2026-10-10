@@ -5,7 +5,7 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
  const renderer=createGameRenderer(canvas,quality,onGraphics),high=quality==='high'&&!renderer.software;
  const scene=new THREE.Scene();scene.background=new THREE.Color('#10182d');scene.fog=new THREE.Fog('#10182d',45,160);
  const camera=new THREE.PerspectiveCamera(58,1.6,.1,180);scene.add(new THREE.HemisphereLight(0xe0f5ff,0x253955,2.1));
- const light=new THREE.DirectionalLight(0xffffff,2.2);light.position.set(8,18,10);light.castShadow=high;light.shadow.mapSize.set(1024,1024);Object.assign(light.shadow.camera,{left:-24,right:24,top:24,bottom:-24,far:100});scene.add(light);
+ const light=new THREE.DirectionalLight(0xffffff,2.2);light.position.set(8,18,10);light.castShadow=high;light.shadow.mapSize.set(high?2048:1024,high?2048:1024);Object.assign(light.shadow.camera,{left:-24,right:24,top:24,bottom:-24,far:100});scene.add(light);
  const materials=[],geometries=[],textures=[];const mat=color=>{const m=new THREE.MeshStandardMaterial({color,roughness:high?.35:.75,metalness:high?.3:.1});materials.push(m);return m;};
  const teal=mat('#8de9df'),purple=mat('#b4a2ef'),stone=mat('#7b93bd'),green=mat('#abec9e'),pink=mat('#f691ba'),white=mat('#e6efff');
  function mesh(geometry,material,x=0,y=0,z=0,parent=scene){geometries.push(geometry);const m=new THREE.Mesh(geometry,material);m.position.set(x,y,z);m.castShadow=high;m.receiveShadow=high;parent.add(m);return m;}
@@ -66,7 +66,7 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
    const headlight=new THREE.SpotLight(0xd7f6ff,high?9:0,20,.5,.4,1);headlight.position.set(1.4,.6,0);const target=new THREE.Object3D();target.position.set(9,.2,0);player.add(target,headlight);headlight.target=target;
   }else{mesh(new THREE.BoxGeometry(2.8,.7,1.5),pink,0,.4,0,player);mesh(new THREE.BoxGeometry(1.15,.5,1.3),teal,-.1,.9,0,player);}
   const rubber=mat('#161e2a');for(const x of [-.9,.9])for(const z of [-.88,.88]){const wheel=mesh(new THREE.CylinderGeometry(.35,.35,.27,high?20:10),rubber,x,.3,z,player);wheel.rotation.x=Math.PI/2;wheels.push(wheel);if(high){const rim=mesh(new THREE.CylinderGeometry(.22,.22,.29,12),white,x,.3,z,player);rim.rotation.x=Math.PI/2;wheels.push(rim);}}
-  player.position.set(p.x,.2,p.z);camera.position.set(p.x-Math.cos(p.heading)*10,6,p.z-Math.sin(p.heading)*10);camera.lookAt(p.x,0,p.z);
+  p.y=.2;player.position.set(p.x,p.y,p.z);camera.position.set(p.x-Math.cos(p.heading)*10,6,p.z-Math.sin(p.heading)*10);camera.lookAt(p.x,0,p.z);
  }else{
   ship(teal,1,player);p.y=0;p.z=7;camera.fov=50;camera.updateProjectionMatrix();camera.position.set(0,3,24);camera.lookAt(0,0,7);
   const n=high?500:160,pos=new Float32Array(n*3);for(let i=0;i<n;i++){pos[i*3]=(Math.random()-.5)*100;pos[i*3+1]=(Math.random()-.5)*80;pos[i*3+2]=-Math.random()*120;}
@@ -122,6 +122,6 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
   if(high){light.position.copy(player.position).add(new THREE.Vector3(8,18,10));light.target=player;}
  }
  function loop(now){const dt=last?Math.min(.034,(now-last)/1000):0;last=now;if(!paused&&!done){update(dt);redraw=true;}if(redraw){renderer.render(scene,camera);redraw=false;}animation=requestAnimationFrame(loop);}
- const contextLost=e=>{e.preventDefault();finish(false,'The graphics context was interrupted. Retry, or open local practice in your browser.');};canvas.addEventListener('webglcontextlost',contextLost);renderer.render(scene,camera);animation=requestAnimationFrame(loop);
+ const contextLost=e=>{e.preventDefault();finish(false,'The graphics context was interrupted. Retry, or open local practice in your browser.');};canvas.addEventListener('webglcontextlost',contextLost);player.position.set(p.x,p.y,p.z);renderer.render(scene,camera);animation=requestAnimationFrame(loop);
  return {pause(value){paused=value;redraw=true;input.previousAction=Boolean(input.action);},setMuted(){},dispose(){cancelAnimationFrame(animation);canvas.removeEventListener('webglcontextlost',contextLost);for(const g of new Set(geometries))g.dispose();for(const m of materials)m.dispose();for(const texture of textures)texture.dispose();renderer.dispose();}};
 }
