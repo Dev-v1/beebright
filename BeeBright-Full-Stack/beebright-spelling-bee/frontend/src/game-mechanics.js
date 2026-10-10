@@ -49,6 +49,8 @@ export const MARBLE_COURSES=[
 ];
 export function marblePath(level){const c=MARBLE_COURSES[level]||MARBLE_COURSES[0];return c.points.slice(1).map((b,i)=>{const a=c.points[i],length=Math.hypot(b[0]-a[0],b[1]-a[1]);return {a,b,length,width:c.width,gap:c.gaps.includes(i),index:i};});}
 export function marbleSupport(segments,x,z){
+ // Turning pads are real floor geometry, including the area beyond a segment's end.
+ for(const s of segments)if(Math.hypot(x-s.b[0],z-s.b[1])<=s.width/2+.5)return {height:s.b[2],distance:0,index:s.index,u:1,pad:true,slopeX:0,slopeZ:0};
  let best=null;
  for(const s of segments){const dx=s.b[0]-s.a[0],dz=s.b[1]-s.a[1],raw=((x-s.a[0])*dx+(z-s.a[1])*dz)/(s.length*s.length),u=clamp(raw,0,1);
   if(raw<-.02||raw>1.02||(s.gap&&u>.43&&u<.57))continue;

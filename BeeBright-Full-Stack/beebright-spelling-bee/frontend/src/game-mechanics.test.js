@@ -23,6 +23,12 @@ test('introductory Dash is slower and friendly platforms do not overlap spikes',
 test('marble paths supply continuous ramp support and real jump gaps',()=>{
  for(let level=0;level<3;level++){const path=marblePath(level);for(const s of path){const x=(s.a[0]+s.b[0])/2,z=(s.a[1]+s.b[1])/2,support=marbleSupport(path,x,z);if(s.gap)assert.equal(support,null);else assert.ok(Math.abs(support.height-(s.a[2]+s.b[2])/2)<1e-8);}}
 });
+test('marble turning pads support the ball past a join while leaving jump gaps open',()=>{
+ for(let level=0;level<3;level++){const path=marblePath(level);
+  for(const s of path){const dx=s.b[0]-s.a[0],dz=s.b[1]-s.a[1],x=s.b[0]+dx/s.length*.75,z=s.b[1]+dz/s.length*.75,support=marbleSupport(path,x,z);assert.ok(support?.pad);assert.equal(support.height,s.b[2]);}
+  for(const s of path.filter(s=>s.gap))assert.equal(marbleSupport(path,(s.a[0]+s.b[0])/2,(s.a[1]+s.b[1])/2),null);
+ }
+});
 test('bowling rewards a pocket hit without giving every roll a strike',()=>{
  function roll(angle,speed){const pins=bowlingPins(),ball={x:400,y:445,r:13,mass:7,vx:Math.sin(angle)*speed,vy:-Math.cos(angle)*speed};for(let i=0;i<320;i++)bowlingStep(ball,pins,1/120);return pins.filter(p=>p.down).length;}
  assert.equal(roll(.03,690),10);assert.ok(roll(0,450)<10);assert.ok(roll(.12,690)<5);assert.equal(roll(.35,690),0);

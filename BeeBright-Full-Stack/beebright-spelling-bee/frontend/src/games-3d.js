@@ -31,7 +31,8 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
     if(high){for(const side of [-1,1]){const trim=box(platform.position.x,platform.position.y-.05,platform.position.z,.06,.07,d.length(),teal);trim.quaternion.copy(platform.quaternion);trim.translateX(side*s.width/2);}}
    }
    for(const u of [.2,.75]){const x=s.a[0]+(s.b[0]-s.a[0])*u,z=s.a[1]+(s.b[1]-s.a[1])*u,y=s.a[2]+(s.b[2]-s.a[2])*u;crystals.push({mesh:mesh(new THREE.OctahedronGeometry(.3),green,x,y+.85,z),taken:false,checkpoint:false});}
-   if(s.index%3===2){const b=s.b;box(b[0],b[2]-.1,b[1],s.width+.8,.18,2.5,teal);crystals.push({mesh:mesh(new THREE.TorusGeometry(.8,.09,6,16),green,b[0],b[2]+1,b[1]),taken:false,checkpoint:true});}
+   const joint=s.b;box(joint[0],joint[2]-.1,joint[1],s.width+1,.2,s.width+1,teal);
+   if(s.index%3===2){const b=s.b;crystals.push({mesh:mesh(new THREE.TorusGeometry(.8,.09,6,16),green,b[0],b[2]+1,b[1]),taken:false,checkpoint:true});}
    if(course.hazards.includes(s.index)){const u=.55,group=new THREE.Group();group.position.set(s.a[0]+(s.b[0]-s.a[0])*u,s.a[2]+(s.b[2]-s.a[2])*u+.65,s.a[1]+(s.b[1]-s.a[1])*u);scene.add(group);mesh(new THREE.BoxGeometry(s.width*.85,.22,.35),pink,0,0,0,group);mesh(new THREE.CylinderGeometry(.22,.22,1.3,8),stone,0,-.15,0,group);hazards.push({group,r:s.width*.43,phase:s.index});}
    if(course.boosts.includes(s.index)){const u=.3,x=s.a[0]+(s.b[0]-s.a[0])*u,z=s.a[1]+(s.b[1]-s.a[1])*u,y=s.a[2]+(s.b[2]-s.a[2])*u;box(x,y+.025,z,s.width*.8,.05,1.7,green);}
   }
@@ -85,7 +86,7 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
    const boost=t<boostUntil,maxSpeed=boost?13:9.8,friction=braking?8:1.65;p.vx=clamp(p.vx*Math.exp(-friction*dt),-maxSpeed,maxSpeed);p.vz=clamp(p.vz*Math.exp(-friction*dt),-maxSpeed,maxSpeed);
    if(action&&grounded){p.vy=8;grounded=false;}p.vy-=19*dt;p.x+=p.vx*dt;p.z+=p.vz*dt;p.y+=p.vy*dt;
    const support=marbleSupport(segments,p.x,p.z);if(support&&p.vy<=0&&(grounded||oldY>=support.height+.35)&&p.y<=support.height+.55){p.y=support.height+.55;p.vy=0;grounded=true;}else if(!support||p.y>(support?.height||0)+.6)grounded=false;
-   if(support&&course.rails.includes(support.index)){const s=segments[support.index],dx=s.b[0]-s.a[0],dz=s.b[1]-s.a[1],u=clamp(((p.x-s.a[0])*dx+(p.z-s.a[1])*dz)/(s.length*s.length),0,1),cx=s.a[0]+dx*u,cz=s.a[1]+dz*u,d=Math.hypot(p.x-cx,p.z-cz);if(d>s.width/2-.5){const scale=(s.width/2-.5)/d;p.x=cx+(p.x-cx)*scale;p.z=cz+(p.z-cz)*scale;p.vx*=.5;}}
+   if(support&&!support.pad&&course.rails.includes(support.index)){const s=segments[support.index],dx=s.b[0]-s.a[0],dz=s.b[1]-s.a[1],u=clamp(((p.x-s.a[0])*dx+(p.z-s.a[1])*dz)/(s.length*s.length),0,1),cx=s.a[0]+dx*u,cz=s.a[1]+dz*u,d=Math.hypot(p.x-cx,p.z-cz);if(d>s.width/2-.5){const scale=(s.width/2-.5)/d;p.x=cx+(p.x-cx)*scale;p.z=cz+(p.z-cz)*scale;p.vx*=.5;}}
    if(support&&course.boosts.includes(support.index)&&support.u>.24&&support.u<.38&&grounded&&boostCooldown===0){const s=segments[support.index];p.vx=(s.b[0]-s.a[0])/s.length*13;p.vz=(s.b[1]-s.a[1])/s.length*13;boostUntil=t+1.5;boostCooldown=3;}
    for(const h of hazards){h.group.rotation.y=t*(1.1+level*.25)+h.phase;const dx=p.x-h.group.position.x,dz=p.z-h.group.position.z,along=dx*Math.cos(h.group.rotation.y)-dz*Math.sin(h.group.rotation.y),across=dx*Math.sin(h.group.rotation.y)+dz*Math.cos(h.group.rotation.y);if(hazardCooldown===0&&Math.abs(along)<h.r+.4&&Math.abs(across)<.48&&Math.abs(p.y-h.group.position.y)<.65){p.vx+=Math.sin(h.group.rotation.y)*5;p.vz+=Math.cos(h.group.rotation.y)*5;hazardCooldown=.65;}}
    player.position.set(p.x,p.y,p.z);ball.rotation.x+=p.vz*dt/.55;ball.rotation.z-=p.vx*dt/.55;
