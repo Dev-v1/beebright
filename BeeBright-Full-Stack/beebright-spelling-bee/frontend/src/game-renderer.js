@@ -23,7 +23,7 @@ export function createGameRenderer(canvas,quality,onGraphics=()=>{}) {
  const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Neither WebGL 2 nor Canvas is available. Open local practice in a current browser.');
  canvas.width=800;canvas.height=500;
  onGraphics('Software 3D · WebView did not provide WebGL 2. Open in browser for GPU graphics.');
- return {render(scene,camera){
+ return {software:true,render(scene,camera){
   scene.updateMatrixWorld();camera.updateMatrixWorld();
   ctx.fillStyle='#10182d';ctx.fillRect(0,0,800,500);const triangles=[];
   scene.traverse(object=>{
