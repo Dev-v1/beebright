@@ -1,13 +1,14 @@
 import {RALLY_COURSES} from './src/game-mechanics.js';
 import {mount3D} from './src/games-3d.js';
-const $=id=>document.getElementById(id),track=$('track'),quality=$('quality'),status=$('status'),graphics=$('graphics'),result=$('result');
+const $=id=>document.getElementById(id),track=$('track'),quality=$('quality'),laps=$('laps'),status=$('status'),graphics=$('graphics'),result=$('result');
 for(const [i,c] of RALLY_COURSES.entries())track.add(new Option(c.name,String(i)));
+for(let n=1;n<=10;n++)laps.add(new Option(`${n} ${n===1?'lap':'laps'}`,String(n)));laps.value='2';
 let game=null,input={},paused=false,generation=0;
 function setPause(value){paused=value;game?.pause(value);input.up=input.down=input.left=input.right=input.camera=false;$('pause').textContent=paused?'Resume · Esc':'Pause · Esc';}
 async function start(){const token=++generation;game?.dispose();game=null;input={};paused=false;result.hidden=true;status.textContent='';graphics.textContent='Preparing the racing engine…';
  // New canvas owns its graphics context, allowing quality changes without reuse conflicts.
  const old=document.querySelector('canvas'),canvas=old.cloneNode();old.replaceWith(canvas);canvas.focus();
- try{const mounted=await mount3D(canvas,{id:'rally',level:Number(track.value),quality:quality.value,input,onStatus:s=>{status.textContent=s;},onGraphics:s=>{graphics.textContent=s;},onFinish:r=>{result.hidden=false;result.textContent=r.text+' Select Start race to drive again.';}});if(token!==generation)mounted.dispose();else{game=mounted;setPause(false);}}
+ try{const mounted=await mount3D(canvas,{id:'rally',level:Number(track.value),laps:Number(laps.value),quality:quality.value,input,onStatus:s=>{status.textContent=s;},onGraphics:s=>{graphics.textContent=s;},onFinish:r=>{result.hidden=false;result.textContent=r.text+' Select Start race to drive again.';}});if(token!==generation)mounted.dispose();else{game=mounted;setPause(false);}}
  catch(error){graphics.textContent='Unable to start: '+error.message+'. Select Lightweight graphics and retry.';}
 }
 $('start').addEventListener('click',start);$('pause').addEventListener('click',()=>setPause(!paused));$('camera').addEventListener('click',()=>{input.camera=true;setTimeout(()=>{input.camera=false;},100);});

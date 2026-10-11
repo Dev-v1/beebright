@@ -37,7 +37,9 @@ def main():
                 except Exception:pass
                 time.sleep(.2)
             else:raise AssertionError('Standalone interface did not load')
+            assert window.evaluate_js("document.querySelector('#laps').options.length===10")
             for quality in ['high','light']:
+                window.evaluate_js("document.querySelector('#laps').value='3'")
                 window.evaluate_js(f"document.querySelector('#quality').value='{quality}';document.querySelector('#start').click()")
                 end=time.monotonic()+60
                 while time.monotonic()<end:
@@ -50,6 +52,7 @@ def main():
                 window.evaluate_js("window.dispatchEvent(new KeyboardEvent('keyup',{key:'w',bubbles:true}));document.querySelector('#camera').click();")
                 time.sleep(.4)
                 assert window.evaluate_js("document.querySelector('#status').innerText.includes('Cockpit')")
+                assert window.evaluate_js("document.querySelector('#status').innerText.includes('Lap 1/3')")
                 assert not window.evaluate_js("document.querySelector('#status').innerText.includes('NaN')")
                 assert window.evaluate_js("document.querySelector('#result').hidden"),window.evaluate_js("document.querySelector('#result').innerText")
                 # Capture in the render frame. WebGL normally clears its back buffer

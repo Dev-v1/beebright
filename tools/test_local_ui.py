@@ -133,6 +133,7 @@ def test(w):
             wait(w,"document.querySelectorAll('.game-card').length===8")
         # Exercise every independent Rally track in the installed High quality UI.
         for track in range(4):
+            w.evaluate_js("(()=>{const s=document.querySelector('[aria-label=\"Race laps\"]');s.value='"+str(track+1)+"';s.dispatchEvent(new Event('change',{bubbles:true}));})()")
             w.evaluate_js("(()=>{const s=document.querySelector('[aria-label=\"Neon Rally track\"]');s.value='"+str(track)+"';s.dispatchEvent(new Event('change',{bubbles:true}));})()")
             w.evaluate_js("Array.from(document.querySelectorAll('.game-card')).find(c=>c.querySelector('h2').innerText==='Neon Rally').querySelector('button').click()")
             wait(w,"document.querySelector('.game-overlay .primary')!==null && !document.querySelector('.game-overlay .primary').disabled")
@@ -142,6 +143,7 @@ def test(w):
             assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes("+repr(['Harbor Circuit','Canyon Switchback','Alpine Hairpins','Midnight Metro'][track])+")")
             assert w.evaluate_js("/Place [1-5]\\/5/.test(document.querySelector('.arcade-player-bar').innerText) && document.querySelector('.arcade-player-bar').innerText.includes('Hill')")
             assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes('Chase')")
+            assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes('Lap 1/"+str(track+1)+"')")
             print('Rally renderer:',w.evaluate_js("document.querySelector('.game-graphics').innerText"))
             capture(w,f'track-{track}-chase')
             w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keydown',{key:'r'}))")

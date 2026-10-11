@@ -1,3 +1,10 @@
+# BeeBright 2.6 fixed
+
+- Faster racing opponents with smooth committed overtaking.
+- Compact exterior windshield and a wider cockpit view.
+- Blended incline transitions around every circuit.
+- Choose 1–10 laps before starting a race.
+
 # BeeBright releases
 
 ## 2.6 bugfix
