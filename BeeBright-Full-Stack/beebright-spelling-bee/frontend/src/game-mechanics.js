@@ -48,22 +48,40 @@ export const MARBLE_COURSES=[
  {name:'Cloudbreak Gauntlet',width:3.2,time:90,points:[[0,3,0],[0,-17,2],[10,-34,4],[10,-53,4],[-9,-70,7],[-9,-89,7],[8,-105,4],[8,-125,4],[-8,-142,8],[-8,-163,8],[7,-181,5],[7,-201,5],[0,-220,3],[0,-240,6]],gaps:[2,5,8,11],hazards:[1,4,7,10,12],boosts:[0,6]},
 ];
 export function marblePath(level){const c=MARBLE_COURSES[level]||MARBLE_COURSES[0];return c.points.slice(1).map((b,i)=>{const a=c.points[i],length=Math.hypot(b[0]-a[0],b[1]-a[1]);return {a,b,length,width:c.width,gap:c.gaps.includes(i),index:i};});}
-// The visible track and physics consume these same finite, planar rectangles.
+// One mitered ribbon: neighbouring boards share their edge, never overlap.
+// Collision and rendering use the same top triangles, including jump openings.
 export function marbleSurfaces(segments){
+ const frames=segments.map(s=>({dx:(s.b[0]-s.a[0])/s.length,dz:(s.b[1]-s.a[1])/s.length}));
+ const sections=segments.map((s,i)=>{
+  const prev=frames[Math.max(0,i-1)],next=frames[i];let nx=-prev.dz-next.dz,nz=prev.dx+next.dx,n=Math.hypot(nx,nz);nx/=n;nz/=n;
+  const miter=Math.min(2,1/Math.max(.5,nx*-next.dz+nz*next.dx)),w=s.width/2*miter;
+  return [[s.a[0]+nx*w,s.a[2],s.a[1]+nz*w],[s.a[0]-nx*w,s.a[2],s.a[1]-nz*w]];
+ });
+ const last=segments.at(-1),f=frames.at(-1);sections.push([[last.b[0]-f.dz*last.width/2,last.b[2],last.b[1]+f.dx*last.width/2],[last.b[0]+f.dz*last.width/2,last.b[2],last.b[1]-f.dx*last.width/2]]);
  const surfaces=[];
- for(const s of segments){const dx=(s.b[0]-s.a[0])/s.length,dz=(s.b[1]-s.a[1])/s.length,rise=(s.b[2]-s.a[2])/s.length;
-  for(const [start,end] of s.gap?[[0,.43],[.57,1]]:[[0,1]])surfaces.push({x:s.a[0]+dx*s.length*start,z:s.a[1]+dz*s.length*start,y:s.a[2]+rise*s.length*start,dx,dz,length:s.length*(end-start),width:s.width,slopeX:rise*dx,slopeZ:rise*dz,index:s.index,start,end,pad:false});
-  const w=s.width+1;surfaces.push({x:s.b[0],z:s.b[1]-w/2,y:s.b[2],dx:0,dz:1,length:w,width:w,slopeX:0,slopeZ:0,index:s.index,start:1,end:1,pad:true});
+ for(let i=0;i<segments.length;i++){const s=segments[i],{dx,dz}=frames[i];
+  const section=u=>sections[i].map((v,j)=>v.map((c,k)=>c+(sections[i+1][j][k]-c)*u));
+  for(const [start,end] of s.gap?[[0,.43],[.57,1]]:[[0,1]]){
+   const [a,b]=section(start),[c,d]=section(end),m=a.map((v,k)=>(v+b[k])/2),n=c.map((v,k)=>(v+d[k])/2);
+   for(const vertices of [[a,m,n],[a,n,c],[m,b,d],[m,d,n]]){
+    const [v,w,q]=vertices,ax=w[0]-v[0],az=w[2]-v[2],ay=w[1]-v[1],bx=q[0]-v[0],bz=q[2]-v[2],by=q[1]-v[1],det=ax*bz-az*bx;
+    surfaces.push({vertices,x:v[0],y:v[1],z:v[2],slopeX:(ay*bz-az*by)/det,slopeZ:(ax*by-ay*bx)/det,dx,dz,length:s.length,width:s.width,index:s.index,start,end,origin:s.a});
+   }
+  }
  }return surfaces;
 }
-function surfaceAt(s,x,z){const ox=x-s.x,oz=z-s.z,along=ox*s.dx+oz*s.dz,across=ox*-s.dz+oz*s.dx;
- if(along<0||along>s.length||Math.abs(across)>s.width/2)return null;
- return {...s,height:s.y+s.slopeX*ox+s.slopeZ*oz,distance:Math.abs(across),u:s.pad?1:s.start+(s.end-s.start)*along/s.length};
+function surfaceAt(s,x,z){
+ if(s.vertices){const [a,b,c]=s.vertices,dx=x-a[0],dz=z-a[2],bx=b[0]-a[0],bz=b[2]-a[2],cx=c[0]-a[0],cz=c[2]-a[2],det=bx*cz-bz*cx,u=(dx*cz-dz*cx)/det,v=(bx*dz-bz*dx)/det;
+  if(u< -1e-8||v< -1e-8||u+v>1+1e-8)return null;
+  const along=(x-s.origin[0])*s.dx+(z-s.origin[1])*s.dz;
+  return {...s,height:s.y+s.slopeX*(x-s.x)+s.slopeZ*(z-s.z),u:along/s.length};
+ }
+ return null;
 }
 export function marbleSupport(segments,x,z){let best=null;for(const s of marbleSurfaces(segments)){const hit=surfaceAt(s,x,z);if(hit&&(!best||hit.height>best.height))best=hit;}return best;}
 export const MARBLE_RADIUS=.55;
-export function marbleStart(surfaces){const s=surfaces[0],n=Math.hypot(s.slopeX,1,s.slopeZ),x=s.x+s.dx*.8,z=s.z+s.dz*.8;
- return {x:x-s.slopeX/n*MARBLE_RADIUS,z:z-s.slopeZ/n*MARBLE_RADIUS,y:s.y+s.slopeX*(x-s.x)+s.slopeZ*(z-s.z)+MARBLE_RADIUS/n};
+export function marbleStart(surfaces){const s=surfaces[0],x=s.origin[0]+s.dx*.8,z=s.origin[1]+s.dz*.8,hit=surfaces.find(t=>surfaceAt(t,x,z)),n=Math.hypot(hit.slopeX,1,hit.slopeZ);
+ return {x:x-hit.slopeX/n*MARBLE_RADIUS,z:z-hit.slopeZ/n*MARBLE_RADIUS,y:hit.y+hit.slopeX*(x-hit.x)+hit.slopeZ*(z-hit.z)+MARBLE_RADIUS/n};
 }
 function planeContact(s,p){
  const length=Math.hypot(s.slopeX,1,s.slopeZ),nx=-s.slopeX/length,ny=1/length,nz=-s.slopeZ/length;
@@ -101,10 +119,10 @@ export function marbleStep(p,input,dt,surfaces,{jump=false,boost=false}={}){
 }
 
 export const RALLY_COURSES=[
- {name:'Harbor Circuit',width:8,laps:2,theme:'harbor',points:[[28,0],[20,19],[0,24],[-25,16],[-30,-8],[-14,-25],[13,-23],[30,-13]]},
- {name:'Canyon Switchback',width:7.5,laps:2,theme:'canyon',points:[[30,0],[32,24],[9,29],[4,10],[-13,9],[-14,32],[-36,23],[-34,-20],[-14,-30],[-2,-10],[13,-15],[17,-33],[34,-25]]},
- {name:'Alpine Hairpins',width:7,laps:3,theme:'alpine',points:[[32,0],[30,32],[8,34],[7,9],[-8,9],[-9,34],[-31,30],[-34,-26],[-15,-35],[-5,-20],[12,-32],[33,-24]]},
- {name:'Midnight Metro',width:6.5,laps:3,theme:'city',points:[[35,0],[34,28],[10,29],[8,12],[-10,12],[-12,32],[-34,28],[-36,4],[-20,2],[-20,-18],[-35,-20],[-25,-36],[3,-34],[7,-17],[32,-24]]},
+ {name:'Harbor Circuit',width:14,heights:[0,1,3,5,2,0,0,1],laps:2,theme:'harbor',points:[[28,0],[20,19],[0,24],[-25,16],[-30,-8],[-14,-25],[13,-23],[30,-13]]},
+ {name:'Canyon Switchback',width:13,heights:[0,4,8,5,2,0,3,8,5,2,1,4,2],laps:2,theme:'canyon',points:[[30,0],[32,24],[9,29],[4,10],[-13,9],[-14,32],[-36,23],[-34,-20],[-14,-30],[-2,-10],[13,-15],[17,-33],[34,-25]]},
+ {name:'Alpine Hairpins',width:13,heights:[1,5,10,7,3,6,11,7,3,1,4,2],laps:3,theme:'alpine',points:[[32,0],[30,32],[8,34],[7,9],[-8,9],[-9,34],[-31,30],[-34,-26],[-15,-35],[-5,-20],[12,-32],[33,-24]]},
+ {name:'Midnight Metro',width:14,heights:[0,1,3,2,0,0,4,6,3,1,0,0,1,0,2],laps:3,theme:'city',points:[[35,0],[34,28],[10,29],[8,12],[-10,12],[-12,32],[-34,28],[-36,4],[-20,2],[-20,-18],[-35,-20],[-25,-36],[3,-34],[7,-17],[32,-24]]},
 ];
 export function roadDistance(points,x,z){let best=Infinity;for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length],dx=b.x-a.x,dz=b.z-a.z,u=clamp(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz),0,1);best=Math.min(best,Math.hypot(x-a.x-dx*u,z-a.z-dz*u));}return best;}
 export function bridgeLanding(start,next,length){const tip=start+length;return tip>=next.x&&tip<=next.x+next.w;}

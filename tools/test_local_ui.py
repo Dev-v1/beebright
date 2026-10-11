@@ -124,6 +124,7 @@ def test(w):
             wait(w,"document.querySelector('.game-overlay')===null")
             time.sleep(.4)
             assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes("+repr(['Harbor Circuit','Canyon Switchback','Alpine Hairpins','Midnight Metro'][track])+")")
+            assert w.evaluate_js("/Place [1-5]\\/5/.test(document.querySelector('.arcade-player-bar').innerText) && document.querySelector('.arcade-player-bar').innerText.includes('Hill')")
             w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
             wait(w,"document.querySelectorAll('.game-card').length===8")
         # Start every revised Marble course in High quality and move the follow camera.

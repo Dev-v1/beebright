@@ -1,0 +1,46 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import {RALLY_COURSES,marbleSurfaces,marblePath} from './game-mechanics.js';
+import {rallyRoad,rallySample,rallyProject,rallyProgress,newRallyRace,rallyStep} from './racing-mechanics.js';
+import {rallyRibbon,buildRallyCar} from './games-rally.js';
+import {marbleBoardGeometry} from './track-geometry.js';
+test('racing roads are wider, genuinely inclined, and retain consistent projection',()=>{
+ for(const course of RALLY_COURSES){const road=rallyRoad(course);assert.ok(course.width>=13);assert.equal(course.heights.length,course.points.length);assert.ok(Math.max(...course.heights)-Math.min(...course.heights)>=3);
+  for(let d=0;d<road.length;d+=2){const f=rallySample(road,d),hit=rallyProject(road,f.x,f.z);assert.ok(hit.distance<1e-7);assert.ok(Math.abs(hit.y-f.y)<1e-7);assert.ok(Math.abs(hit.progress-f.progress)<1e-7);}
+  const geo=rallyRibbon(road,-course.width/2,course.width/2),pos=geo.attributes.position;for(let i=0;i<pos.count;i++)assert.ok(Number.isFinite(pos.getY(i)));geo.dispose();
+ }
+});
+test('rally progress unwraps forward and reverse at the line and rejects teleports',()=>{
+ assert.equal(rallyProgress(299,1,300,3),2);assert.equal(rallyProgress(1,299,300,3),-2);assert.equal(rallyProgress(10,170,300,3),0);
+});
+test('four opponents drive every circuit uphill and through corners without leaving its road',()=>{
+ for(const course of RALLY_COURSES){const road=rallyRoad(course),race=newRallyRace(road);assert.equal(race.opponents.length,4);
+  for(let i=0;i<20000&&!race.opponents.every(c=>c.finished);i++)rallyStep(race,road,{},1/60);
+  assert.ok(race.opponents.every(c=>c.finished));assert.ok(race.opponents.every(c=>c.finishTime>road.length*course.laps/22));assert.equal(race.finished,false,'AI finishing does not stop the player');
+  for(const car of race.opponents){const hit=rallyProject(road,car.x,car.z);assert.ok(hit.distance<course.width/2);assert.ok(Math.abs(hit.y-car.y)<.2);}
+ }
+});
+test('reverse does not award checkpoints, opponents collide, and missed gates block finishing',()=>{
+ const road=rallyRoad(RALLY_COURSES[0]),race=newRallyRace(road);for(let i=0;i<120;i++)rallyStep(race,road,{down:true},1/60);assert.ok(race.player.speed<0);assert.equal(race.player.gates,0);assert.equal(race.finished,false);
+ const testRace=newRallyRace(road),car=testRace.opponents[0];Object.assign(car,rallySample(road,1,0),{travel:1,lane:0,speed:0});testRace.player.speed=15;rallyStep(testRace,road,{up:true},1/60);assert.ok(testRace.player.speed<15,'rear impact reduces closing speed');
+ testRace.player.travel=road.length*road.laps+1;testRace.player.gates=0;rallyStep(testRace,road,{},1/60);assert.equal(testRace.finished,false);
+});
+test('all High quality cars have curved bodies, reflective glass, and independently steering wheels',()=>{
+ const group=new THREE.Group(),geometries=[],materials=[];const mat=color=>{const m=new THREE.MeshStandardMaterial({color});materials.push(m);return m;};const mesh=(g,m,x=0,y=0,z=0,parent=group)=>{geometries.push(g);const node=new THREE.Mesh(g,m);node.position.set(x,y,z);parent.add(node);return node;};
+ const paint=new THREE.MeshPhysicalMaterial({color:'#d84e71',clearcoat:1}),car=buildRallyCar({high:true,paint,mesh,mat,parent:group});assert.equal(car.wheels.length,4);assert.equal(car.wheels.filter(w=>w.front).length,2);assert.ok(geometries.filter(g=>g.type==='ExtrudeGeometry').length>=2);assert.ok(geometries.some(g=>g.type==='SphereGeometry'));assert.ok(materials.some(m=>m.roughness<.15));
+ for(const g of geometries)g.dispose();for(const m of materials)m.dispose();paint.dispose();
+});
+test('marble board geometry has positive top normals and no duplicated triangle faces',()=>{
+ for(let level=0;level<3;level++){const surfaces=marbleSurfaces(marblePath(level)),geo=marbleBoardGeometry(surfaces),pos=geo.attributes.position,norm=geo.attributes.normal,seen=new Set();
+  for(let i=0;i<pos.count;i+=3){const face=[0,1,2].map(j=>[pos.getX(i+j),pos.getY(i+j),pos.getZ(i+j)].join(',')).sort().join('|');assert.equal(seen.has(face),false);seen.add(face);if(i<surfaces.length*6&&i%6===0)assert.ok(norm.getY(i)>.9);}
+  geo.dispose();
+ }
+});
+test('all four races can be finished through every checkpoint with ordinary driving inputs',()=>{
+ for(const course of RALLY_COURSES){const road=rallyRoad(course),race=newRallyRace(road);let frames=0;
+  while(!race.finished&&frames++<12000){const p=race.player,look=rallySample(road,p.travel+5),heading=Math.atan2(look.z-p.z,look.x-p.x),error=Math.atan2(Math.sin(heading-p.heading),Math.cos(heading-p.heading)),after=rallySample(road,p.travel+16),curve=Math.abs(Math.atan2(Math.sin(after.heading-look.heading),Math.cos(after.heading-look.heading))),target=curve>.65?9:curve>.35?12:19;
+   rallyStep(race,road,{up:p.speed<target,down:p.speed>target+1,right:error>.045,left:error<-.045},1/60);
+  }assert.equal(race.finished,true,course.name);assert.equal(race.player.gates,course.laps*12);assert.ok(race.time>20);assert.ok(race.place>=1&&race.place<=5);
+ }
+});

@@ -1,5 +1,12 @@
 # BeeBright releases
 
+## 2.4 bugfix
+
+- Replace overlapping Marble Run ramp boxes and turning pads with one connected track mesh. Rendered faces and sphere collision use the same triangles; open edges and jump gaps remain real.
+- Race four opponents on wider, inclined Harbor, Canyon, Alpine and Midnight circuits. Live position, sequential lap checkpoints, opponent corner braking and car contact.
+- Curved car bodies, rounded fenders, steering wheels, reflective paint and windows for every car in High quality. Track-specific sky reflections, warm sunlight, road textures and soft shadows.
+- Stable road ribbons replace overlapping road boxes. Uphill and downhill driving follow the visible track elevation.
+
 ## 2.4
 
 - Marble Run ramps and square turning pads share their visible geometry with sphere collision surfaces.
