@@ -32,3 +32,11 @@ jobs:
         shell: powershell
       - run: ./tools/test-local-update.ps1
         shell: powershell
+      - name: Save actual racing views
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: BeeBright-racing-views
+          path: ${{ runner.temp }}/bee-racing-views/*.png
+          if-no-files-found: warn
+          retention-days: 7

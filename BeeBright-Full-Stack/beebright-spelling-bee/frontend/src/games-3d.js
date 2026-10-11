@@ -1,10 +1,15 @@
 import * as THREE from 'three';
 import {setupRally} from './games-rally.js';
 import {marbleBoardGeometry} from './track-geometry.js';
-import {createGameRenderer} from './game-renderer.js';
+import {createGameRenderer,createHighGameRenderer} from './game-renderer.js';
 import {clamp,MARBLE_COURSES,marblePath,marbleSurfaces,marbleStep,marbleStart,keepInFrame} from './game-mechanics.js';
 export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,quality='light'}) {
- const renderer=createGameRenderer(canvas,quality,onGraphics),high=quality==='high'&&!renderer.software;
+ const options={id,level,input,onFinish,onStatus,onGraphics,quality};
+ if(id==='rally'&&quality==='high')return createHighGameRenderer(canvas,onGraphics).then(renderer=>mountScene(canvas,options,renderer));
+ return mountScene(canvas,options,createGameRenderer(canvas,quality,onGraphics));
+}
+function mountScene(canvas,{id,level,input,onFinish,onStatus,quality},renderer){
+ const high=quality==='high'&&!renderer.software;
  const scene=new THREE.Scene();scene.background=new THREE.Color('#10182d');scene.fog=new THREE.Fog('#10182d',45,160);
  const camera=new THREE.PerspectiveCamera(58,1.6,.1,180);scene.add(new THREE.HemisphereLight(0xe0f5ff,0x253955,2.1));
  const light=new THREE.DirectionalLight(0xffffff,2.2);light.position.set(8,18,10);light.castShadow=high;light.shadow.mapSize.set(high?2048:1024,high?2048:1024);Object.assign(light.shadow.camera,{left:-24,right:24,top:24,bottom:-24,far:140});light.shadow.bias=-.00012;light.shadow.normalBias=.025;scene.add(light);
@@ -100,7 +105,7 @@ export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,qu
    light.userData.followTarget.position.copy(center);light.position.copy(center).add(new THREE.Vector3(16,28,12));
   }
  }
- function loop(now){const dt=last?Math.min(.034,(now-last)/1000):0;last=now;if(!paused&&!done){update(dt);redraw=true;}if(redraw){renderer.render(scene,camera);redraw=false;}animation=requestAnimationFrame(loop);}
+ function loop(now){const dt=last?Math.min(.034,(now-last)/1000):0;last=now;if(!paused&&!done){update(dt);redraw=true;}if(redraw){try{renderer.render(scene,camera);}catch(error){finish(false,`Graphics stopped: ${error.message}. Retry or choose Lightweight graphics.`);}redraw=false;}animation=requestAnimationFrame(loop);}
  const contextLost=e=>{e.preventDefault();finish(false,'The graphics context was interrupted. Retry, or open local practice in your browser.');};canvas.addEventListener('webglcontextlost',contextLost);player.position.set(p.x,p.y,p.z);renderer.render(scene,camera);animation=requestAnimationFrame(loop);
- return {pause(value){paused=value;redraw=true;input.previousAction=Boolean(input.action);},setMuted(){},dispose(){cancelAnimationFrame(animation);canvas.removeEventListener('webglcontextlost',contextLost);for(const g of new Set(geometries))g.dispose();for(const m of materials)m.dispose();for(const texture of textures)texture.dispose();renderer.dispose();}};
+ return {pause(value){paused=value;redraw=true;input.previousAction=Boolean(input.action);rally?.pause(input);},setMuted(){},dispose(){cancelAnimationFrame(animation);canvas.removeEventListener('webglcontextlost',contextLost);for(const g of new Set(geometries))g.dispose();for(const m of materials)m.dispose();for(const texture of textures)texture.dispose();renderer.dispose();}};
 }
