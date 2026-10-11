@@ -38,7 +38,7 @@ export function buildRallyCar({high,paint,mesh,mat,parent}){
  const stitch=mat('#8b949a'),display=mat('#080e14');display.roughness=.35;
  const screen=mat('#81bcc2');screen.emissive.set('#84d8db');screen.emissiveIntensity=.8;
  // Full dark cabin lining prevents exterior body paint showing through the footwell.
- mesh(round(1.8,.07,1.55,.025),rubber,-.43,.80,0,interior);
+ mesh(round(1.8,.045,1.65,.025),rubber,-.43,.845,0,interior);
  mesh(round(.53,.32,1.47,.10),leather,.27,.86,0,interior);
  mesh(round(.08,.055,1.41,.02),alloy,-.02,.85,0,interior);
  mesh(round(.12,.24,.38,.065),leather,.055,.98,.37,interior);
@@ -62,7 +62,7 @@ export function buildRallyCar({high,paint,mesh,mat,parent}){
   for(let j=-2;j<=2;j++)mesh(new THREE.BoxGeometry(.005,.005,.083),trim,-.034,.88+j*.014,z,interior);
  }
  mesh(round(.94,.12,.31,.045),leather,-.55,.87,0,interior);
- const shifter=new THREE.Group();shifter.position.set(-.29,.94,0);interior.add(shifter);mesh(round(.105,.018,.105,.02),alloy,0,0,0,shifter);rod([0,0,0],[0,.09,0],.012,alloy,shifter);mesh(new THREE.SphereGeometry(.035,12,8),leather,0,.105,0,shifter);
+ const shifter=new THREE.Group();shifter.position.set(-.20,.86,0);interior.add(shifter);mesh(round(.105,.018,.105,.02),alloy,0,0,0,shifter);rod([0,0,0],[0,.09,0],.012,alloy,shifter);mesh(new THREE.SphereGeometry(.035,12,8),leather,0,.105,0,shifter);
  for(const z of [-.76,.76]){
   mesh(round(1.35,.28,.045,.025),leather,-.59,.95,z,interior);
   mesh(round(.46,.04,.085,.02),alloy,-.60,.97,z*.94,interior);
@@ -75,18 +75,18 @@ export function buildRallyCar({high,paint,mesh,mat,parent}){
  for(const sign of [-1,1]){const spoke=mesh(round(.10,.018,.023,.006),alloy,sign*.09,-.025,0,steering);spoke.rotation.z=sign*-.20;mesh(round(.045,.07,.015,.007),alloy,sign*.11,.025,-.032,steering);}
  mesh(round(.023,.10,.025,.006),alloy,0,-.09,0,steering);
  const glove=mat('#343b46'),suit=mat('#242e3e'),leftHand=new THREE.Group(),rightHand=new THREE.Group();interior.add(leftHand,rightHand);
- function hand(group){const palm=mesh(new THREE.SphereGeometry(.047,12,8),glove,0,0,0,group);palm.scale.set(.9,1.2,.65);for(let i=0;i<4;i++)mesh(round(.016,.047,.019,.007),glove,.025-i*.018,.025,-.015,group);mesh(round(.075,.045,.048,.018),suit,-.075,-.01,0,group);}
+ function hand(group){const palm=mesh(new THREE.SphereGeometry(.038,12,8),glove,0,0,0,group);palm.scale.set(.9,1.2,.65);for(let i=0;i<4;i++)mesh(round(.013,.041,.016,.006),glove,.021-i*.015,.025,-.015,group);mesh(round(.075,.045,.048,.018),suit,-.075,-.01,0,group);}
  hand(leftHand);hand(rightHand);
  const cockpitFrame=new THREE.Group();interior.add(cockpitFrame);
  for(const z of [-1,1]){rod([.65,.86,z*.74],[-.12,1.25,z*.65],.026,leather,cockpitFrame);mesh(round(.68,.035,.045,.01),leather,-.45,1.23,z*.63,cockpitFrame);}
  // Interior rear-view mirror, roof liner and sun visors, without hiding the road.
- mesh(round(.62,.025,1.25,.015),leather,-.44,1.245,0,cockpitFrame);mesh(round(.09,.065,.21,.012),alloy,.26,1.18,0,cockpitFrame);
+ mesh(round(.50,.025,1.25,.015),leather,-.86,1.245,0,cockpitFrame);mesh(round(.09,.065,.21,.012),alloy,.26,1.18,0,cockpitFrame);
  for(const z of [-.36,.36])mesh(round(.15,.016,.25,.006),leather,-.03,1.22,z,cockpitFrame);
  function animate(state,dt){
   steering.rotation.z=-(state.steer||0)*.85;
   needles[0].rotation.x=2.35-Math.min(1,(state.rpm??900)/7500)*4.7;needles[1].rotation.x=2.35-Math.min(1,Math.abs(state.speed)/60)*4.7;
   const phase=state.shift>0?Math.sin(Math.PI*(1-state.shift/.32)):0;shifter.rotation.z=phase*.22;
-  leftHand.position.set(-.21,1.025,.515);rightHand.position.set(-.21-phase*.08,1.025-phase*.05,.225-phase*.21);
+  leftHand.position.set(-.21,1.025,.515);rightHand.position.set(-.21+phase*.01,1.025-phase*.055,.225-phase*.21);
   leftHand.rotation.x=-(state.steer||0)*.5;rightHand.rotation.x=-(state.steer||0)*.5*(1-phase);
   if(dashboardCanvas){const c=dashboardCanvas.getContext('2d');c.fillStyle='#07131d';c.fillRect(0,0,512,256);c.fillStyle='#b2eef1';c.font='bold 90px sans-serif';c.fillText(state.gear===-1?'R':String(state.gear??1),24,108);c.font='bold 52px sans-serif';c.fillText(String(Math.round(Math.abs(state.speed)*3.6)).padStart(3,'0'),170,97);c.font='22px sans-serif';c.fillText('km/h',178,129);c.fillText(`${Math.round(state.rpm??900)} RPM`,24,193);c.fillStyle=phase>0?'#ffb955':'#66c9c9';c.fillRect(24,216,Math.min(464,(state.rpm??900)/7500*464),9);dashboardTexture.needsUpdate=true;}
  }

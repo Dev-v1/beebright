@@ -27,7 +27,7 @@ export async function createRallyRenderer(canvas,onGraphics){
  if(!probe)return createGameRenderer(canvas,'light',onGraphics);
  let engine;
  try{engine=new Engine(canvas,true,{alpha:false,preserveDrawingBuffer:true,stencil:true,powerPreference:'high-performance'});}catch(error){onGraphics?.(`High graphics unavailable: ${error.message}`);throw error;}
- engine.setHardwareScalingLevel(1/Math.min(2,globalThis.devicePixelRatio||1));engine.setSize(800,500);
+ const ratio=Math.min(2,globalThis.devicePixelRatio||1);engine.setHardwareScalingLevel(1/ratio);engine.setSize(Math.round(800*ratio),Math.round(500*ratio));
  const scene=new Scene(engine);scene.useRightHandedSystem=true;scene.skipPointerMovePicking=true;
  const camera=new FreeCamera('racing-camera',new Vector3(0,3,10),scene);camera.inputs.clear();camera.minZ=.025;camera.maxZ=650;
  const sky=new HemisphericLight('sky-fill',new Vector3(0,1,0),scene);sky.intensity=.85;sky.groundColor=new Color3(.14,.17,.15);

@@ -44,7 +44,7 @@ def main():
                 assert window.evaluate_js("document.querySelector('#result').hidden"),window.evaluate_js("document.querySelector('#result').innerText")
                 # Capture in the render frame. WebGL normally clears its back buffer
                 # after presentation, so an arbitrary later toDataURL is black.
-                window.evaluate_js("window.racingCapture=null;requestAnimationFrame(()=>{const source=document.querySelector('canvas'),copy=document.createElement('canvas');copy.width=800;copy.height=500;const c=copy.getContext('2d');c.drawImage(source,0,0);const pixels=c.getImageData(0,0,800,500).data,colors=new Set();let bright=0;for(let i=0;i<pixels.length;i+=400){colors.add(pixels[i]+','+pixels[i+1]+','+pixels[i+2]);if(pixels[i]+pixels[i+1]+pixels[i+2]>90)bright++;}window.racingCapture={url:copy.toDataURL('image/png'),colors:colors.size,bright};})")
+                window.evaluate_js("window.racingCapture=null;requestAnimationFrame(()=>{const source=document.querySelector('canvas'),copy=document.createElement('canvas');copy.width=800;copy.height=500;const c=copy.getContext('2d');c.drawImage(source,0,0,800,500);const pixels=c.getImageData(0,0,800,500).data,colors=new Set();let bright=0;for(let i=0;i<pixels.length;i+=400){colors.add(pixels[i]+','+pixels[i+1]+','+pixels[i+2]);if(pixels[i]+pixels[i+1]+pixels[i+2]>90)bright++;}window.racingCapture={url:copy.toDataURL('image/png'),colors:colors.size,bright};})")
                 end=time.monotonic()+15
                 while time.monotonic()<end and not window.evaluate_js('window.racingCapture!==null'):time.sleep(.1)
                 capture=window.evaluate_js('window.racingCapture')
