@@ -1,5 +1,11 @@
 # BeeBright releases
 
+## 2.5 bugfix
+
+- Solid GT roof stays visible in both cockpit and chase cameras.
+- Taller, wider windshield, slimmer interior pillars and a wider cockpit field of view.
+- Live dashboard navigation shows the complete circuit, all five cars, and the nearest car behind with its distance. Speed, gear and RPM remain visible.
+
 ## 2.5 racing beta
 
 - Tracks widened to 18–20 metres, with faster rivals and stable, committed overtaking instead of rapid side-to-side lane changes.

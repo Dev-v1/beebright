@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RALLY_COURSES,clamp} from './game-mechanics.js';
 import {rallyRoad,rallySample,newRallyRace,rallyStep,newRallyView,rallyViewStep} from './racing-mechanics.js';
-import {buildRallyCar} from './rally-car.js';
+import {buildRallyCar,rallyNavigation} from './rally-car.js';
 export {buildRallyCar} from './rally-car.js';
 import {rallyTerrain} from './rally-terrain.js';
 // Continuous ribbons share section vertices; inclines have no stacked road boxes.
@@ -56,13 +56,13 @@ export function setupRally({scene,camera,light,high,level,player,mesh,mat,textur
  if(high&&night){const headlight=new THREE.SpotLight('#dff2ff',25,35,.48,.45,1.5),target=new THREE.Object3D();headlight.position.set(1.5,.6,0);target.position.set(12,-.1,0);player.add(headlight,target);headlight.target=target;}
  const gateMarker=mesh(new THREE.TorusGeometry(.8,.08,6,16),mat('#a7e0a2'));
  function pose(car,state,dt){car.parent.visible=!state.finished||(state.finishAge??0)<5;car.parent.position.set(state.x,state.y+.02,state.z);car.parent.rotation.order='YXZ';car.parent.rotation.set(clamp((state.lane??0)*state.speed*.0005,-.035,.035),-state.heading,Math.atan(state.grade||0));
-  for(const wheel of car.wheels){wheel.spin.rotation.z-=state.speed*dt/.375;if(wheel.front)wheel.steering.rotation.y=-(state.steer||0)*.32;}car.animate(state,dt);
+  for(const wheel of car.wheels){wheel.spin.rotation.z-=state.speed*dt/.375;if(wheel.front)wheel.steering.rotation.y=-(state.steer||0)*.32;}car.animate(state,dt,state===race.player?rallyNavigation(road,race):null);
   car.tail.emissiveIntensity=state===race.player&&race.input?.down?2.5:.4;
  }
  function render(dt){pose(cars[0],race.player,dt);race.opponents.forEach((p,i)=>pose(cars[i+1],p,dt));const p=race.player,next=rallySample(road,(p.gates+1)*road.length/12);gateMarker.position.set(next.x,next.y+1.2,next.z);gateMarker.rotation.y=-next.heading;
-  cars[0].canopy.visible=!view.cockpit;cars[0].interior.visible=view.cockpit;
-  if(view.changed){camera.fov=view.cockpit?78:58;camera.near=view.cockpit?.025:.1;camera.updateProjectionMatrix();}
-  if(view.cockpit){player.updateMatrixWorld(true);const eye=player.localToWorld(new THREE.Vector3(-.68,1.15,.37)),target=player.localToWorld(new THREE.Vector3(24,1.11,.37));camera.position.copy(eye);camera.up.set(0,1,0);camera.lookAt(target);}
+  cars[0].setCockpit(view.cockpit);
+  if(view.changed){camera.fov=view.cockpit?84:58;camera.near=view.cockpit?.025:.1;camera.updateProjectionMatrix();}
+  if(view.cockpit){player.updateMatrixWorld(true);const eye=player.localToWorld(new THREE.Vector3(-.72,1.20,.37)),target=player.localToWorld(new THREE.Vector3(24,1.13,.37));camera.position.copy(eye);camera.up.set(0,1,0);camera.lookAt(target);}
   else{const behind=new THREE.Vector3(p.x-Math.cos(p.heading)*10,p.y+4.2,p.z-Math.sin(p.heading)*10);if(view.changed)camera.position.copy(behind);else camera.position.lerp(behind,1-Math.exp(-dt*7));const look=rallySample(road,p.travel+8);camera.lookAt(p.x+Math.cos(p.heading)*6,(p.y+look.y)/2+.85,p.z+Math.sin(p.heading)*6);}
  }
  const p=race.player;camera.position.set(p.x-Math.cos(p.heading)*10,p.y+5.3,p.z-Math.sin(p.heading)*10);render(0);
