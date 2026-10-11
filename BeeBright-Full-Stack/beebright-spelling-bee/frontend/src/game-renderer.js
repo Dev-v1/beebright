@@ -43,3 +43,24 @@ export function createGameRenderer(canvas,quality,onGraphics=()=>{}) {
   for(const triangle of triangles){ctx.fillStyle=triangle.color;ctx.beginPath();triangle.v.forEach((v,i)=>ctx[i?'lineTo':'moveTo']((v.x+1)*400,(1-v.y)*250));ctx.closePath();ctx.fill();}
  },dispose(){}};
 }
+
+
+// Load the next-generation renderer only for High quality racing. Probe the
+// adapter/device before binding this canvas, so unavailable GPUs can fall back.
+export async function createHighGameRenderer(canvas,onGraphics=()=>{}){
+ const gpu=globalThis.navigator?.gpu;let device;
+ if(gpu){try{const adapter=await gpu.requestAdapter({powerPreference:'high-performance'});if(adapter)device=await adapter.requestDevice();}catch{}}
+ if(!device)return createGameRenderer(canvas,'high',onGraphics);
+ let renderer;
+ try{
+  const {WebGPURenderer}=await import('three/webgpu');
+  renderer=new WebGPURenderer({canvas,device,alpha:false,antialias:true,samples:4});
+  renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio||1,2));renderer.setSize(800,500,false);
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+  await renderer.init();
+ }catch(error){renderer?.dispose();device.destroy();throw new Error(`WebGPU startup failed: ${error.message}. Switch Graphics to Lightweight, or retry in a browser.`);}
+ let lost=false;renderer.onDeviceLost=()=>{lost=true;};
+ const info=device.adapterInfo,adapter=info?.description||info?.architecture||'GPU';onGraphics(`High quality · WebGPU · ${adapter}`);
+ return {webgpu:true,render(scene,camera){if(lost)throw new Error('The WebGPU device was lost');renderer.render(scene,camera);},dispose(){renderer.dispose();device.destroy();}};
+}

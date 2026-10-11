@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {RALLY_COURSES,marbleSurfaces,marblePath} from './game-mechanics.js';
-import {rallyRoad,rallySample,rallyProject,rallyProgress,newRallyRace,rallyStep} from './racing-mechanics.js';
+import {rallyRoad,rallySample,rallyProject,rallyProgress,newRallyRace,rallyStep,rallyCornerPlan,newRallyView,rallyViewStep} from './racing-mechanics.js';
 import {rallyRibbon,buildRallyCar} from './games-rally.js';
+import {rallyTerrain,mountainHeight} from './rally-terrain.js';
 import {marbleBoardGeometry} from './track-geometry.js';
 test('racing roads are wider, genuinely inclined, and retain consistent projection',()=>{
- for(const course of RALLY_COURSES){const road=rallyRoad(course);assert.ok(course.width>=13);assert.equal(course.heights.length,course.points.length);assert.ok(Math.max(...course.heights)-Math.min(...course.heights)>=3);
+ for(const course of RALLY_COURSES){const road=rallyRoad(course);assert.ok(course.width>=13);assert.ok(road.length>680);assert.equal(course.heights.length,course.points.length);assert.ok(Math.max(...course.heights)-Math.min(...course.heights)>=3);
   for(let d=0;d<road.length;d+=2){const f=rallySample(road,d),hit=rallyProject(road,f.x,f.z);assert.ok(hit.distance<1e-7);assert.ok(Math.abs(hit.y-f.y)<1e-7);assert.ok(Math.abs(hit.progress-f.progress)<1e-7);}
   const geo=rallyRibbon(road,-course.width/2,course.width/2),pos=geo.attributes.position;for(let i=0;i<pos.count;i++)assert.ok(Number.isFinite(pos.getY(i)));geo.dispose();
  }
@@ -17,7 +18,7 @@ test('rally progress unwraps forward and reverse at the line and rejects telepor
 test('four opponents drive every circuit uphill and through corners without leaving its road',()=>{
  for(const course of RALLY_COURSES){const road=rallyRoad(course),race=newRallyRace(road);assert.equal(race.opponents.length,4);
   for(let i=0;i<20000&&!race.opponents.every(c=>c.finished);i++)rallyStep(race,road,{},1/60);
-  assert.ok(race.opponents.every(c=>c.finished));assert.ok(race.opponents.every(c=>c.finishTime>road.length*course.laps/22));assert.equal(race.finished,false,'AI finishing does not stop the player');
+  assert.ok(race.opponents.every(c=>c.finished));assert.ok(race.opponents.every(c=>c.finishTime>road.length*course.laps/40));assert.equal(race.finished,false,'AI finishing does not stop the player');
   for(const car of race.opponents){const hit=rallyProject(road,car.x,car.z);assert.ok(hit.distance<course.width/2);assert.ok(Math.abs(hit.y-car.y)<.2);}
  }
 });
@@ -28,7 +29,7 @@ test('reverse does not award checkpoints, opponents collide, and missed gates bl
 });
 test('all High quality cars have curved bodies, reflective glass, and independently steering wheels',()=>{
  const group=new THREE.Group(),geometries=[],materials=[];const mat=color=>{const m=new THREE.MeshStandardMaterial({color});materials.push(m);return m;};const mesh=(g,m,x=0,y=0,z=0,parent=group)=>{geometries.push(g);const node=new THREE.Mesh(g,m);node.position.set(x,y,z);parent.add(node);return node;};
- const paint=new THREE.MeshPhysicalMaterial({color:'#d84e71',clearcoat:1}),car=buildRallyCar({high:true,paint,mesh,mat,parent:group});assert.equal(car.wheels.length,4);assert.equal(car.wheels.filter(w=>w.front).length,2);assert.ok(geometries.filter(g=>g.type==='ExtrudeGeometry').length>=2);assert.ok(geometries.some(g=>g.type==='SphereGeometry'));assert.ok(materials.some(m=>m.roughness<.15));
+ const paint=new THREE.MeshPhysicalMaterial({color:'#d84e71',clearcoat:1}),car=buildRallyCar({high:true,paint,mesh,mat,parent:group});assert.equal(car.wheels.length,4);assert.equal(car.wheels.filter(w=>w.front).length,2);car.body.computeBoundingBox();assert.ok(car.body.boundingBox.max.x-car.body.boundingBox.min.x>4.4);assert.ok(car.body.attributes.position.count>200);assert.ok(car.canopy.children.length>=8);assert.ok(car.interior.children.length>=6);assert.equal(car.body.index.count%3,0);assert.ok(geometries.some(g=>g.type==='SphereGeometry'));assert.ok(materials.some(m=>m.roughness<.15));
  for(const g of geometries)g.dispose();for(const m of materials)m.dispose();paint.dispose();
 });
 test('marble board geometry has positive top normals and no duplicated triangle faces',()=>{
@@ -39,8 +40,26 @@ test('marble board geometry has positive top normals and no duplicated triangle 
 });
 test('all four races can be finished through every checkpoint with ordinary driving inputs',()=>{
  for(const course of RALLY_COURSES){const road=rallyRoad(course),race=newRallyRace(road);let frames=0;
-  while(!race.finished&&frames++<12000){const p=race.player,look=rallySample(road,p.travel+5),heading=Math.atan2(look.z-p.z,look.x-p.x),error=Math.atan2(Math.sin(heading-p.heading),Math.cos(heading-p.heading)),after=rallySample(road,p.travel+16),curve=Math.abs(Math.atan2(Math.sin(after.heading-look.heading),Math.cos(after.heading-look.heading))),target=curve>.65?9:curve>.35?12:19;
-   rallyStep(race,road,{up:p.speed<target,down:p.speed>target+1,right:error>.045,left:error<-.045},1/60);
+  while(!race.finished&&frames++<20000){const p=race.player,look=rallySample(road,p.travel+Math.max(8,p.speed*.4)),heading=Math.atan2(look.z-p.z,look.x-p.x),error=Math.atan2(Math.sin(heading-p.heading),Math.cos(heading-p.heading)),target=rallyCornerPlan(road,p.travel,38).speed;
+   rallyStep(race,road,{up:p.speed<target,down:p.speed>target+1,right:error>.025,left:error<-.025},1/60);
   }assert.equal(race.finished,true,course.name);assert.equal(race.player.gates,course.laps*12);assert.ok(race.time>20);assert.ok(race.place>=1&&race.place<=5);
  }
+});
+
+test('camera switches once per press and holding R does not oscillate',()=>{
+ const view=newRallyView();assert.equal(rallyViewStep(view,false),false);assert.equal(rallyViewStep(view,true),true);
+ for(let i=0;i<120;i++)assert.equal(rallyViewStep(view,true),true);
+ assert.equal(rallyViewStep(view,false),true);assert.equal(rallyViewStep(view,true),false);
+});
+test('opponents anticipate hairpins, exceed the old top speed and change lanes to pass slower traffic',()=>{
+ const road=rallyRoad(RALLY_COURSES[0]),race=newRallyRace(road);let fastest=0,passing=false,laneTravel=0;
+ const car=race.opponents[3],f=rallySample(road,20,0);Object.assign(car,f,{travel:20,lane:0,speed:26});Object.assign(race.player,rallySample(road,33,0),{travel:33,previous:33,speed:5});
+ for(let i=0;i<600;i++){rallyStep(race,road,{},1/60);fastest=Math.max(fastest,...race.opponents.map(c=>c.speed));passing ||= race.opponents.some(c=>c.overtaking);laneTravel=Math.max(laneTravel,Math.abs(car.lane));}
+ assert.ok(passing);assert.ok(fastest>25);assert.ok(laneTravel>1);
+ const alpine=rallyRoad(RALLY_COURSES[2]);const speeds=Array.from({length:100},(_,i)=>rallyCornerPlan(alpine,i/100*alpine.length,38).speed);assert.ok(Math.min(...speeds)<18);assert.ok(Math.max(...speeds)>30);
+});
+test('Alpine terrain has mountains and a continuous road cutting below the asphalt',()=>{
+ const course=RALLY_COURSES[2],road=rallyRoad(course),geo=rallyTerrain(course,road,true),pos=geo.attributes.position;let maximum=-Infinity;
+ for(let i=0;i<pos.count;i++){maximum=Math.max(maximum,pos.getY(i));const f=rallyProject(road,pos.getX(i),pos.getZ(i));if(f.distance<course.width/2+8)assert.ok(pos.getY(i)<f.y-.7);}
+ assert.ok(maximum>110);assert.ok(mountainHeight(course,155,115)>120);assert.ok(Math.max(...road.points.map(p=>p.y))>64);geo.dispose();
 });

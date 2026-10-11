@@ -1,5 +1,5 @@
 """Test the actual installed React desktop window and Python bridge."""
-import sys, time, os
+import sys, time, os, base64
 from pathlib import Path
 sys.path.insert(0, str(Path.cwd()))
 from beebright_local.app import run
@@ -14,6 +14,16 @@ def wait(w,expr):
     try: print(w.evaluate_js("JSON.stringify({url:location.href,text:document.body.innerText.slice(0,1600)})"))
     except Exception: pass
     raise AssertionError(expr)
+def capture(w,name):
+    if not os.environ.get('RUNNER_TEMP'): return
+    w.evaluate_js("window.beeCapture=null;requestAnimationFrame(()=>{window.beeCapture=document.querySelector('canvas').toDataURL('image/png');})")
+    wait(w,"typeof window.beeCapture==='string' && window.beeCapture.startsWith('data:image/png;base64,')")
+    data=base64.b64decode(w.evaluate_js("window.beeCapture.split(',')[1]"))
+    assert len(data)>20000, 'Racing screenshot is unexpectedly blank'
+    folder=Path(os.environ['RUNNER_TEMP'])/'bee-racing-views';folder.mkdir(exist_ok=True)
+    mode='browser' if os.environ.get('BEEBRIGHT_TEST_LOCAL_WEB') else 'desktop'
+    (folder/f'{mode}-{name}.png').write_bytes(data)
+
 def test(w):
     try:
         if os.environ.get('BEEBRIGHT_TEST_GAME_MENU'):
@@ -41,7 +51,7 @@ def test(w):
             # Force embedded WebView to deny WebGL; the same 3D games must still run.
             w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
             wait(w,"document.querySelectorAll('.game-card').length===8")
-            w.evaluate_js("window.beeGetContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type==='webgl2'?null:window.beeGetContext.call(this,type,...args);}")
+            w.evaluate_js("window.beeGpu=navigator.gpu;Object.defineProperty(navigator,'gpu',{value:undefined,configurable:true});window.beeGetContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type==='webgl2'?null:window.beeGetContext.call(this,type,...args);}")
             for title in ['Neon Rally','Marble Run 3D','Space Survival 3D']:
                 w.evaluate_js("Array.from(document.querySelectorAll('.game-card')).find(c=>c.querySelector('h2').innerText==="+repr(title)+").querySelector('button').click()")
                 wait(w,"document.querySelector('.game-overlay .primary')!==null && !document.querySelector('.game-overlay .primary').disabled")
@@ -51,7 +61,7 @@ def test(w):
                 time.sleep(.3)
                 w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
                 wait(w,"document.querySelectorAll('.game-card').length===8")
-            w.evaluate_js("HTMLCanvasElement.prototype.getContext=window.beeGetContext")
+            w.evaluate_js("HTMLCanvasElement.prototype.getContext=window.beeGetContext;Object.defineProperty(navigator,'gpu',{value:window.beeGpu,configurable:true});")
             assert studio.read('progress.json')==previous and studio.read('studio.json', {})==history
             print('Local diagnostic menu, course selection, Settings pause, keyboard release, progress preservation and three software 3D games passed.')
             return
@@ -125,6 +135,21 @@ def test(w):
             time.sleep(.4)
             assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes("+repr(['Harbor Circuit','Canyon Switchback','Alpine Hairpins','Midnight Metro'][track])+")")
             assert w.evaluate_js("/Place [1-5]\\/5/.test(document.querySelector('.arcade-player-bar').innerText) && document.querySelector('.arcade-player-bar').innerText.includes('Hill')")
+            assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes('Chase')")
+            print('Rally renderer:',w.evaluate_js("document.querySelector('.game-graphics').innerText"))
+            capture(w,f'track-{track}-chase')
+            w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keydown',{key:'r'}))")
+            wait(w,"document.querySelector('.arcade-player-bar').innerText.includes('Cockpit')")
+            for repeat in range(3):
+                w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keydown',{key:'r',repeat:true}))")
+                time.sleep(.1)
+                assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes('Cockpit')")
+            capture(w,f'track-{track}-cockpit')
+            w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keyup',{key:'r'}))")
+            time.sleep(.1)
+            w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keydown',{key:'R'}))")
+            wait(w,"document.querySelector('.arcade-player-bar').innerText.includes('Chase')")
+            w.evaluate_js("window.dispatchEvent(new KeyboardEvent('keyup',{key:'R'}))")
             w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
             wait(w,"document.querySelectorAll('.game-card').length===8")
         # Start every revised Marble course in High quality and move the follow camera.

@@ -1,5 +1,13 @@
 # BeeBright releases
 
+## 2.4 fixed
+
+- Original logo-free GT cars with long bonnets, fastback roofs, wide wheel haunches, detailed wheels and a driving cockpit.
+- Press R or use Camera (R) to switch cockpit and chase views. Holding the key does not repeatedly switch views.
+- Longer, tougher Harbor, Canyon, Alpine and Midnight tracks. Alpine roads wind around sculpted mountains and climb to a 65-metre pass.
+- Faster opponents use corner braking, changing racing lines and traffic-aware overtaking. Player cars gain stronger acceleration and a higher top speed.
+- High quality racing gains an optional WebGPU renderer, reflective clearcoat paint, softer shadows and richer roadside scenery. WebGL 2 and software 3D remain fallbacks.
+
 ## 2.4 bugfix
 
 - Replace overlapping Marble Run ramp boxes and turning pads with one connected track mesh. Rendered faces and sphere collision use the same triangles; open edges and jump gaps remain real.
