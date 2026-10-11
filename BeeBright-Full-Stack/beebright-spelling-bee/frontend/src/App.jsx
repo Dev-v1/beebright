@@ -443,16 +443,15 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
                 {mode === "type" && <h2 className="question-title">Type the word you hear.</h2>}
 
                 {mode === "choice" ? (
-                  <div className="choice-wrap">
+                  <div className={`choice-wrap${feedback ? ' is-answered' : ''}`}>
                     {feedback && <div className={`feedback ${feedback}`} role="status" aria-live="polite"><div className="feedback-copy"><span>{feedback === 'correct' ? <Check size={18}/> : <X size={18}/>}</span><div><strong>{feedback === 'correct' ? 'Correct' : 'Incorrect'}</strong><p>Correct spelling: <b className="correct-spelling">{currentWord}</b></p><p>Your choice: <em>{answer}</em></p></div></div></div>}
                     <div className="choices">
                       {choices.map((choice, choiceIndex) => {
                         const isCorrectChoice = feedback && choice.toLowerCase() === currentWord.toLowerCase();
                         const isWrongChoice = feedback === "incorrect" && answer === choice;
-                        return <button key={`${choice}-${choiceIndex}`} className={`${answer === choice ? "picked " : ""}${isCorrectChoice ? "right " : ""}${isWrongChoice ? "wrong" : ""}`} disabled={Boolean(feedback)} onClick={() => setAnswer(choice)}><b>{String.fromCharCode(65 + choiceIndex)}</b>{choice}</button>;
+                        return <button key={`${choice}-${choiceIndex}`} className={`${answer === choice ? "picked " : ""}${isCorrectChoice ? "right " : ""}${isWrongChoice ? "wrong" : ""}`} disabled={Boolean(feedback)} onClick={() => checkAnswer(choice)}><b>{String.fromCharCode(65 + choiceIndex)}</b>{choice}</button>;
                       })}
                     </div>
-                    {!feedback && <button className="primary check-button" disabled={!answer} onClick={() => checkAnswer()}>Check answer</button>}
                   </div>
                 ) : (
                   <div className="type-row"><input autoFocus value={answer} onChange={(event) => setAnswer(event.target.value)} onKeyDown={(event) => event.key === "Enter" && checkAnswer()} placeholder="Type your spelling here" disabled={Boolean(feedback)} /><button className="primary" onClick={() => checkAnswer()}>Check answer</button></div>

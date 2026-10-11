@@ -109,7 +109,10 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .question-title, .prompt-sentence { margin: 30px 0 24px; font: 400 43px/1.12 "Libre Caslon Display", Georgia, serif; letter-spacing: -1.5px; }
 .prompt-sentence { font-size: 36px; line-height: 1.25; }
 .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
-.choice-wrap > .feedback { margin: 0 0 18px; }
+.choice-wrap { position: relative; isolation: isolate; }
+.choice-wrap > .feedback { position: absolute; top: 50%; left: 50%; z-index: 3; width: min(400px, calc(100% - 20px)); margin: 0; transform: translate(-50%, -50%); border: 1px solid #94bba0; box-shadow: 0 18px 45px #17333a40, 0 3px 9px #17333a26; }
+.choice-wrap > .feedback.incorrect { border-color: #dcae9e; }
+.choice-wrap.is-answered .choices { opacity: .24; filter: blur(1px); }
 .feedback-copy .correct-spelling { display: block; margin-top: 4px; color: var(--ink); font-size: 22px; }
 .choice-next { margin-top: 22px; }
 .choices button { display: flex; align-items: center; gap: 13px; min-height: 64px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--ink); font-weight: 600; text-align: left; }
@@ -117,7 +120,6 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .choices button.right { border: 2px solid #5e9c6d; background: #e7f4e9; }
 .choices button.wrong { border: 2px solid var(--coral); background: #fff0eb; }
 .choices b { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid #bac6c0; border-radius: 50%; color: #67777a; font-size: 10px; }
-.check-button { margin-top: 16px; }
 .type-row { display: flex; gap: 10px; }
 .type-row input { flex: 1; min-width: 0; padding: 16px 18px; border: 1px solid #bdc9c3; border-radius: 9px; background: white; color: var(--ink); outline-color: var(--ink); }
 .hint-controls { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 31px; }
