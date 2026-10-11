@@ -28,13 +28,13 @@ export function buildRallyCar({high,paint,mesh,mat,parent}){
  // Muscular wheel haunches and a short fastback rear are present in both quality modes.
  for(const x of [-1.28,1.32])for(const z of [-.82,.82]){const f=mesh(new THREE.SphereGeometry(.6,high?24:10,high?14:6),paint,x,.59,z,parent);f.scale.set(1,.54,.36);}
  const canopy=new THREE.Group();parent.add(canopy);const glassPanes=[];
- const glassSections=[[-1.55,.76,.78],[-.90,.73,1.43],[.04,.73,1.46],[.78,.79,.80]];
+ const glassSections=[[-1.55,.76,.78],[-1.02,.73,1.55],[-.21,.73,1.58],[.78,.79,.80]];
  for(let i=0;i<glassSections.length-1;i++){const [x0,w0,h0]=glassSections[i],[x1,w1,h1]=glassSections[i+1],v=[];
   for(const [x,w,h] of [[x0,w0,h0],[x1,w1,h1]])v.push(x,h,-w,x,h,w,x,.79,-w,x,.79,w);
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setIndex([0,1,4,1,5,4,0,4,2,2,4,6,1,3,5,3,7,5]);g.computeVertexNormals();const pane=mesh(g,glass,0,0,0,canopy);pane.material.side=THREE.DoubleSide;glassPanes.push(pane);
  }
- const roof=mesh(round(1.02,.065,1.49,.035),paint,-.43,1.465,0,canopy);roof.name='solid-gt-roof';
- for(const z of [-1,1]){rod([.78,.8,z*.79],[.04,1.46,z*.73],.026,paint,canopy);rod([-.9,1.43,z*.73],[-1.57,.79,z*.76],.032,paint,canopy);rod([-.90,.8,z*.79],[-.90,1.43,z*.73],.018,trim,canopy);mesh(round(.27,.12,.18,.05),paint,.38,.96,z*.98,parent);}
+ const roof=mesh(round(.88,.065,1.49,.035),paint,-.62,1.585,0,canopy);roof.name='solid-gt-roof';
+ for(const z of [-1,1]){rod([.78,.8,z*.79],[-.21,1.58,z*.73],.026,paint,canopy);rod([-1.02,1.55,z*.73],[-1.57,.79,z*.76],.032,paint,canopy);rod([-1.02,.8,z*.79],[-1.02,1.55,z*.73],.018,trim,canopy);mesh(round(.27,.12,.18,.05),paint,.38,.96,z*.98,parent);}
  mesh(round(.12,.27,1.42,.06),trim,2.24,.46,0,parent);
  mesh(round(.09,.19,1.12,.035),rubber,2.32,.52,0,parent);
  if(high)for(let j=0;j<13;j++)mesh(round(.025,.15,.023,.008),alloy,2.375,.53,(j-6)*.075,parent);
@@ -86,10 +86,10 @@ export function buildRallyCar({high,paint,mesh,mat,parent}){
  function hand(group){const palm=mesh(new THREE.SphereGeometry(.038,12,8),glove,0,0,0,group);palm.scale.set(.9,1.2,.65);for(let i=0;i<4;i++)mesh(round(.013,.041,.016,.006),glove,.021-i*.015,.025,-.015,group);mesh(round(.075,.045,.048,.018),suit,-.075,-.01,0,group);}
  hand(leftHand);hand(rightHand);
  const cockpitFrame=new THREE.Group();interior.add(cockpitFrame);
- for(const z of [-1,1]){rod([.78,.86,z*.79],[.04,1.44,z*.73],.020,leather,cockpitFrame);mesh(round(.98,.035,.045,.01),leather,-.43,1.425,z*.71,cockpitFrame);}
+ for(const z of [-1,1]){rod([.78,.86,z*.79],[-.21,1.56,z*.73],.020,leather,cockpitFrame);mesh(round(.86,.035,.045,.01),leather,-.62,1.545,z*.71,cockpitFrame);}
  // Interior rear-view mirror, roof liner and sun visors, without hiding the road.
- mesh(round(1.02,.025,1.45,.015),leather,-.43,1.425,0,cockpitFrame);mesh(round(.07,.055,.19,.012),alloy,.24,1.35,0,cockpitFrame);
- for(const z of [-.40,.40])mesh(round(.15,.016,.25,.006),leather,-.01,1.40,z,cockpitFrame);
+ mesh(round(.88,.025,1.45,.015),leather,-.62,1.545,0,cockpitFrame);mesh(round(.07,.055,.19,.012),alloy,.13,1.45,0,cockpitFrame);
+ for(const z of [-.40,.40])mesh(round(.15,.016,.25,.006),leather,-.25,1.52,z,cockpitFrame);
  function setCockpit(active){canopy.visible=true;roof.visible=true;interior.visible=active;for(const pane of glassPanes)pane.visible=!active;}
  function animate(state,dt,navigation){
   steering.rotation.z=-(state.steer||0)*.85;
