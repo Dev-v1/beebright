@@ -9,6 +9,7 @@ test('origins describe attested routes in chronological order without historical
  assert.equal(languageOrigin('From Middle English sky, from Old Norse ský (whence Old English scēo), from Proto-Germanic *skiwją. Cognates include German.' ,'sky'),'Proto-Germanic → Old Norse → Middle English → English.');
  assert.ok(!languageOrigin('Borrowed from Japanese.', 'Japanese').includes('Japanese'));
  assert.ok(languageOrigin('From Dutch or Low German.').includes('does not establish one borrowing sequence'));
+ assert.equal(languageOrigin('From Middle French théorème, from Late Latin theōrēma, from Ancient Greek θεώρημα.'),'Ancient Greek → Late Latin → Middle French → English.');
 });
 test('natural English voices are preferred and offline speech cannot select a cloud voice',()=>{
  const voices=[{name:'System',lang:'en-US',voiceURI:'system',localService:true,default:true},{name:'Natural',lang:'en-US',voiceURI:'cloud',localService:false},{name:'Enhanced',lang:'en-US',voiceURI:'enhanced',localService:true}];

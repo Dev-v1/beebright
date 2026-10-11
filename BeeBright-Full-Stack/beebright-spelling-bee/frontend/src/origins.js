@@ -9,13 +9,13 @@ export function languageOrigin(raw,word=''){
  // A generated etymology tree can list branches and cognates, not a single route.
  const prose=text.split('\n').find(line=>/^(?:From |Borrowed |Inherited |Derived |The .+?derived |The name |Formed |Named |Coined )/i.test(line));
  if(prose)text=prose;
- let depth=0;text=[...text].filter(c=>{if(c==='('||c==='['){depth++;return false;}if(c===')'||c===']'){depth=Math.max(0,depth-1);return false;}return !depth;}).join('');
+ while(/\([^()]*\)|\[[^\[\]]*\]/u.test(text))text=text.replace(/\([^()]*\)|\[[^\[\]]*\]/gu,group=>/^\(\s*from\s/iu.test(group)?group.slice(1,-1):'');
  text=text.split(/\b(?:Cognates?|Compare|Displaced|Doublet|See also|Related to)\b/i)[0].split(/(?<=[.!?])\s+(?=[A-Z])/)[0];
  const matches=[...text.matchAll(pattern)],languages=[...new Set(matches.map(m=>names.find(n=>n.toLowerCase()===m[0].toLowerCase())))];
  const historical=languages.filter(l=>l!=='English');
  let result;
  if(!historical.length)result=/English|shortened|shortening|clipping|compound|suffix|prefix|onomatop|exclamation/i.test(text)?'Formed in English.':'Earlier language history is uncertain.';
- else if(/\bor\b|\band\b|compound|combines|blend|formation|formed|coined/i.test(text)&&historical.length>1)result=`Language elements: ${historical.join(' + ')} → English. The source does not establish one borrowing sequence.`;
+ else if(/(?<!\p{L})(?:or|and)(?!\p{L})|compound|combines|blend|formation|formed|coined/iu.test(text)&&historical.length>1)result=`Language elements: ${historical.join(' + ')} → English. The source does not establish one borrowing sequence.`;
  else{
   const forward=/\b(?:through|via)\b/i.test(text)&&matches.length>1&&/\bfrom\b/i.test(text.slice(0,matches[0].index));
   const route=forward?historical:[...historical].reverse();

@@ -14,7 +14,7 @@ def language_origin(raw: str, word: str = '') -> str:
     if prose:
         text = prose
     while re.search(r'\([^()]*\)|\[[^\[\]]*\]',text):
-        text = re.sub(r'\([^()]*\)|\[[^\[\]]*\]','',text)
+        text = re.sub(r'\([^()]*\)|\[[^\[\]]*\]',lambda m:m[0][1:-1] if re.match(r'\(\s*from\s',m[0],re.I) else '',text)
     text = re.split(r'\b(?:Cognates?|Compare|Displaced|Doublet|See also|Related to)\b',text,flags=re.I)[0]
     text = re.split(r'(?<=[.!?])\s+(?=[A-Z])',text)[0]
     matches = list(PATTERN.finditer(text))
