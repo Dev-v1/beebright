@@ -6,6 +6,12 @@ import {rallyRoad,rallySample,rallyProject,rallyProgress,newRallyRace,rallyStep,
 import {rallyRibbon,buildRallyCar} from './games-rally.js';
 import {rallyTerrain,mountainHeight} from './rally-terrain.js';
 import {marbleBoardGeometry} from './track-geometry.js';
+import {rallyNavigation} from './rally-car.js';
+test('navigation follows every car and reports the nearest opponent behind across lap progress',()=>{
+ const road=rallyRoad(RALLY_COURSES[0]),race=newRallyRace(road);race.player.travel=road.length+10;race.opponents[0].travel=road.length+2;
+ const before=rallyNavigation(road,race);assert.equal(before.markers.length,5);assert.equal(before.markers[1].gap,-8);assert.ok(before.path.every(p=>p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1));
+ Object.assign(race.opponents[0],rallySample(road,180),{travel:road.length+180});const after=rallyNavigation(road,race);assert.notDeepEqual(after.markers[1],before.markers[1]);assert.equal(after.markers[1].gap,170);assert.equal(after.markers[0].player,true);
+});
 test('racing roads are wider, genuinely inclined, and retain consistent projection',()=>{
  for(const course of RALLY_COURSES){const road=rallyRoad(course);assert.ok(course.width>=18);assert.ok(road.length>680);assert.equal(course.heights.length,course.points.length);assert.ok(Math.max(...course.heights)-Math.min(...course.heights)>=3);
   for(let d=0;d<road.length;d+=2){const f=rallySample(road,d),hit=rallyProject(road,f.x,f.z);assert.ok(hit.distance<1e-7);assert.ok(Math.abs(hit.y-f.y)<1e-7);assert.ok(Math.abs(hit.progress-f.progress)<1e-7);}
@@ -38,6 +44,8 @@ test('reverse does not award checkpoints, opponents collide, and missed gates bl
 test('all High quality cars have curved bodies, reflective glass, and independently steering wheels',()=>{
  const group=new THREE.Group(),geometries=[],materials=[];const mat=color=>{const m=new THREE.MeshStandardMaterial({color});materials.push(m);return m;};const mesh=(g,m,x=0,y=0,z=0,parent=group)=>{geometries.push(g);const node=new THREE.Mesh(g,m);node.position.set(x,y,z);parent.add(node);return node;};
  const paint=new THREE.MeshPhysicalMaterial({color:'#d84e71',clearcoat:1}),car=buildRallyCar({high:true,paint,mesh,mat,parent:group});assert.equal(car.wheels.length,4);assert.equal(car.wheels.filter(w=>w.front).length,2);car.body.computeBoundingBox();assert.ok(car.body.boundingBox.max.x-car.body.boundingBox.min.x>4.4);assert.ok(car.body.attributes.position.count>200);assert.ok(car.canopy.children.length>=8);assert.ok(car.interior.children.length>=6);assert.equal(car.body.index.count%3,0);assert.ok(geometries.some(g=>g.type==='SphereGeometry'));assert.ok(materials.some(m=>m.roughness<.15));
+ car.setCockpit(true);assert.equal(car.roof.visible,true);assert.equal(car.canopy.visible,true);assert.ok(car.glassPanes.every(p=>!p.visible));assert.equal(car.interior.visible,true);assert.ok(car.roof.position.y>1.4);
+ car.setCockpit(false);assert.equal(car.roof.visible,true);assert.ok(car.glassPanes.every(p=>p.visible));assert.equal(car.interior.visible,false);
  for(const g of geometries)g.dispose();for(const m of materials)m.dispose();paint.dispose();
 });
 test('marble board geometry has positive top normals and no duplicated triangle faces',()=>{
