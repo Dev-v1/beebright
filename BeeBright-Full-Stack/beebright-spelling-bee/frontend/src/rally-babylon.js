@@ -43,7 +43,7 @@ export async function createRallyRenderer(canvas,onGraphics){
  const color=c=>new Color3(c?.r??1,c?.g??1,c?.b??1);
  function texture(source){if(!source)return null;if(textures.has(source))return textures.get(source);const image=source.image;let result;
   if(image?.data){result=new RawTexture(image.data,image.width,image.height,Constants.TEXTUREFORMAT_RGBA,scene,true,false,Texture.TRILINEAR_SAMPLINGMODE);}
-  else if(image?.getContext){result=new DynamicTexture('instrument-screen',image,scene,true);dynamic.push(result);result.update(false);}
+  else if(image?.getContext){result=new DynamicTexture('instrument-screen',image,scene,true);dynamic.push(result);result.update(true);}
   if(result){result.wrapU=source.wrapS===1000?Texture.WRAP_ADDRESSMODE:Texture.CLAMP_ADDRESSMODE;result.wrapV=source.wrapT===1000?Texture.WRAP_ADDRESSMODE:Texture.CLAMP_ADDRESSMODE;result.uScale=source.repeat?.x??1;result.vScale=source.repeat?.y??1;textures.set(source,result);}return result;
  }
  function material(source){if(materials.has(source))return materials.get(source);const m=new PBRMaterial('gt-material',scene);m.albedoColor=color(source.color);m.metallic=source.metalness??0;m.roughness=source.roughness??.7;m.emissiveColor=color(source.emissive).scale(source.emissiveIntensity??0);m.alpha=source.opacity??1;m.backFaceCulling=source.side!==2;m.sideOrientation=Material.CounterClockWiseSideOrientation;m.useVertexColors=Boolean(source.vertexColors);m.albedoTexture=texture(source.map);m.emissiveTexture=texture(source.emissiveMap);m.bumpTexture=texture(source.bumpMap);if(m.bumpTexture)m.bumpTexture.level=source.bumpScale??.02;
@@ -61,7 +61,7 @@ export async function createRallyRenderer(canvas,onGraphics){
   if(!initialized){convert(source);initialized=true;}
   for(const [object,target] of objects){target.position.set(object.position.x,object.position.y,object.position.z);target.scaling.set(object.scale.x,object.scale.y,object.scale.z);target.rotationQuaternion=new Quaternion(object.quaternion.x,object.quaternion.y,object.quaternion.z,object.quaternion.w);target.setEnabled(object.visible);}
   for(const [source,m] of materials)m.emissiveColor=color(source.emissive).scale(source.emissiveIntensity??0);
-  for(const texture of dynamic)texture.update(false);
+  for(const texture of dynamic)texture.update(true);
   camera.position.set(view.position.x,view.position.y,view.position.z);camera.rotationQuaternion=new Quaternion(view.quaternion.x,view.quaternion.y,view.quaternion.z,view.quaternion.w);camera.fov=view.fov*Math.PI/180;camera.minZ=view.near;
   const directional=source.children.find(child=>child.isDirectionalLight);if(directional){sun.position.set(directional.position.x,directional.position.y,directional.position.z);const t=directional.target.position;sun.direction=new Vector3(t.x-sun.position.x,t.y-sun.position.y,t.z-sun.position.z).normalize();sun.diffuse=color(directional.color);sun.intensity=directional.intensity*.85;}
   const bg=source.fog?.color;scene.clearColor=new Color4(bg?.r??.4,bg?.g??.6,bg?.b??.8,1);scene.fogMode=Scene.FOGMODE_LINEAR;scene.fogColor=color(bg);scene.fogStart=source.fog?.near??180;scene.fogEnd=source.fog?.far??540;
