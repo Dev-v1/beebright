@@ -44,7 +44,7 @@ from app.models import (
 )
 from app.services.practice_core import shuffled_words
 from app.services.distractors import generate_distractors, shuffled_options
-from app.services.merriam_webster import lookup_word
+from app.services.merriam_webster import lookup_word, lookup_pronunciation
 from app.services.pdf_parser import LEVEL_LABELS, parse_pdf
 
 
@@ -111,7 +111,7 @@ WORD_DISTRACTORS = load_distractors()
 
 
 def word_item(word: str, level: str, source: str = "2024 Words of the Champions") -> WordItem:
-    wrong = WORD_DISTRACTORS.get(word) or generate_distractors(word)
+    wrong = generate_distractors(word)
     return WordItem(
         word=word,
         level=level,
@@ -276,6 +276,13 @@ def dictionary(word: str):
     except Exception as exc:
         raise HTTPException(status_code=502, detail="Dictionary service is temporarily unavailable.") from exc
 
+
+@app.get('/api/pronunciation/{word}')
+def pronunciation(word: str):
+    clean=word.strip()
+    if not clean or len(clean)>80:
+        raise HTTPException(status_code=400,detail='Invalid word.')
+    return lookup_pronunciation(clean)
 
 @app.post("/api/admin/word-lists/import", response_model=WordListSummary)
 @app.post("/api/import-pdf", response_model=WordListSummary, deprecated=True)

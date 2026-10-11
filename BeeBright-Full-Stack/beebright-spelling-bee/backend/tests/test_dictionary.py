@@ -31,7 +31,7 @@ def test_primary_homograph_is_used_even_if_response_is_reordered():
     ], 'bronze')
     assert result['definition'] == 'An alloy of copper and tin.'
     assert result['sentence'] == 'The statue was cast in ___.'
-    assert 'Italian bronzo' in result['origin']
+    assert result['origin'] == 'Italian → French → English.'
 
 
 def test_origin_link_text_is_preserved():
@@ -52,3 +52,17 @@ def test_inflected_example_does_not_change_the_expected_answer():
 def test_incomplete_text_is_not_turned_into_a_fake_complete_sentence():
     result = _safe_dictionary_result({'sentence': 'A statue made of bronze'}, 'bronze')
     assert 'not yet available' in result['sentence']
+
+def test_recorded_audio_requires_an_exact_headword_or_explicit_inflection():
+    from app.services.merriam_webster import _audio_from_payload
+    main=entry('bronze','An alloy.');main['hwi']={'prs':[{'sound':{'audio':'bronze01'}}]}
+    assert _audio_from_payload([main],'bronze')['audio_url'].endswith('/b/bronze01.mp3')
+    assert _audio_from_payload([main],'bronzed')['audio_url']==''
+    main['uros']=[{'ure':'bronzed','prs':[{'sound':{'audio':'bronzed01'}}]}]
+    assert _audio_from_payload([main],'bronzed')['audio_url'].endswith('/b/bronzed01.mp3')
+
+def test_origins_do_not_leak_roots_cognates_or_uncertain_borrowing_routes():
+    from app.services.origins import language_origin
+    assert language_origin('From Middle English sky, from Old Norse ský (whence Old English scēo), from Proto-Germanic *skiwją. Cognates include German.','sky')=='Proto-Germanic → Old Norse → Middle English → English.'
+    assert language_origin('From Greek via Latin.')=='Greek → Latin → English.'
+    assert 'one borrowing sequence' in language_origin('From Dutch or Low German.')

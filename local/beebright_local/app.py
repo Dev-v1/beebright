@@ -151,7 +151,7 @@ class DesktopApi:
         if not isinstance(word, str) or (word not in self._hints and word not in {'compliment','complement','accept','except','principal','principle','stationary','stationery','desert','dessert','peace','piece','their','there','weather','whether'}):
             raise ValueError('Unknown practice word.')
         audio = (studio.read('studio.json', {}) or {}).get('audio', {})
-        rate = min(1.5, max(.3, float(audio.get('rate', .72))))
+        rate = min(1.5, max(.3, float(audio.get('rate', 1))))
         voice = str(audio.get('voice', ''))
         volume = min(100, max(0, round(float(audio.get('volume', 1))*100)))
         # Pass words and voice names on stdin, never through command interpolation.

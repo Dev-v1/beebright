@@ -1,6 +1,8 @@
 import { PracticeTools, useStudio } from "./studio.jsx";
 import { breakAfter } from "./arcade-core.js";
-import { practiceSetSize } from "./studio-core.js";
+import { practiceSetSize, prepareChoiceWords } from "./studio-core.js";
+import { languageOrigin } from "./origins.js";
+import { speakBrowser } from "./speech.js";
 import release from '../../../../local/release.json';
 import { desktopSpeak } from "./local-api.js";
 import { hideSpelling, sentenceHint } from "./hints.js";
@@ -26,6 +28,7 @@ import {
 import {
   deleteSavedProgress,
   getDictionary,
+  getPronunciation,
   getPracticeSet,
   getSavedProgress,
   getWordLists,
@@ -56,16 +59,6 @@ function labelForLevel(key) {
   return ({ one_bee: "One Bee", two_bee: "Two Bee", three_bee: "Three Bee", random: "Random" })[key] || key;
 }
 
-function speakWithBrowser(word, audioSettings = {}) {
-  if (!("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(word);
-  utterance.rate = audioSettings.rate || 0.72;
-  utterance.volume = audioSettings.volume ?? 1;
-  utterance.voice = window.speechSynthesis.getVoices().find(v => v.voiceURI === audioSettings.voice) || null;
-  window.speechSynthesis.speak(utterance);
-}
-
 function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMode = false, inactive = false }) {
   const studio = useStudio(userId, localMode);
   const [feature, setFeature] = useState(() => localMode ? new URLSearchParams(window.location.search).get('feature') || '' : '');
@@ -93,6 +86,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   const [feedback, setFeedback] = useState(null);
   const [revealed, setRevealed] = useState(false);
   const [dictionary, setDictionary] = useState(EMPTY_DICTIONARY);
+  const [pronunciation, setPronunciation] = useState(null);
   const [hint, setHint] = useState(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -150,6 +144,13 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
     return () => { cancelled = true; };
   }, [currentWord, screen]);
 
+  useEffect(()=>{
+    setPronunciation(null);let stopped=false;
+    audioRef.current?.pause();audioRef.current=null;window.speechSynthesis?.cancel();
+    if(currentWord&&screen==='practice'&&!localMode)getPronunciation(currentWord).then(result=>!stopped&&setPronunciation(result)).catch(()=>{});
+    return ()=>{stopped=true;audioRef.current?.pause();audioRef.current=null;window.speechSynthesis?.cancel();};
+  },[currentWord,screen,localMode]);
+
   useEffect(() => {
     if (!["practice", "break"].includes(screen) || !words.length) return;
     const session = {
@@ -188,7 +189,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   function preparedPractice(config) {
     answerLockRef.current = false;
     transitionLockRef.current = false; setBreakState(null);
-    setWords(config.words); setMode(config.mode); setLevel(config.level); setWordListId(config.listId);
+    setWords(prepareChoiceWords(config.words)); setMode(config.mode); setLevel(config.level); setWordListId(config.listId);
     setIndex(0); setCorrect(0); setStreak(0); setBestStreak(0); setSetOffset(0);
     setAnswer(''); setFeedback(null); setRevealed(false); setHint(null);
     setShuffleSeed(null); const {words: _selectedWords, ...context} = config; setPracticeContext(context); setDuelScore([0,0]);
@@ -196,16 +197,18 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   }
 
   function playWord() {
-    if (localMode) { desktopSpeak(currentWord).catch(() => setMessage("Your local speech voice is unavailable.")); return; }
-    if (dictionary.word === currentWord && dictionary.audio_url && !studio.data.audio.voice) {
+    if (localMode) { if(!speakBrowser(currentWord,studio.data.audio,true))desktopSpeak(currentWord).catch(() => setMessage("Your local speech voice is unavailable.")); return; }
+    const recording=pronunciation?.word===currentWord?pronunciation.audio_url:dictionary.word===currentWord?dictionary.audio_url:'';
+    if (recording && !studio.data.audio.voice) {
       if (audioRef.current) audioRef.current.pause();
-      const audio = new Audio(dictionary.audio_url);
-      audio.playbackRate = studio.data.audio.rate / .72;
+      window.speechSynthesis?.cancel();
+      const audio = new Audio(recording);
+      audio.playbackRate = studio.data.audio.rate;
       audio.volume = studio.data.audio.volume;
       audioRef.current = audio;
-      audio.play().catch(() => speakWithBrowser(currentWord, studio.data.audio));
+      audio.play().catch(() => {if(audioRef.current===audio)speakBrowser(currentWord, studio.data.audio);});
     } else {
-      speakWithBrowser(currentWord, studio.data.audio);
+      speakBrowser(currentWord, studio.data.audio);
     }
   }
 
@@ -218,7 +221,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
       setPracticeContext(null);
       transitionLockRef.current = false; setBreakState(null);
       answerLockRef.current = false;
-      setWords(selectedWords);
+      setWords(prepareChoiceWords(selectedWords));
       setSetOffset(response.offset);
       setShuffleSeed(response.shuffle_seed || null);
       setIndex(0);
@@ -335,7 +338,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   const progress = words.length ? ((index + 1) / words.length) * 100 : 0;
   const visibleDictionary = dictionary.word === currentWord ? dictionary : EMPTY_DICTIONARY;
   const safeDefinition = hideSpelling(visibleDictionary.definition, currentWord, "[the target word]");
-  const safeOrigin = hideSpelling(visibleDictionary.origin, currentWord, "[same spelling]");
+  const safeOrigin = languageOrigin(visibleDictionary.origin, currentWord);
   const safeSentence = sentenceHint(visibleDictionary.sentence, currentWord);
   const fillSentence = safeSentence;
   const safeHints = { definition: safeDefinition, origin: safeOrigin, sentence: safeSentence };
@@ -434,13 +437,14 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
               </div>
             ) : (
               <>
-                <button className="listen-card" onClick={playWord}><span><Volume2 size={19} /></span><div><strong>Listen closely</strong><small>{localMode ? "Your computer’s offline voice" : "Merriam-Webster audio when available"}</small></div></button>
+                <button className="listen-card" onClick={playWord}><span><Volume2 size={19} /></span><div><strong>Listen closely</strong><small>{localMode ? "Best available offline voice" : pronunciation?.audio_url ? "Merriam-Webster pronunciation" : "Best available English voice"}</small></div></button>
                 {mode === "blank" && <h2 className="prompt-sentence">{fillSentence}</h2>}
                 {mode === "choice" && <h2 className="question-title">Which spelling is correct?</h2>}
                 {mode === "type" && <h2 className="question-title">Type the word you hear.</h2>}
 
                 {mode === "choice" ? (
                   <div className="choice-wrap">
+                    {feedback && <div className={`feedback ${feedback}`} role="status" aria-live="polite"><div className="feedback-copy"><span>{feedback === 'correct' ? <Check size={18}/> : <X size={18}/>}</span><div><strong>{feedback === 'correct' ? 'Correct' : 'Incorrect'}</strong><p>Correct spelling: <b className="correct-spelling">{currentWord}</b></p><p>Your choice: <em>{answer}</em></p></div></div></div>}
                     <div className="choices">
                       {choices.map((choice, choiceIndex) => {
                         const isCorrectChoice = feedback && choice.toLowerCase() === currentWord.toLowerCase();
@@ -462,12 +466,13 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
 
                 {visibleDictionary.source_url && <p className="hint-attribution"><a href={visibleDictionary.source_url} target="_blank" rel="noreferrer">{visibleDictionary.source}</a>{visibleDictionary.license && <> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">{visibleDictionary.license}</a> · Adapted for spelling practice</>}{visibleDictionary.sentence_reference && <> · Example: {hideSpelling(visibleDictionary.sentence_reference, currentWord)}</>}</p>}
 
-                {feedback && (
+                {feedback && mode !== 'choice' && (
                   <div className={`feedback ${feedback}`}>
                     <div className="feedback-copy"><span>{feedback === "correct" ? <Check size={18} /> : <X size={18} />}</span><div><strong>{feedback === "correct" ? "Correct! Beautiful spelling." : "Not quite — let’s learn from it."}</strong>{feedback === "incorrect" && <p>You chose <em>{answer}</em> · Correct spelling: <b>{currentWord}</b></p>}</div></div>
                     <button onClick={nextQuestion}>{index === words.length - 1 ? "See results" : "Next word"}<ArrowRight size={15} /></button>
                   </div>
                 )}
+                {feedback && mode === 'choice' && <button className="primary choice-next" onClick={nextQuestion}>{index === words.length - 1 ? 'See results' : 'Next word'}<ArrowRight size={15}/></button>}
               </>
             )}
           </div>

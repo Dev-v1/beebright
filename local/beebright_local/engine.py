@@ -44,7 +44,7 @@ def check(session, answer):
 
 
 def choices_for(word, distractors):
-    return shuffled_options(word, distractors.get(word) or generate_distractors(word))
+    return shuffled_options(word, generate_distractors(word))
 
 
 def save_json(name, value):

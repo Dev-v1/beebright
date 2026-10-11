@@ -156,3 +156,37 @@ def lookup_word(word: str) -> dict:
         response = client.get(API_URL.format(word=quote(word, safe='')), params={'key': key})
         response.raise_for_status()
         return _from_payload(response.json(), word)
+
+def _audio_from_payload(payload: list, word: str) -> dict:
+    result = {'word':word, 'audio_url':'', 'pronunciation':'', 'source':'Merriam-Webster'}
+    for entry in payload:
+        if not isinstance(entry,dict):
+            continue
+        if _entry_word(entry)==word.casefold():
+            written,audio=_pronunciation(entry)
+            if audio:
+                return {**result,'audio_url':audio,'pronunciation':written}
+        # Only use inflection audio explicitly labeled for the requested form.
+        for inflection in entry.get('uros',[]):
+            if str(inflection.get('ure','')).replace('*','').casefold()==word.casefold():
+                for p in inflection.get('prs',[]):
+                    audio=_audio_url(p.get('sound',{}).get('audio',''))
+                    if audio:
+                        return {**result,'audio_url':audio,'pronunciation':p.get('mw','')}
+    return result
+
+@lru_cache(maxsize=8192)
+def lookup_pronunciation(word: str) -> dict:
+    """Keep offline hint lookup independent from optional recorded audio."""
+    from urllib.parse import quote
+    empty = {'word':word, 'audio_url':'', 'pronunciation':'', 'source':'Merriam-Webster'}
+    key=get_settings().merriam_webster_api_key.strip()
+    if not key:
+        return empty
+    try:
+        with httpx.Client(timeout=6.0) as client:
+            response=client.get(API_URL.format(word=quote(word,safe='')),params={'key':key})
+            response.raise_for_status()
+            return _audio_from_payload(response.json(),word)
+    except (httpx.HTTPError,ValueError,TypeError):
+        return empty
