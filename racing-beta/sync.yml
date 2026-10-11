@@ -1,0 +1,113 @@
+name: Sync racing fixes and publish Windows beta
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: racing-beta-publisher
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.sync.outputs.build }}
+      commit: ${{ steps.sync.outputs.commit }}
+      tag: ${{ steps.sync.outputs.tag }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Copy canonical racing code and detect changes
+        id: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/Dev-v1/beebright.git "$RUNNER_TEMP/canonical"
+          node "$RUNNER_TEMP/canonical/tools/export-racing.mjs" "$GITHUB_WORKSPACE"
+          HASH=$(node -p "JSON.parse(require('fs').readFileSync('source.json','utf8')).racingHash")
+          TAG="beta-0.1.0-${HASH:0:12}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src index.html main.js style.css vite.config.js package.json package-lock.json launcher.py README.md LICENSE source.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Sync canonical racing source ${HASH:0:12}"
+            git push origin HEAD:main
+          fi
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo 'build=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'build=true' >> "$GITHUB_OUTPUT"
+          fi
+  windows-release:
+    needs: sync
+    if: needs.sync.outputs.build == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ needs.sync.outputs.commit }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.14'
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: python -m pip install pywebview==6.2.1 pythonnet==3.2.0 pyinstaller==6.22.3 pip-licenses==5.5.0
+      - name: Bundle third-party license notices
+        shell: pwsh
+        run: |
+          Copy-Item node_modules/three/LICENSE dist/THREE-LICENSE.txt
+          Copy-Item node_modules/@babylonjs/core/license.md dist/BABYLON-LICENSE.txt
+          Copy-Item LICENSE dist/PROJECT-LICENSE.txt
+          python -c "import sys,shutil;from pathlib import Path;shutil.copyfile(Path(sys.base_prefix)/'LICENSE.txt','dist/PYTHON-LICENSE.txt')"
+          python -m piplicenses --with-license-file --no-license-path --format=plain-vertical --output-file=THIRD_PARTY_NOTICES.txt
+          if ($LASTEXITCODE -ne 0) { throw 'License notice generation failed' }
+          Copy-Item THIRD_PARTY_NOTICES.txt dist/THIRD_PARTY_NOTICES.txt
+      - run: python -m PyInstaller --noconfirm --onefile --hide-console hide-early --name Beta-Car-Racing-Game --collect-all webview --collect-all clr_loader --add-data "dist;dist" launcher.py
+      - name: Install official WebView2 if missing
+        shell: pwsh
+        run: |
+          $Found = (Get-ChildItem "${env:ProgramFiles(x86)}/Microsoft/EdgeWebView/Application/*/msedgewebview2.exe" -ErrorAction SilentlyContinue)
+          if (-not $Found) {
+            $Setup = Join-Path $env:RUNNER_TEMP 'webview2-setup.exe'
+            Invoke-WebRequest 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile $Setup
+            $Signature = Get-AuthenticodeSignature $Setup
+            if ($Signature.Status -ne 'Valid' -or $Signature.SignerCertificate.Subject -notmatch 'Microsoft Corporation') { throw 'Invalid Microsoft installer signature' }
+            $Process = Start-Process $Setup -ArgumentList '/silent','/install' -Wait -PassThru
+            if ($Process.ExitCode -notin @(0,3010)) { throw 'WebView2 installation failed' }
+          }
+      - name: Test the actual downloadable executable
+        shell: pwsh
+        env:
+          RACING_TEST_OUTPUT: ${{ runner.temp }}/racing-beta-views
+        run: |
+          & ./dist/Beta-Car-Racing-Game.exe --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'Frozen racing executable failed its UI test' }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: Tested-Windows-racing-beta
+          path: |
+            dist/Beta-Car-Racing-Game.exe
+            ${{ runner.temp }}/racing-beta-views/*.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish the private Windows prerelease
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.sync.outputs.tag }}
+        run: |
+          $Source = Get-Content source.json -Raw | ConvertFrom-Json
+          "Racing beta 0.1.0. Shared source: Dev-v1/beebright@$($Source.commit). Includes tested Windows executable, source ZIP and license notices. This unsigned beta requires Microsoft Edge WebView2 Runtime." | Set-Content release-notes.txt
+          Compress-Archive -Path src,index.html,main.js,style.css,vite.config.js,package.json,package-lock.json,launcher.py,README.md,LICENSE,source.json,THIRD_PARTY_NOTICES.txt -DestinationPath racing-source.zip
+          $Checksum = (Get-FileHash dist/Beta-Car-Racing-Game.exe -Algorithm SHA256).Hash.ToLower()
+          "$Checksum  Beta-Car-Racing-Game.exe" | Set-Content SHA256SUMS.txt
+          gh release create $env:RELEASE_TAG dist/Beta-Car-Racing-Game.exe racing-source.zip SHA256SUMS.txt THIRD_PARTY_NOTICES.txt --target $env:GITHUB_SHA --title "Beta Car Racing Game 0.1.0 · $($Source.commit.Substring(0,7))" --notes-file release-notes.txt --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Private release publication failed' }

@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import {setupRally} from './games-rally.js';
 import {marbleBoardGeometry} from './track-geometry.js';
-import {createGameRenderer,createHighGameRenderer} from './game-renderer.js';
+import {createGameRenderer} from './game-renderer.js';
 import {clamp,MARBLE_COURSES,marblePath,marbleSurfaces,marbleStep,marbleStart,keepInFrame} from './game-mechanics.js';
 export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,quality='light'}) {
  const options={id,level,input,onFinish,onStatus,onGraphics,quality};
- if(id==='rally'&&quality==='high')return createHighGameRenderer(canvas,onGraphics).then(renderer=>mountScene(canvas,options,renderer));
+ if(id==='rally'&&quality==='high')return import('./rally-babylon.js').then(({createRallyRenderer})=>createRallyRenderer(canvas,onGraphics)).then(renderer=>mountScene(canvas,options,renderer));
  return mountScene(canvas,options,createGameRenderer(canvas,quality,onGraphics));
 }
 function mountScene(canvas,{id,level,input,onFinish,onStatus,quality},renderer){
