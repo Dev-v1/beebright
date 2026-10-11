@@ -57,12 +57,12 @@ export async function createRallyRenderer(canvas,onGraphics){
  }
  let initialized=false,disposed=false;
  onGraphics?.('High quality · Babylon.js · PBR lighting · HDR · soft shadows');
- return {software:false,babylon:true,render(source,view){if(disposed)return;
+ return {software:false,babylon:true,ready(){return scene.whenReadyAsync(true);},render(source,view){if(disposed)return;
   if(!initialized){convert(source);initialized=true;}
-  for(const [object,target] of objects){target.position.set(object.position.x,object.position.y,object.position.z);target.scaling.set(object.scale.x,object.scale.y,object.scale.z);target.rotationQuaternion=new Quaternion(object.quaternion.x,object.quaternion.y,object.quaternion.z,object.quaternion.w);target.setEnabled(object.visible);}
-  for(const [source,m] of materials)m.emissiveColor=color(source.emissive).scale(source.emissiveIntensity??0);
+  for(const [object,target] of objects){target.position.set(object.position.x,object.position.y,object.position.z);target.scaling.set(object.scale.x,object.scale.y,object.scale.z);target.rotationQuaternion??=new Quaternion();target.rotationQuaternion.copyFromFloats(object.quaternion.x,object.quaternion.y,object.quaternion.z,object.quaternion.w);target.setEnabled(object.visible);}
+  for(const [source,m] of materials){const e=source.emissive,k=source.emissiveIntensity??0;m.emissiveColor.copyFromFloats((e?.r??0)*k,(e?.g??0)*k,(e?.b??0)*k);}
   for(const texture of dynamic)texture.update(true);
-  camera.position.set(view.position.x,view.position.y,view.position.z);camera.rotationQuaternion=new Quaternion(view.quaternion.x,view.quaternion.y,view.quaternion.z,view.quaternion.w);camera.fov=view.fov*Math.PI/180;camera.minZ=view.near;
+  camera.position.set(view.position.x,view.position.y,view.position.z);camera.rotationQuaternion??=new Quaternion();camera.rotationQuaternion.copyFromFloats(view.quaternion.x,view.quaternion.y,view.quaternion.z,view.quaternion.w);camera.fov=view.fov*Math.PI/180;camera.minZ=view.near;
   const directional=source.children.find(child=>child.isDirectionalLight);if(directional){sun.position.set(directional.position.x,directional.position.y,directional.position.z);const t=directional.target.position;sun.direction=new Vector3(t.x-sun.position.x,t.y-sun.position.y,t.z-sun.position.z).normalize();sun.diffuse=color(directional.color);sun.intensity=directional.intensity*.85;}
   const bg=source.fog?.color;scene.clearColor=new Color4(bg?.r??.4,bg?.g??.6,bg?.b??.8,1);scene.fogMode=Scene.FOGMODE_LINEAR;scene.fogColor=color(bg);scene.fogStart=source.fog?.near??180;scene.fogEnd=source.fog?.far??540;
   scene.render();

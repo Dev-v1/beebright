@@ -15,7 +15,9 @@ def main():
         def do_GET(self):
             if self.path.split('?')[0].endswith('.py'):self.send_error(404);return
             super().do_GET()
-    server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Handler,directory=str(root)))
+    class AssetServer(http.server.ThreadingHTTPServer):
+        request_queue_size=128
+    server=AssetServer(('127.0.0.1',0),functools.partial(Handler,directory=str(root)))
     server.daemon_threads=True;threading.Thread(target=server.serve_forever,daemon=True).start()
     import webview
     url=f'http://127.0.0.1:{server.server_port}/index.html'
