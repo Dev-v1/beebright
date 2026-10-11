@@ -3,12 +3,12 @@ import {setupRally} from './games-rally.js';
 import {marbleBoardGeometry} from './track-geometry.js';
 import {createGameRenderer} from './game-renderer.js';
 import {clamp,MARBLE_COURSES,marblePath,marbleSurfaces,marbleStep,marbleStart,keepInFrame} from './game-mechanics.js';
-export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,quality='light'}) {
- const options={id,level,input,onFinish,onStatus,onGraphics,quality};
+export function mount3D(canvas,{id,level=0,laps,input,onFinish,onStatus,onGraphics,quality='light'}) {
+ const options={id,level,laps,input,onFinish,onStatus,onGraphics,quality};
  if(id==='rally'&&quality==='high')return import('./rally-babylon.js').then(({createRallyRenderer})=>createRallyRenderer(canvas,onGraphics)).then(renderer=>mountScene(canvas,options,renderer));
  return mountScene(canvas,options,createGameRenderer(canvas,quality,onGraphics));
 }
-function mountScene(canvas,{id,level,input,onFinish,onStatus,quality},renderer){
+function mountScene(canvas,{id,level,laps,input,onFinish,onStatus,quality},renderer){
  const high=quality==='high'&&!renderer.software;
  const scene=new THREE.Scene();scene.background=new THREE.Color('#10182d');scene.fog=new THREE.Fog('#10182d',45,160);
  const camera=new THREE.PerspectiveCamera(58,1.6,.1,180);scene.add(new THREE.HemisphereLight(0xe0f5ff,0x253955,2.1));
@@ -54,7 +54,7 @@ function mountScene(canvas,{id,level,input,onFinish,onStatus,quality},renderer){
   for(let i=0;i<(high?40:12);i++){const x=(i%2?1:-1)*(20+i%6*4),z=-i*7,y=-8-i%4;mesh(high?new THREE.SphereGeometry(2+i%3,20,12):new THREE.IcosahedronGeometry(2+i%3,0),stone,x,y,z);}
   camera.position.set(p.x,p.y+5.7,p.z+9.5);camera.lookAt(p.x,p.y-.15,p.z-2.8);
  }else if(id==='rally'){
-  rally=setupRally({scene,camera,light,high,level,player,mesh,mat,textures,materials,notify,finish:(won,text,points)=>{score=points;finish(won,text);}});Object.assign(p,rally.player);
+  rally=setupRally({scene,camera,light,high,level,laps,player,mesh,mat,textures,materials,notify,finish:(won,text,points)=>{score=points;finish(won,text);}});Object.assign(p,rally.player);
  }else{
   ship(teal,1,player);p.y=0;p.z=7;camera.fov=50;camera.updateProjectionMatrix();camera.position.set(0,3,24);camera.lookAt(0,0,7);
   const n=high?500:160,pos=new Float32Array(n*3);for(let i=0;i<n;i++){pos[i*3]=(Math.random()-.5)*100;pos[i*3+1]=(Math.random()-.5)*80;pos[i*3+2]=-Math.random()*120;}

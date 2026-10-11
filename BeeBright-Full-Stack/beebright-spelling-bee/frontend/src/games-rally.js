@@ -14,8 +14,8 @@ export function rallyRibbon(road,inner,outer,lift=0){
  for(let i=0;i<n;i++){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}
  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(indices);geo.computeVertexNormals();return geo;
 }
-export function setupRally({scene,camera,light,high,level,player,mesh,mat,textures,materials,finish,notify}){
- const course=RALLY_COURSES[level]||RALLY_COURSES[0],road=rallyRoad(course),race=newRallyRace(road),view=newRallyView(),night=course.theme==='city';
+export function setupRally({scene,camera,light,high,level,laps,player,mesh,mat,textures,materials,finish,notify}){
+ const course=RALLY_COURSES[level]||RALLY_COURSES[0],road=rallyRoad(course,laps),race=newRallyRace(road),view=newRallyView(),night=course.theme==='city';
  scene.background=new THREE.Color(night?'#14243a':course.theme==='canyon'?'#cda385':'#a7c9dd');scene.fog=new THREE.Fog(scene.background,180,540);camera.far=650;camera.updateProjectionMatrix();
  light.color.set(night?'#a7cfff':'#ffe5c5');light.intensity=night?2.1:3.4;
  light.shadow.bias=-.00012;light.shadow.normalBias=.025;
@@ -61,14 +61,14 @@ export function setupRally({scene,camera,light,high,level,player,mesh,mat,textur
  }
  function render(dt){pose(cars[0],race.player,dt);race.opponents.forEach((p,i)=>pose(cars[i+1],p,dt));const p=race.player,next=rallySample(road,(p.gates+1)*road.length/12);gateMarker.position.set(next.x,next.y+1.2,next.z);gateMarker.rotation.y=-next.heading;
   cars[0].setCockpit(view.cockpit);
-  if(view.changed){camera.fov=view.cockpit?84:58;camera.near=view.cockpit?.025:.1;camera.updateProjectionMatrix();}
-  if(view.cockpit){player.updateMatrixWorld(true);const eye=player.localToWorld(new THREE.Vector3(-.72,1.20,.37)),target=player.localToWorld(new THREE.Vector3(24,1.13,.37));camera.position.copy(eye);camera.up.set(0,1,0);camera.lookAt(target);}
+  if(view.changed){camera.fov=view.cockpit?88:58;camera.near=view.cockpit?.025:.1;camera.updateProjectionMatrix();}
+  if(view.cockpit){player.updateMatrixWorld(true);const eye=player.localToWorld(new THREE.Vector3(-.64,1.23,.34)),target=player.localToWorld(new THREE.Vector3(24,1.18,.34));camera.position.copy(eye);camera.up.set(0,1,0);camera.lookAt(target);}
   else{const behind=new THREE.Vector3(p.x-Math.cos(p.heading)*10,p.y+4.2,p.z-Math.sin(p.heading)*10);if(view.changed)camera.position.copy(behind);else camera.position.lerp(behind,1-Math.exp(-dt*7));const look=rallySample(road,p.travel+8);camera.lookAt(p.x+Math.cos(p.heading)*6,(p.y+look.y)/2+.85,p.z+Math.sin(p.heading)*6);}
  }
  const p=race.player;camera.position.set(p.x-Math.cos(p.heading)*10,p.y+5.3,p.z-Math.sin(p.heading)*10);render(0);
  return {player:p,road,race,view,pause(input){view.previous=Boolean(input.camera);},update(input,dt){rallyViewStep(view,input.camera);race.input=input;rallyStep(race,road,input,dt);render(dt);
-   const lap=Math.min(course.laps,Math.floor(Math.max(0,p.travel)/road.length)+1),speed=p.speed<-.2?'REVERSE':Math.round(Math.abs(p.speed)*3.6)+' km/h';
-   notify(`${course.name} · ${view.cockpit?'Cockpit':'Chase'} · Place ${race.place}/5 · Lap ${lap}/${course.laps} · ${speed} · Gear ${p.gear===-1?'R':p.gear??1} · ${race.time.toFixed(1)}s · Hill ${Math.round(p.y)}m`);
-   if(race.finished){const score=Math.round(600000/race.time)+(6-race.place)*500;finish(race.place===1,`${course.name}: finished ${race.place} of 5 · ${course.laps} laps in ${race.time.toFixed(1)} seconds.`,score);}
+   const lap=Math.min(road.laps,Math.floor(Math.max(0,p.travel)/road.length)+1),speed=p.speed<-.2?'REVERSE':Math.round(Math.abs(p.speed)*3.6)+' km/h';
+   notify(`${course.name} · ${view.cockpit?'Cockpit':'Chase'} · Place ${race.place}/5 · Lap ${lap}/${road.laps} · ${speed} · Gear ${p.gear===-1?'R':p.gear??1} · ${race.time.toFixed(1)}s · Hill ${Math.round(p.y)}m`);
+   if(race.finished){const score=Math.round(600000/race.time)+(6-race.place)*500;finish(race.place===1,`${course.name}: finished ${race.place} of 5 · ${road.laps} laps in ${race.time.toFixed(1)} seconds.`,score);}
  }};
 }

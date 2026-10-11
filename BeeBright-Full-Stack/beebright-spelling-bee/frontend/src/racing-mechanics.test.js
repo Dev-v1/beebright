@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {RALLY_COURSES,marbleSurfaces,marblePath} from './game-mechanics.js';
-import {rallyRoad,rallySample,rallyProject,rallyProgress,newRallyRace,rallyStep,rallyCornerPlan,newRallyView,rallyViewStep,rallyTransmission} from './racing-mechanics.js';
+import {rallyLapCount,rallyRoad,rallySample,rallyProject,rallyProgress,newRallyRace,rallyStep,rallyCornerPlan,newRallyView,rallyViewStep,rallyTransmission} from './racing-mechanics.js';
 import {rallyRibbon,buildRallyCar} from './games-rally.js';
 import {rallyTerrain,mountainHeight} from './rally-terrain.js';
 import {marbleBoardGeometry} from './track-geometry.js';
@@ -44,7 +44,7 @@ test('reverse does not award checkpoints, opponents collide, and missed gates bl
 test('all High quality cars have curved bodies, reflective glass, and independently steering wheels',()=>{
  const group=new THREE.Group(),geometries=[],materials=[];const mat=color=>{const m=new THREE.MeshStandardMaterial({color});materials.push(m);return m;};const mesh=(g,m,x=0,y=0,z=0,parent=group)=>{geometries.push(g);const node=new THREE.Mesh(g,m);node.position.set(x,y,z);parent.add(node);return node;};
  const paint=new THREE.MeshPhysicalMaterial({color:'#d84e71',clearcoat:1}),car=buildRallyCar({high:true,paint,mesh,mat,parent:group});assert.equal(car.wheels.length,4);assert.equal(car.wheels.filter(w=>w.front).length,2);car.body.computeBoundingBox();assert.ok(car.body.boundingBox.max.x-car.body.boundingBox.min.x>4.4);assert.ok(car.body.attributes.position.count>200);assert.ok(car.canopy.children.length>=8);assert.ok(car.interior.children.length>=6);assert.equal(car.body.index.count%3,0);assert.ok(geometries.some(g=>g.type==='SphereGeometry'));assert.ok(materials.some(m=>m.roughness<.15));
- car.setCockpit(true);assert.equal(car.roof.visible,true);assert.equal(car.canopy.visible,true);assert.ok(car.glassPanes.every(p=>!p.visible));assert.equal(car.interior.visible,true);assert.ok(car.roof.position.y>1.4);
+ car.setCockpit(true);assert.equal(car.roof.visible,true);assert.equal(car.canopy.visible,false);assert.equal(car.roof.parent,group);assert.ok(car.glassPanes.every(p=>!p.visible));assert.equal(car.interior.visible,true);assert.ok(car.roof.position.y>1.4);
  car.setCockpit(false);assert.equal(car.roof.visible,true);assert.ok(car.glassPanes.every(p=>p.visible));assert.equal(car.interior.visible,false);
  for(const g of geometries)g.dispose();for(const m of materials)m.dispose();paint.dispose();
 });
@@ -78,4 +78,24 @@ test('Alpine terrain has mountains and a continuous road cutting below the aspha
  const course=RALLY_COURSES[2],road=rallyRoad(course),geo=rallyTerrain(course,road,true),pos=geo.attributes.position;let maximum=-Infinity;
  for(let i=0;i<pos.count;i++){maximum=Math.max(maximum,pos.getY(i));const f=rallyProject(road,pos.getX(i),pos.getZ(i));if(f.distance<course.width/2+8)assert.ok(pos.getY(i)<f.y-.7);}
  assert.ok(maximum>110);assert.ok(mountainHeight(course,155,115)>120);assert.ok(Math.max(...road.points.map(p=>p.y))>64);geo.dispose();
+});
+
+test('selected laps control checkpoint completion and invalid lap counts use the track default',()=>{
+ for(const value of [1,3,10]){const road=rallyRoad(RALLY_COURSES[0],value),race=newRallyRace(road);assert.equal(road.laps,value);
+  Object.assign(race.player,rallySample(road,0),{travel:road.length*value+1,previous:0,gates:value*12-2});rallyStep(race,road,{},1/90);assert.equal(race.finished,false);
+  race.player.gates=value*12;rallyStep(race,road,{},1/90);assert.equal(race.finished,true);
+ }
+ for(const invalid of [0,11,-1,NaN,1.5,undefined,'3'])assert.equal(rallyLapCount(invalid),2);
+});
+test('grades blend continuously through every segment and the closed start-line seam',()=>{
+ for(const course of RALLY_COURSES){const road=rallyRoad(course);
+  for(const d of road.lengths){const a=rallySample(road,d-.00001),b=rallySample(road,d+.00001);assert.ok(Math.abs(a.grade-b.grade)<.00001);}
+  for(let d=0;d<road.length;d+=1){const a=rallySample(road,d),b=rallySample(road,d+1);assert.ok(Math.abs(a.grade-b.grade)<.035,'no sudden incline steps');}
+ }
+});
+test('rivals accelerate past 40 metres per second while retaining corner braking',()=>{
+ const road=rallyRoad(RALLY_COURSES[0]),race=newRallyRace(road);let fastest=0;
+ assert.ok(race.opponents.every(c=>c.cruise>=52));
+ for(let i=0;i<1800;i++){rallyStep(race,road,{},1/60);fastest=Math.max(fastest,...race.opponents.map(c=>c.speed));}
+ assert.ok(fastest>40);assert.ok(rallyCornerPlan(road,0,60,11.5).speed<60);
 });

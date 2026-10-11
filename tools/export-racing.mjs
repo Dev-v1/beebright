@@ -8,5 +8,5 @@ for(const name of names)copy(path.join(frontend,'src',name),'src/'+name);
 for(const name of ['index.html','main.js','style.css','vite.config.js'])copy(path.join(root,'racing-beta/web',name),name);
 for(const name of ['package.json','package-lock.json','launcher.py','README.md'])copy(path.join(root,'racing-beta',name),name);
 copy(path.join(root,'LICENSE'),'LICENSE');
-fs.writeFileSync(path.join(target,'source.json'),JSON.stringify({canonical:'Dev-v1/beebright',commit:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),racingHash:hash.digest('hex'),version:'0.1.0'},null,2)+'\n');
+fs.writeFileSync(path.join(target,'source.json'),JSON.stringify({canonical:'Dev-v1/beebright',commit:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),racingHash:hash.digest('hex'),version:JSON.parse(fs.readFileSync(path.join(root,'local/release.json'),'utf8')).version},null,2)+'\n');
 console.log('Exported shared racing source to',target);

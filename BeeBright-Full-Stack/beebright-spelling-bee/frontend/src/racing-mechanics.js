@@ -1,14 +1,18 @@
 import * as THREE from 'three';
 import {clamp} from './game-mechanics.js';
 const angle=a=>Math.atan2(Math.sin(a),Math.cos(a));
-export function rallyRoad(course){
+export function rallyLapCount(value,fallback=2){return Number.isInteger(value)&&value>=1&&value<=10?value:fallback;}
+export function rallyRoad(course,laps){
  const scale=course.scale??1.35,curve=new THREE.CatmullRomCurve3(course.points.map(([x,z],i)=>new THREE.Vector3(x*scale,course.heights[i],z*scale)),true,'centripetal');
- const points=curve.getSpacedPoints(384).slice(0,-1),lengths=[0];
+ const points=curve.getSpacedPoints(512).slice(0,-1),lengths=[0];
+ // Periodic smoothing blends every crest, dip and the start-line seam.
+ for(let pass=0;pass<6;pass++){const heights=points.map((p,i)=>(points[(i+points.length-1)%points.length].y+2*p.y+points[(i+1)%points.length].y)/4);points.forEach((p,i)=>{p.y=heights[i];});}
+ const grades=points.map((p,i)=>{const a=points[(i+points.length-1)%points.length],b=points[(i+1)%points.length];return (b.y-a.y)/Math.hypot(b.x-a.x,b.z-a.z);});
  for(let i=0;i<points.length;i++)lengths.push(lengths.at(-1)+points[i].distanceTo(points[(i+1)%points.length]));
- return {points,lengths,length:lengths.at(-1),width:course.width,laps:course.laps};
+ return {points,grades,lengths,length:lengths.at(-1),width:course.width,laps:rallyLapCount(laps,course.laps)};
 }
 function frame(road,i,u,lateral=0){const a=road.points[i],b=road.points[(i+1)%road.points.length],dx=b.x-a.x,dz=b.z-a.z,n=Math.hypot(dx,dz),tx=dx/n,tz=dz/n;
- return {x:a.x+dx*u-tz*lateral,y:a.y+(b.y-a.y)*u,z:a.z+dz*u+tx*lateral,tx,tz,heading:Math.atan2(tz,tx),grade:(b.y-a.y)/n,progress:road.lengths[i]+(road.lengths[i+1]-road.lengths[i])*u,lateral};
+ return {x:a.x+dx*u-tz*lateral,y:a.y+(b.y-a.y)*u,z:a.z+dz*u+tx*lateral,tx,tz,heading:Math.atan2(tz,tx),grade:road.grades[i]+(road.grades[(i+1)%road.points.length]-road.grades[i])*u,progress:road.lengths[i]+(road.lengths[i+1]-road.lengths[i])*u,lateral};
 }
 export function rallySample(road,distance,lateral=0){const d=((distance%road.length)+road.length)%road.length;let lo=0,hi=road.points.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(road.lengths[mid+1]<d)lo=mid+1;else hi=mid;}
  return frame(road,lo,(d-road.lengths[lo])/(road.lengths[lo+1]-road.lengths[lo]),lateral);
@@ -20,9 +24,9 @@ export function rallyProject(road,x,z){let closest=null,distance=Infinity;
 }
 export function rallyProgress(previous,next,length,maxTravel){let delta=next-previous;delta-=Math.round(delta/length)*length;return Math.abs(delta)<=maxTravel?delta:0;}
 // Curvature ahead limits speed by lateral grip and available braking distance.
-export function rallyCornerPlan(road,travel,cruise){let target=cruise,turn=0;const now=rallySample(road,travel),bend=rallySample(road,travel+14);turn=angle(bend.heading-now.heading);
+export function rallyCornerPlan(road,travel,cruise,grip=8.5){let target=cruise,turn=0;const now=rallySample(road,travel),bend=rallySample(road,travel+14);turn=angle(bend.heading-now.heading);
  for(let d=0;d<=72;d+=8){const a=rallySample(road,travel+d),b=rallySample(road,travel+d+8),curvature=Math.abs(angle(b.heading-a.heading))/8;
-  const corner=Math.min(cruise,Math.sqrt(8.5/Math.max(.0001,curvature)));target=Math.min(target,Math.sqrt(corner*corner+2*10*d));}
+  const corner=Math.min(cruise,Math.sqrt(grip/Math.max(.0001,curvature)));target=Math.min(target,Math.sqrt(corner*corner+2*10*d));}
  return {speed:Math.max(9,target),lane:clamp(turn*5,-2.5,2.5),turn};
 }
 // Separate transmission state makes the dashboard and shift animation follow actual speed.
@@ -38,7 +42,7 @@ export function rallyTransmission(state,dt){
  return state;
 }
 export function newRallyRace(road){const start=rallySample(road,0,0),player={...start,speed:0,steer:0,travel:0,previous:0,gates:0};
- const opponents=Array.from({length:4},(_,i)=>({travel:-7-i*7,lane:(i%2?1:-1)*3.2,laneVelocity:0,speed:0,cruise:42+i*2,index:i,finished:false,steer:0,overtaking:false,pass:null,passCooldown:0}));
+ const opponents=Array.from({length:4},(_,i)=>({travel:-7-i*7,lane:(i%2?1:-1)*3.2,laneVelocity:0,speed:0,cruise:52+i*2.5,index:i,finished:false,steer:0,overtaking:false,pass:null,passCooldown:0}));
  for(const car of opponents)Object.assign(car,rallySample(road,car.travel,car.lane));
  return {player,opponents,time:0,place:1,finished:false};
 }
@@ -61,7 +65,7 @@ export function rallyStep(race,road,input,dt){
   if(f.distance<road.width/2){p.travel+=delta;const next=(p.gates+1)*road.length/12;if(p.travel>=next&&p.travel-next<road.length/12*.5)p.gates++;}
   p.previous=f.progress;p.grade=f.grade*Math.cos(p.heading-f.heading);
   for(const car of race.opponents){if(car.finished){car.finishAge=(car.finishAge??0)+h;car.travel+=car.speed*h;Object.assign(car,rallySample(road,car.travel,car.lane));continue;}
-   const now=rallySample(road,car.travel),plan=rallyCornerPlan(road,car.travel,car.cruise),traffic=[{...p,lane:f.lateral},...race.opponents.filter(other=>other!==car&&!other.finished)];
+   const now=rallySample(road,car.travel),plan=rallyCornerPlan(road,car.travel,car.cruise,11.5),traffic=[{...p,lane:f.lateral},...race.opponents.filter(other=>other!==car&&!other.finished)];
    let target=plan.speed*1.12,lane=plan.lane;car.passCooldown=Math.max(0,car.passCooldown-h);
    if(car.pass){car.pass.age+=h;const other=car.pass.other;
     if(car.pass.age>2.5&&(car.travel>other.travel+9||car.pass.age>8)){car.pass=null;car.passCooldown=1.5;}
@@ -77,7 +81,7 @@ export function rallyStep(race,road,input,dt){
    car.laneVelocity+=clamp((lane-car.lane)*3-car.laneVelocity*3.2,-4,4)*h;
    car.laneVelocity=clamp(car.laneVelocity,-2.4,2.4);car.lane+=car.laneVelocity*h;car.lane=clamp(car.lane,-road.width/2+1.5,road.width/2-1.5);
    for(const other of traffic){const gap=other.travel-car.travel;if(gap>0&&gap<5&&Math.abs(other.lane-car.lane)<2.2)target=Math.min(target,Math.max(0,other.speed-2));}
-   car.speed+=clamp(target-car.speed,-14*h,(11.5-Math.max(0,now.grade)*9.81)*h);car.speed=Math.max(0,car.speed);car.travel+=car.speed*h;
+   car.speed+=clamp(target-car.speed,-14*h,(14-Math.max(0,now.grade)*9.81)*h);car.speed=Math.max(0,car.speed);car.travel+=car.speed*h;
    const smoothHeading=car.heading;Object.assign(car,rallySample(road,car.travel,car.lane));const ahead=rallySample(road,car.travel+2,car.lane),desired=Math.atan2(ahead.z-car.z,ahead.x-car.x)+Math.atan2(car.laneVelocity,Math.max(5,car.speed));
    car.heading=smoothHeading+angle(desired-smoothHeading)*(1-Math.exp(-8*h));car.steer+=(clamp(plan.turn,-.45,.45)-car.steer)*(1-Math.exp(-6*h));rallyTransmission(car,h);
    if(car.travel>=finish){car.finished=true;car.finishTime=race.time;}
