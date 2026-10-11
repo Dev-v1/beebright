@@ -83,9 +83,14 @@ def test(w):
             else:
                 wait(w,"!document.body.innerText.includes('Loading definition...')")
                 if mode=='Multiple Choice':
+                    chosen=w.evaluate_js("document.querySelector('.choices button').innerText.substring(1).trim()")
                     w.evaluate_js("document.querySelector('.choices button').click()")
                     w.evaluate_js("document.querySelector('.check-button').click()")
                     wait(w,"document.querySelector('.feedback') !== null")
+                    assert w.evaluate_js("document.querySelector('.choice-wrap > .feedback')!==null && document.querySelector('.feedback').compareDocumentPosition(document.querySelector('.choices')) & Node.DOCUMENT_POSITION_FOLLOWING")
+                    assert w.evaluate_js("['Correct','Incorrect'].includes(document.querySelector('.feedback strong').innerText) && document.querySelector('.correct-spelling').innerText.length>0")
+                    assert w.evaluate_js("document.querySelectorAll('.feedback p')[0].innerText.startsWith('Correct spelling:') && document.querySelectorAll('.feedback p')[1].innerText.startsWith('Your choice:')")
+                    assert w.evaluate_js("document.querySelector('.feedback em').innerText")==chosen
                 if mode!='Fill in the Blank':
                     w.evaluate_js("Array.from(document.querySelectorAll('.hint-controls button')).find(b=>b.innerText==='In a sentence').click()")
                     wait(w,"document.querySelector('.hint-box p').innerText.includes('___')")

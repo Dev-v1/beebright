@@ -61,6 +61,9 @@ export function getPracticeSet(level, offset = 0, randomize = false, wordListId 
 export function getDictionary(word) {
   return request(`/api/dictionary/${encodeURIComponent(word)}`);
 }
+export function getPronunciation(word) {
+  return request(`/api/pronunciation/${encodeURIComponent(word)}`);
+}
 
 export function adminUploadWordPdf(token, file, title) {
   const body = new FormData();

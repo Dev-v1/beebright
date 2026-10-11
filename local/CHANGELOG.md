@@ -1,5 +1,12 @@
 # BeeBright releases
 
+## 2.6
+
+- Origin hints show language paths without historical spellings, roots or cognates. Uncertain histories and compounds remain qualified instead of inventing a borrowing sequence.
+- Prefer recorded Merriam-Webster pronunciations on the website and the best available English voice as fallback. Local speech remains offline. Normal speech speed replaces the old slow default.
+- Closer distractors preserve accents, spaces and capitalization. Correct answer positions are balanced across A, B, C and D for each new practice set, and saved sessions retain their order.
+- Multiple-choice feedback appears above the answers: Correct or Incorrect, followed by the correct spelling above your choice.
+
 ## 2.5 bugfix
 
 - Solid GT roof stays visible in both cockpit and chase cameras.

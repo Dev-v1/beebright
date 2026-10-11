@@ -23,17 +23,18 @@ export const FEATURES = [
   ['duel','Head-to-head','Two players alternate turns on the same device.'],
   ['changelog','Release notes','See what changed in BeeBright.'],
 ];
-export function freshStudio() { return {events:[], favorites:[], games:normalizeScores(), audio:{rate:.72, volume:1, voice:''}}; }
+export function freshStudio() { return {events:[], favorites:[], games:normalizeScores(), audio:{version:2,rate:1, volume:1, voice:''}}; }
 export function normalizeStudio(value) {
   const empty=freshStudio();
   if(!value || typeof value!=='object') return empty;
-  return {...empty, games:normalizeScores(value.games), events:Array.isArray(value.events)?value.events.filter(e=>e && typeof e.word==='string' && typeof e.correct==='boolean').slice(-5000).map(e=>({...e,at:Number.isFinite(e.at)&&Math.abs(e.at)<8640000000000000?e.at:0})):[], favorites:Array.isArray(value.favorites)?[...new Set(value.favorites.filter(w=>typeof w==='string'))].slice(0,5000):[], audio:{...empty.audio,...value.audio,rate:Math.min(1.5,Math.max(.3,Number(value.audio?.rate)||.72)),volume:Number.isFinite(Number(value.audio?.volume))?Math.min(1,Math.max(0,Number(value.audio.volume))):1}};
+  const rate=!value.audio?.version&&value.audio?.rate===.72?1:Number(value.audio?.rate)||1;
+  return {...empty, games:normalizeScores(value.games), events:Array.isArray(value.events)?value.events.filter(e=>e && typeof e.word==='string' && typeof e.correct==='boolean').slice(-5000).map(e=>({...e,at:Number.isFinite(e.at)&&Math.abs(e.at)<8640000000000000?e.at:0})):[], favorites:Array.isArray(value.favorites)?[...new Set(value.favorites.filter(w=>typeof w==='string'))].slice(0,5000):[], audio:{...empty.audio,...value.audio,version:2,rate:Math.min(1.5,Math.max(.3,rate)),volume:Number.isFinite(Number(value.audio?.volume))?Math.min(1,Math.max(0,Number(value.audio.volume))):1}};
 }
 export function shuffle(words, seed=String(Math.random())) {
   let state=2166136261;
   for(const c of seed) state=Math.imul(state^c.charCodeAt(0),16777619)>>>0;
   const result=[...words];
-  for(let i=result.length-1;i>0;i--){state=(Math.imul(state,1664525)+1013904223)>>>0;const j=state%(i+1);[result[i],result[j]]=[result[j],result[i]];}
+  for(let i=result.length-1;i>0;i--){state=(Math.imul(state,1664525)+1013904223)>>>0;const j=Math.floor(state/4294967296*(i+1));[result[i],result[j]]=[result[j],result[i]];}
   return result;
 }
 export function dailyWords(words, date=new Date().toISOString().slice(0,10)) { return shuffle([...words].sort((a,b)=>a.word<b.word?-1:a.word>b.word?1:0),'daily:'+date).slice(0,10); }
@@ -66,9 +67,20 @@ export const PAIRS = [
 export function pairWords() { return PAIRS.flatMap(p=>[0,3].map(i=>({word:p[i],hint:{word:p[i],definition:p[i+1],sentence:p[i+2],origin:'See a dictionary reference for the history of this word.',source:'BeeBright original word-pair lesson'},level:'pairs',source:'Confusing word pairs'}))); }
 
 export function choicesFor(word, supplied=[]) {
- const wrong=new Set(supplied.filter(w=>typeof w==='string'&&w.toLowerCase()!==word.toLowerCase()));
- const variations=[word.replace(/([aeiou])/i, '$1$1'),word.slice(0,-1),word+word.slice(-1),word.replace(/a/i,'e'),word.replace(/i/i,'e'),word.replace(/o/i,'u')];
- for(const value of variations)if(value&&value.toLowerCase()!==word.toLowerCase())wrong.add(value);
- for(const vowel of ['e','i','a','o'])if(wrong.size<3)wrong.add(word+vowel);
+ const lower=word.normalize('NFC').toLocaleLowerCase(),wrong=new Set(),groups=[[],[],[]];
+ const rules=[['tion','sion'],['sion','tion'],['ph','f'],['f','ph'],['ie','ei'],['ei','ie'],['ea','ee'],['ee','ea'],['ance','ence'],['ence','ance'],['ant','ent'],['ent','ant'],['able','ible'],['ible','able'],['er','or'],['or','er'],['ous','us'],['ck','k'],['qu','kw']];
+ for(const [from,to] of rules)for(let i=lower.indexOf(from);i>=0;i=lower.indexOf(from,i+1))groups[0].push(lower.slice(0,i)+to+lower.slice(i+from.length));
+ for(let i=1;i<lower.length-1;i++){const c=lower[i];if(/[bcdfghjklmnpqrstvwxyz]/.test(c)){groups[1].push(lower.slice(0,i)+c+lower.slice(i));if(c===lower[i+1])groups[1].push(lower.slice(0,i)+lower.slice(i+1));}if(/[aeiou]/.test(c))groups[2].push(lower.slice(0,i)+({a:'e',e:'i',i:'e',o:'a',u:'o'})[c]+lower.slice(i+1));}
+ function caseLike(value){if(word===word.toLocaleUpperCase())return value.toLocaleUpperCase();const template=word.split(' ');return value.split(' ').map((part,i)=>template[i]?.[0]!==template[i]?.[0]?.toLocaleLowerCase()?part[0]?.toLocaleUpperCase()+part.slice(1):part).join(' ');}
+ function add(value){if(typeof value!=='string')return;value=value.normalize('NFC').toLocaleLowerCase();if(value===lower||!value||value.split(' ').length!==lower.split(' ').length||![...value].every(c=>/[\p{L} '-]/u.test(c)))return;wrong.add(caseLike(value));}
+ // One nearby phonetic, consonant and vowel error before less useful fallbacks.
+ const shuffled=groups.map(group=>shuffle(group));for(const group of shuffled)if(group.length)add(group[0]);
+ for(const value of shuffled.flat())if(wrong.size<3)add(value);
+ for(const value of supplied)if(wrong.size<3)add(value);
+ for(const value of [lower.replace(/([aeiou])/,'$1$1'),lower+lower.slice(-1),lower+'e',lower+'h',lower+'a'])if(wrong.size<3)add(value);
  return shuffle([word,...[...wrong].slice(0,3)]);
+}
+export function prepareChoiceWords(words,seed=String(Math.random())){
+ let slots=[];
+ return words.map((item,i)=>{if(i%4===0)slots=shuffle([0,1,2,3],`${seed}:${i}`);const wrong=choicesFor(item.word,item.options||[]).filter(w=>w!==item.word);wrong.splice(slots[i%4],0,item.word);return {...item,options:wrong};});
 }

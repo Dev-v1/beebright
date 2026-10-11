@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 import re
+from .origins import language_origin
 
 def _hide_spelling(text: str, word: str, replacement: str) -> str:
     if not text:
@@ -29,9 +30,7 @@ def _safe_dictionary_result(result: dict, word: str) -> dict:
         raw_definition, word, "this word"
     )
     result["definition"] = safe_definition
-    result["origin"] = _hide_spelling(
-        result.get("origin", "Word origin unavailable."), word, "this word"
-    )
+    result["origin"] = language_origin(result.get("origin", ""), word)
     result["sentence"] = _short_complete_sentence(
         result.get("sentence", ""), word, raw_definition
     )

@@ -21,7 +21,7 @@ def test_bronze_and_sky_have_concrete_contextual_examples():
     assert bronze.part_of_speech == 'noun'
     assert 'copper and tin' in bronze.definition
     assert bronze.sentence == 'The sculptor cast the statue in ___.'
-    assert 'Italian bronzo' in bronze.origin
+    assert bronze.origin == 'Italian → French → English.'
     assert lookup_word('sky')['sentence'] == 'The ___ was clear today.'
 
 

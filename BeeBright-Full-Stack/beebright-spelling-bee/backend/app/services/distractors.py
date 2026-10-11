@@ -3,10 +3,21 @@ from __future__ import annotations
 import hashlib
 import random
 import re
+import unicodedata
 
 
 SPECIAL_DISTRACTORS: dict[str, list[str]] = {
     "equestrian": ["equestian", "equestrean", "equestrain"],
+    "dictionary": ["dictionery", "dictonary", "dictionnary"],
+    "conscious": ["concious", "consious", "conscous"],
+    "precedent": ["presedent", "preceedent", "precedant"],
+    "predecessor": ["predecesor", "predicessor", "predecesser"],
+    "rendezvous": ["rendevous", "rendezvouss", "rendezvouz"],
+    "piñata": ["piñatta", "peñata", "piñeta"],
+    "a cappella": ["a capella", "a cappela", "a cappellae"],
+    "japanese": ["japaneese", "japannese", "japaniese"],
+    "caesar": ["ceasar", "caeser", "caezar"],
+    "mayonnaise": ["mayonaise", "mayonnaisse", "mayonnaize"],
 }
 
 
@@ -57,14 +68,16 @@ PHONETIC_REPLACEMENTS: tuple[tuple[str, str], ...] = (
 
 
 def _add(candidates: list[str], value: str, word: str) -> None:
-    clean = re.sub(r"[^a-z'-]", "", value.lower())
+    clean = unicodedata.normalize('NFC', value.casefold()).strip()
+    if not all(c.isalpha() or c in " '-" for c in clean):
+        return
     if clean and clean != word and clean not in candidates:
         candidates.append(clean)
 
 
 def generate_distractors(word: str) -> list[str]:
     """Create three deterministic, pronunciation-style misspellings."""
-    lower = word.strip().lower()
+    lower = unicodedata.normalize('NFC',word.strip().casefold())
     if lower in SPECIAL_DISTRACTORS:
         return SPECIAL_DISTRACTORS[lower].copy()
 
@@ -170,7 +183,18 @@ def generate_distractors(word: str) -> list[str]:
 
 
 def shuffled_options(word: str, wrong_spellings: list[str]) -> list[str]:
-    options = [word, *wrong_spellings]
+    def case_like(value):
+        if word.isupper():
+            return value.upper()
+        parts=value.casefold().split(' ')
+        template=word.split(' ')
+        return ' '.join(p[:1].upper()+p[1:] if i<len(template) and template[i][:1].isupper() else p for i,p in enumerate(parts))
+    wrong=[]
+    for candidate in [*wrong_spellings,*generate_distractors(word)]:
+        value=case_like(candidate)
+        if value.casefold()!=word.casefold() and value.casefold() not in {w.casefold() for w in wrong}:
+            wrong.append(value)
+    options = [word, *wrong[:3]]
     rng = random.Random(int(hashlib.sha256(f"options:{word}".encode()).hexdigest()[:16], 16))
     rng.shuffle(options)
     return options
