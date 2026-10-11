@@ -42,11 +42,18 @@ def main():
                 assert window.evaluate_js("document.querySelector('#status').innerText.includes('Cockpit')")
                 assert not window.evaluate_js("document.querySelector('#status').innerText.includes('NaN')")
                 assert window.evaluate_js("document.querySelector('#result').hidden"),window.evaluate_js("document.querySelector('#result').innerText")
+                # Capture in the render frame. WebGL normally clears its back buffer
+                # after presentation, so an arbitrary later toDataURL is black.
+                window.evaluate_js("window.racingCapture=null;requestAnimationFrame(()=>{const source=document.querySelector('canvas'),copy=document.createElement('canvas');copy.width=800;copy.height=500;const c=copy.getContext('2d');c.drawImage(source,0,0);const pixels=c.getImageData(0,0,800,500).data,colors=new Set();let bright=0;for(let i=0;i<pixels.length;i+=400){colors.add(pixels[i]+','+pixels[i+1]+','+pixels[i+2]);if(pixels[i]+pixels[i+1]+pixels[i+2]>90)bright++;}window.racingCapture={url:copy.toDataURL('image/png'),colors:colors.size,bright};})")
+                end=time.monotonic()+15
+                while time.monotonic()<end and not window.evaluate_js('window.racingCapture!==null'):time.sleep(.1)
+                capture=window.evaluate_js('window.racingCapture')
+                assert capture and capture['colors']>100 and capture['bright']>100, f'Blank rendered racing frame: {capture and (capture["colors"],capture["bright"])}'
                 folder=os.environ.get('RACING_TEST_OUTPUT')
                 if folder:
                     import base64
                     Path(folder).mkdir(parents=True,exist_ok=True)
-                    data=window.evaluate_js("document.querySelector('canvas').toDataURL('image/png').split(',')[1]")
+                    data=capture['url'].split(',')[1]
                     Path(folder,f'{quality}-cockpit.png').write_bytes(base64.b64decode(data))
                 print('Executable UI passed:',quality,window.evaluate_js("document.querySelector('#graphics').innerText"),flush=True)
         except Exception as error:failure.append(str(error));print('Self-test failed:',error,flush=True)

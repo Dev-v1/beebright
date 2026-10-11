@@ -23,7 +23,7 @@ import {createGameRenderer} from './game-renderer.js';
 // High racing uses Babylon's PBR/render pipeline. The shared scene authoring and
 // physics stay engine-independent; Light mode retains the low-cost renderer.
 export async function createRallyRenderer(canvas,onGraphics){
- const probe=canvas.getContext('webgl2',{alpha:false,antialias:true,powerPreference:'high-performance'});
+ const probe=canvas.getContext('webgl2',{alpha:false,antialias:true,preserveDrawingBuffer:true,powerPreference:'high-performance'});
  if(!probe)return createGameRenderer(canvas,'light',onGraphics);
  let engine;
  try{engine=new Engine(canvas,true,{alpha:false,preserveDrawingBuffer:true,stencil:true,powerPreference:'high-performance'});}catch(error){onGraphics?.(`High graphics unavailable: ${error.message}`);throw error;}
