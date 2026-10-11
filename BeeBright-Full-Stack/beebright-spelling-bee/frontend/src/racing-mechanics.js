@@ -25,8 +25,20 @@ export function rallyCornerPlan(road,travel,cruise){let target=cruise,turn=0;con
   const corner=Math.min(cruise,Math.sqrt(8.5/Math.max(.0001,curvature)));target=Math.min(target,Math.sqrt(corner*corner+2*10*d));}
  return {speed:Math.max(9,target),lane:clamp(turn*5,-2.5,2.5),turn};
 }
+// Separate transmission state makes the dashboard and shift animation follow actual speed.
+export function rallyTransmission(state,dt){
+ const speed=Math.abs(state.speed),prior=state.gear??1,limits=[0,9,17,26,35,44,56];let gear=prior;
+ if(state.speed<-.3)gear=-1;
+ else if(prior<1)gear=1;
+ else if(prior<6&&speed>limits[prior]+1.1)gear++;
+ else if(prior>1&&speed<limits[prior-1]-2.2)gear--;
+ state.shift=Math.max(0,(state.shift??0)-dt);
+ if(gear!==prior){state.shift=.32;state.previousGear=prior;}state.gear=gear;
+ const ratio=[0,640,330,230,170,135,110][Math.max(1,gear)];state.rpm=clamp(900+speed*ratio,900,7400);
+ return state;
+}
 export function newRallyRace(road){const start=rallySample(road,0,0),player={...start,speed:0,steer:0,travel:0,previous:0,gates:0};
- const opponents=Array.from({length:4},(_,i)=>({travel:-7-i*6,lane:(i%2?1:-1)*2.8,speed:0,cruise:32+i*1.6,index:i,finished:false,steer:0,overtaking:false}));
+ const opponents=Array.from({length:4},(_,i)=>({travel:-7-i*7,lane:(i%2?1:-1)*3.2,laneVelocity:0,speed:0,cruise:42+i*2,index:i,finished:false,steer:0,overtaking:false,pass:null,passCooldown:0}));
  for(const car of opponents)Object.assign(car,rallySample(road,car.travel,car.lane));
  return {player,opponents,time:0,place:1,finished:false};
 }
@@ -48,22 +60,30 @@ export function rallyStep(race,road,input,dt){
   const delta=rallyProgress(p.previous,f.progress,road.length,Math.abs(p.speed)*h+1);
   if(f.distance<road.width/2){p.travel+=delta;const next=(p.gates+1)*road.length/12;if(p.travel>=next&&p.travel-next<road.length/12*.5)p.gates++;}
   p.previous=f.progress;p.grade=f.grade*Math.cos(p.heading-f.heading);
-  for(const car of race.opponents){if(car.finished)continue;
-   const now=rallySample(road,car.travel),plan=rallyCornerPlan(road,car.travel,car.cruise),traffic=[{...p,lane:f.lateral},...race.opponents.filter(other=>other!==car)];
-   let target=plan.speed,lane=plan.lane;car.overtaking=false;
-   const blocker=traffic.find(other=>other.travel-car.travel>0&&other.travel-car.travel<Math.max(12,car.speed*.8)&&Math.abs(other.lane-car.lane)<2.3);
-   if(blocker){const choices=[-3,3].sort((a,b)=>Math.abs(a-car.lane)-Math.abs(b-car.lane));
-    const clear=choices.find(candidate=>traffic.every(other=>Math.abs(other.travel-car.travel)>12||Math.abs(other.lane-candidate)>2.35));
-    if(clear!==undefined){lane=clear;car.overtaking=true;}else target=Math.min(target,Math.max(0,blocker.speed-1));
+  for(const car of race.opponents){if(car.finished){car.finishAge=(car.finishAge??0)+h;car.travel+=car.speed*h;Object.assign(car,rallySample(road,car.travel,car.lane));continue;}
+   const now=rallySample(road,car.travel),plan=rallyCornerPlan(road,car.travel,car.cruise),traffic=[{...p,lane:f.lateral},...race.opponents.filter(other=>other!==car&&!other.finished)];
+   let target=plan.speed*1.12,lane=plan.lane;car.passCooldown=Math.max(0,car.passCooldown-h);
+   if(car.pass){car.pass.age+=h;const other=car.pass.other;
+    if(car.pass.age>2.5&&(car.travel>other.travel+9||car.pass.age>8)){car.pass=null;car.passCooldown=1.5;}
+    else lane=car.pass.lane;
    }
-   // Blend passing and apex lines instead of teleporting laterally.
-   const priorLane=car.lane;car.lane+=clamp(lane-car.lane,-2.8*h,2.8*h);car.lane=clamp(car.lane,-road.width/2+1.5,road.width/2-1.5);
+   const blocker=traffic.find(other=>other.travel-car.travel>0&&other.travel-car.travel<Math.max(12,car.speed*.8)&&Math.abs(other.lane-car.lane)<2.3);
+   if(blocker&&!car.pass&&car.passCooldown===0){const choices=[-4.5,4.5].sort((a,b)=>Math.abs(a-car.lane)-Math.abs(b-car.lane));
+    const clear=choices.find(candidate=>traffic.every(other=>Math.abs(other.travel-car.travel)>12||Math.abs(other.lane-candidate)>2.35));
+    if(clear!==undefined){lane=clear;car.pass={lane,other:blocker.index===undefined?p:blocker,age:0};}else target=Math.min(target,Math.max(0,blocker.speed-1));
+   }
+   car.overtaking=Boolean(car.pass);
+   // A damped lane controller and latched pass prevent substep left/right hunting.
+   car.laneVelocity+=clamp((lane-car.lane)*3-car.laneVelocity*3.2,-4,4)*h;
+   car.laneVelocity=clamp(car.laneVelocity,-2.4,2.4);car.lane+=car.laneVelocity*h;car.lane=clamp(car.lane,-road.width/2+1.5,road.width/2-1.5);
    for(const other of traffic){const gap=other.travel-car.travel;if(gap>0&&gap<5&&Math.abs(other.lane-car.lane)<2.2)target=Math.min(target,Math.max(0,other.speed-2));}
-   car.speed+=clamp(target-car.speed,-12*h,(9.3-Math.max(0,now.grade)*9.81)*h);car.speed=Math.max(0,car.speed);car.travel+=car.speed*h;
-   Object.assign(car,rallySample(road,car.travel,car.lane));car.heading+=Math.atan2((car.lane-priorLane)/h,Math.max(1,car.speed));car.steer=clamp(plan.turn,-.45,.45);
+   car.speed+=clamp(target-car.speed,-14*h,(11.5-Math.max(0,now.grade)*9.81)*h);car.speed=Math.max(0,car.speed);car.travel+=car.speed*h;
+   const smoothHeading=car.heading;Object.assign(car,rallySample(road,car.travel,car.lane));const ahead=rallySample(road,car.travel+2,car.lane),desired=Math.atan2(ahead.z-car.z,ahead.x-car.x)+Math.atan2(car.laneVelocity,Math.max(5,car.speed));
+   car.heading=smoothHeading+angle(desired-smoothHeading)*(1-Math.exp(-8*h));car.steer+=(clamp(plan.turn,-.45,.45)-car.steer)*(1-Math.exp(-6*h));rallyTransmission(car,h);
    if(car.travel>=finish){car.finished=true;car.finishTime=race.time;}
   }
-  for(const car of race.opponents){const dx=p.x-car.x,dz=p.z-car.z,d=Math.hypot(dx,dz),radius=2.5;if(d<radius&&d>1e-6){const overlap=radius-d;p.x+=dx/d*overlap*.65;p.z+=dz/d*overlap*.65;car.lane=clamp(car.lane-(dx/d*-f.tz+dz/d*f.tx)*overlap*.35,-road.width/2+1.5,road.width/2-1.5);
+  rallyTransmission(p,h);
+  for(const car of race.opponents){if(car.finished)continue;const dx=p.x-car.x,dz=p.z-car.z,d=Math.hypot(dx,dz),radius=2.5;if(d<radius&&d>1e-6){const overlap=radius-d;p.x+=dx/d*overlap*.65;p.z+=dz/d*overlap*.65;car.lane=clamp(car.lane-(dx/d*-f.tz+dz/d*f.tx)*overlap*.35,-road.width/2+1.5,road.width/2-1.5);
     const closing=p.speed*Math.cos(p.heading-car.heading)-car.speed;if(closing>0){p.speed-=closing*.45;car.speed+=closing*.2;}}
   }
   race.place=1+race.opponents.filter(car=>car.finished||car.travel>p.travel).length;

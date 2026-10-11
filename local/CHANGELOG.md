@@ -1,5 +1,13 @@
 # BeeBright releases
 
+## 2.5 racing beta
+
+- Tracks widened to 18–20 metres, with faster rivals and stable, committed overtaking instead of rapid side-to-side lane changes.
+- Finished opponents clear the racing line instead of blocking the finish.
+- High racing now uses Babylon.js PBR, HDR tone mapping, clearcoat reflections, bloom and soft shadows. Lightweight graphics remains available.
+- Full cockpit lining, doors, vents, roof trim, instruments, steering and driver hands. Automatic gearbox with shift animations, a live speed/gear screen and moving tachometer.
+- Private standalone racing testing edition with a bundled Windows executable and automatic source synchronization.
+
 ## 2.4 fixed
 
 - Original logo-free GT cars with long bonnets, fastback roofs, wide wheel haunches, detailed wheels and a driving cockpit.

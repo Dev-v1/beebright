@@ -55,20 +55,20 @@ export function setupRally({scene,camera,light,high,level,player,mesh,mat,textur
  for(let i=0;i<5;i++){const group=i===0?player:new THREE.Group();if(i)scene.add(group);let paint=mat(paints[i]);if(high){paint.dispose();materials.splice(materials.indexOf(paint),1);paint=new THREE.MeshPhysicalMaterial({color:paints[i],metalness:.6,roughness:.2,clearcoat:1,clearcoatRoughness:.09,envMapIntensity:1.55});materials.push(paint);}cars.push(buildRallyCar({high,paint,mesh,mat,parent:group}));}
  if(high&&night){const headlight=new THREE.SpotLight('#dff2ff',25,35,.48,.45,1.5),target=new THREE.Object3D();headlight.position.set(1.5,.6,0);target.position.set(12,-.1,0);player.add(headlight,target);headlight.target=target;}
  const gateMarker=mesh(new THREE.TorusGeometry(.8,.08,6,16),mat('#a7e0a2'));
- function pose(car,state,dt){car.parent.position.set(state.x,state.y+.02,state.z);car.parent.rotation.order='YXZ';car.parent.rotation.set(clamp((state.lane??0)*state.speed*.0005,-.035,.035),-state.heading,Math.atan(state.grade||0));
-  for(const wheel of car.wheels){wheel.spin.rotation.z-=state.speed*dt/.375;if(wheel.front)wheel.steering.rotation.y=-(state.steer||0)*.32;}car.steering.rotation.z=-(state.steer||0)*.7;
+ function pose(car,state,dt){car.parent.visible=!state.finished||(state.finishAge??0)<5;car.parent.position.set(state.x,state.y+.02,state.z);car.parent.rotation.order='YXZ';car.parent.rotation.set(clamp((state.lane??0)*state.speed*.0005,-.035,.035),-state.heading,Math.atan(state.grade||0));
+  for(const wheel of car.wheels){wheel.spin.rotation.z-=state.speed*dt/.375;if(wheel.front)wheel.steering.rotation.y=-(state.steer||0)*.32;}car.animate(state,dt);
   car.tail.emissiveIntensity=state===race.player&&race.input?.down?2.5:.4;
  }
  function render(dt){pose(cars[0],race.player,dt);race.opponents.forEach((p,i)=>pose(cars[i+1],p,dt));const p=race.player,next=rallySample(road,(p.gates+1)*road.length/12);gateMarker.position.set(next.x,next.y+1.2,next.z);gateMarker.rotation.y=-next.heading;
   cars[0].canopy.visible=!view.cockpit;cars[0].interior.visible=view.cockpit;
-  if(view.changed){camera.fov=view.cockpit?74:58;camera.near=view.cockpit?.025:.1;camera.updateProjectionMatrix();}
-  if(view.cockpit){player.updateMatrixWorld(true);const eye=player.localToWorld(new THREE.Vector3(-.46,1.06,.37)),target=player.localToWorld(new THREE.Vector3(24,1.06,.37));camera.position.copy(eye);camera.up.set(0,1,0);camera.lookAt(target);}
+  if(view.changed){camera.fov=view.cockpit?78:58;camera.near=view.cockpit?.025:.1;camera.updateProjectionMatrix();}
+  if(view.cockpit){player.updateMatrixWorld(true);const eye=player.localToWorld(new THREE.Vector3(-.68,1.15,.37)),target=player.localToWorld(new THREE.Vector3(24,1.11,.37));camera.position.copy(eye);camera.up.set(0,1,0);camera.lookAt(target);}
   else{const behind=new THREE.Vector3(p.x-Math.cos(p.heading)*10,p.y+4.2,p.z-Math.sin(p.heading)*10);if(view.changed)camera.position.copy(behind);else camera.position.lerp(behind,1-Math.exp(-dt*7));const look=rallySample(road,p.travel+8);camera.lookAt(p.x+Math.cos(p.heading)*6,(p.y+look.y)/2+.85,p.z+Math.sin(p.heading)*6);}
  }
  const p=race.player;camera.position.set(p.x-Math.cos(p.heading)*10,p.y+5.3,p.z-Math.sin(p.heading)*10);render(0);
  return {player:p,road,race,view,pause(input){view.previous=Boolean(input.camera);},update(input,dt){rallyViewStep(view,input.camera);race.input=input;rallyStep(race,road,input,dt);render(dt);
    const lap=Math.min(course.laps,Math.floor(Math.max(0,p.travel)/road.length)+1),speed=p.speed<-.2?'REVERSE':Math.round(Math.abs(p.speed)*3.6)+' km/h';
-   notify(`${course.name} · ${view.cockpit?'Cockpit':'Chase'} · Place ${race.place}/5 · Lap ${lap}/${course.laps} · ${speed} · ${race.time.toFixed(1)}s · Hill ${Math.round(p.y)}m`);
+   notify(`${course.name} · ${view.cockpit?'Cockpit':'Chase'} · Place ${race.place}/5 · Lap ${lap}/${course.laps} · ${speed} · Gear ${p.gear===-1?'R':p.gear??1} · ${race.time.toFixed(1)}s · Hill ${Math.round(p.y)}m`);
    if(race.finished){const score=Math.round(600000/race.time)+(6-race.place)*500;finish(race.place===1,`${course.name}: finished ${race.place} of 5 · ${course.laps} laps in ${race.time.toFixed(1)} seconds.`,score);}
  }};
 }

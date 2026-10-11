@@ -2,15 +2,23 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {RALLY_COURSES,marbleSurfaces,marblePath} from './game-mechanics.js';
-import {rallyRoad,rallySample,rallyProject,rallyProgress,newRallyRace,rallyStep,rallyCornerPlan,newRallyView,rallyViewStep} from './racing-mechanics.js';
+import {rallyRoad,rallySample,rallyProject,rallyProgress,newRallyRace,rallyStep,rallyCornerPlan,newRallyView,rallyViewStep,rallyTransmission} from './racing-mechanics.js';
 import {rallyRibbon,buildRallyCar} from './games-rally.js';
 import {rallyTerrain,mountainHeight} from './rally-terrain.js';
 import {marbleBoardGeometry} from './track-geometry.js';
 test('racing roads are wider, genuinely inclined, and retain consistent projection',()=>{
- for(const course of RALLY_COURSES){const road=rallyRoad(course);assert.ok(course.width>=13);assert.ok(road.length>680);assert.equal(course.heights.length,course.points.length);assert.ok(Math.max(...course.heights)-Math.min(...course.heights)>=3);
+ for(const course of RALLY_COURSES){const road=rallyRoad(course);assert.ok(course.width>=18);assert.ok(road.length>680);assert.equal(course.heights.length,course.points.length);assert.ok(Math.max(...course.heights)-Math.min(...course.heights)>=3);
   for(let d=0;d<road.length;d+=2){const f=rallySample(road,d),hit=rallyProject(road,f.x,f.z);assert.ok(hit.distance<1e-7);assert.ok(Math.abs(hit.y-f.y)<1e-7);assert.ok(Math.abs(hit.progress-f.progress)<1e-7);}
   const geo=rallyRibbon(road,-course.width/2,course.width/2),pos=geo.attributes.position;for(let i=0;i<pos.count;i++)assert.ok(Number.isFinite(pos.getY(i)));geo.dispose();
  }
+});
+test('passing lanes stay committed and steering changes continuously instead of hunting',()=>{
+ const road=rallyRoad(RALLY_COURSES[0]),race=newRallyRace(road),car=race.opponents[0];Object.assign(car,rallySample(road,20,0),{travel:20,lane:0,speed:28,laneVelocity:0});Object.assign(race.player,rallySample(road,35,0),{travel:35,previous:35,speed:6});let pass=null,age=0,maxAcceleration=0;
+ for(let i=0;i<180;i++){const prior=car.laneVelocity;rallyStep(race,road,{},1/90);maxAcceleration=Math.max(maxAcceleration,Math.abs(car.laneVelocity-prior)*90);if(car.pass&&!pass){pass=car.pass;age=car.pass.age;}if(pass&&car.pass&&car.pass.age<2.5){assert.equal(car.pass.lane,pass.lane);assert.ok(car.pass.age>=age);age=car.pass.age;}}
+ assert.ok(pass,'a passing maneuver was started');assert.ok(maxAcceleration<=4.001);assert.ok(car.cruise>=42);
+});
+test('transmission shifts with hysteresis, reports reverse and drives cockpit animation',()=>{
+ const p={speed:12,gear:1};rallyTransmission(p,1/60);assert.equal(p.gear,2);assert.equal(p.shift,.32);p.speed=10;rallyTransmission(p,.1);assert.equal(p.gear,2);assert.ok(p.shift<.32);p.speed=5;rallyTransmission(p,.1);assert.equal(p.gear,1);p.speed=-2;rallyTransmission(p,.1);assert.equal(p.gear,-1);assert.ok(p.rpm>=900&&p.rpm<=7400);
 });
 test('rally progress unwraps forward and reverse at the line and rejects teleports',()=>{
  assert.equal(rallyProgress(299,1,300,3),2);assert.equal(rallyProgress(1,299,300,3),-2);assert.equal(rallyProgress(10,170,300,3),0);

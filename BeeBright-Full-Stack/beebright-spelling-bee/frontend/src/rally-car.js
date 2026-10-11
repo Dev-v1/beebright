@@ -35,11 +35,61 @@ export function buildRallyCar({high,paint,mesh,mat,parent}){
  mesh(round(.19,.045,1.66,.02),paint,-1.95,.84,0,parent);
  for(const z of [-.69,.69]){const front=mesh(round(.1,.09,.38,.03),lamp,2.13,.65,z,parent);front.rotation.x=Math.sign(z)*.12;mesh(round(.065,.075,.53,.028),tail,-2.22,.66,z,parent);mesh(new THREE.CylinderGeometry(.085,.085,.21,12),alloy,-2.30,.31,z*.78,parent).rotation.z=Math.PI/2;}
  const interior=new THREE.Group();parent.add(interior);
- mesh(round(.42,.19,1.40,.05),leather,.27,.79,0,interior);mesh(round(.055,.1,.26,.025),trim,.035,.94,.37,interior);
- const screen=mat('#72bcc1');screen.emissive.set('#6dbabd');screen.emissiveIntensity=.45;mesh(new THREE.BoxGeometry(.012,.064,.19),screen,.004,.943,.37,interior);
- mesh(round(.6,.1,.24,.04),trim,-.4,.58,0,interior);
+ const stitch=mat('#8b949a'),display=mat('#080e14');display.roughness=.35;
+ const screen=mat('#81bcc2');screen.emissive.set('#84d8db');screen.emissiveIntensity=.8;
+ // Full dark cabin lining prevents exterior body paint showing through the footwell.
+ mesh(round(1.8,.045,1.65,.025),rubber,-.43,.845,0,interior);
+ mesh(round(.53,.32,1.47,.10),leather,.27,.86,0,interior);
+ mesh(round(.08,.055,1.41,.02),alloy,-.02,.85,0,interior);
+ mesh(round(.12,.24,.38,.065),leather,.055,.98,.37,interior);
+ mesh(round(.022,.195,.32,.04),display,-.018,.975,.37,interior);
+ const needles=[];
+ for(const z of [.285,.455]){
+  const face=mesh(new THREE.CircleGeometry(.073,high?40:16),display,-.033,.98,z,interior);face.rotation.y=-Math.PI/2;
+  const ring=mesh(new THREE.TorusGeometry(.076,.004,5,high?40:16),alloy,-.035,.98,z,interior);ring.rotation.y=Math.PI/2;
+  for(let i=0;i<11;i++){const a=-2.35+i*.47,tick=mesh(new THREE.BoxGeometry(.004,.003,.009),screen,-.038,.98+Math.cos(a)*.063,z+Math.sin(a)*.063,interior);tick.rotation.x=-a;}
+  const needle=new THREE.Group();needle.position.set(-.040,.98,z);interior.add(needle);mesh(round(.003,.052,.003,.001),tail,0,.024,0,needle);needles.push(needle);
+ }
+ const centerDisplay=mesh(round(.018,.16,.28,.018),display,-.011,.98,-.17,interior);
+ let dashboardTexture=null,dashboardCanvas=null;
+ if(typeof document!=='undefined'){
+  dashboardCanvas=document.createElement('canvas');dashboardCanvas.width=512;dashboardCanvas.height=256;dashboardTexture=new THREE.CanvasTexture(dashboardCanvas);dashboardTexture.colorSpace=THREE.SRGBColorSpace;const m=screen.clone();m.color.set('#ffffff');m.emissive.set('#ffffff');m.map=dashboardTexture;m.emissiveMap=dashboardTexture;centerDisplay.material=m;
+  // Face the driver (-X); a real screen shows speed, gear, RPM and shift indication.
+  centerDisplay.geometry.dispose();centerDisplay.geometry=new THREE.PlaneGeometry(.27,.145);centerDisplay.rotation.y=-Math.PI/2;centerDisplay.position.x=-.023;
+ }
+ for(const z of [-.61,-.39,.64]){
+  const vent=mesh(new THREE.TorusGeometry(.05,.008,6,high?32:12),alloy,-.022,.88,z,interior);vent.rotation.y=Math.PI/2;
+  for(let j=-2;j<=2;j++)mesh(new THREE.BoxGeometry(.005,.005,.083),trim,-.034,.88+j*.014,z,interior);
+ }
+ mesh(round(.94,.12,.31,.045),leather,-.55,.87,0,interior);
+ const shifter=new THREE.Group();shifter.position.set(-.20,.86,0);interior.add(shifter);mesh(round(.105,.018,.105,.02),alloy,0,0,0,shifter);rod([0,0,0],[0,.09,0],.012,alloy,shifter);mesh(new THREE.SphereGeometry(.035,12,8),leather,0,.105,0,shifter);
+ for(const z of [-.76,.76]){
+  mesh(round(1.35,.28,.045,.025),leather,-.59,.95,z,interior);
+  mesh(round(.46,.04,.085,.02),alloy,-.60,.97,z*.94,interior);
+  mesh(round(.11,.025,.045,.01),alloy,-.16,1.05,z*.95,interior);
+  mesh(round(1.15,.007,.007,.003),stitch,-.64,1.07,z*.985,interior);
+ }
  for(const z of [-.37,.37]){mesh(round(.55,.13,.48,.06),leather,-.73,.46,z,interior);const seat=mesh(round(.14,.55,.48,.065),leather,-1.0,.72,z,interior);seat.rotation.z=.16;}
- const steering=new THREE.Group();steering.position.set(.0,.88,.37);steering.rotation.y=Math.PI/2;interior.add(steering);mesh(new THREE.TorusGeometry(.16,.022,6,high?24:12),leather,0,0,0,steering);mesh(round(.18,.035,.035,.01),alloy,0,-.025,0,steering);
+ const steering=new THREE.Group();steering.position.set(-.16,.99,.37);steering.rotation.y=Math.PI/2;interior.add(steering);mesh(new THREE.TorusGeometry(.16,.021,high?10:6,high?48:12),leather,0,0,0,steering);
+ mesh(round(.13,.067,.035,.02),leather,0,-.01,0,steering);
+ for(const sign of [-1,1]){const spoke=mesh(round(.10,.018,.023,.006),alloy,sign*.09,-.025,0,steering);spoke.rotation.z=sign*-.20;mesh(round(.045,.07,.015,.007),alloy,sign*.11,.025,-.032,steering);}
+ mesh(round(.023,.10,.025,.006),alloy,0,-.09,0,steering);
+ const glove=mat('#343b46'),suit=mat('#242e3e'),leftHand=new THREE.Group(),rightHand=new THREE.Group();interior.add(leftHand,rightHand);
+ function hand(group){const palm=mesh(new THREE.SphereGeometry(.038,12,8),glove,0,0,0,group);palm.scale.set(.9,1.2,.65);for(let i=0;i<4;i++)mesh(round(.013,.041,.016,.006),glove,.021-i*.015,.025,-.015,group);mesh(round(.075,.045,.048,.018),suit,-.075,-.01,0,group);}
+ hand(leftHand);hand(rightHand);
+ const cockpitFrame=new THREE.Group();interior.add(cockpitFrame);
+ for(const z of [-1,1]){rod([.65,.86,z*.74],[-.12,1.25,z*.65],.026,leather,cockpitFrame);mesh(round(.68,.035,.045,.01),leather,-.45,1.23,z*.63,cockpitFrame);}
+ // Interior rear-view mirror, roof liner and sun visors, without hiding the road.
+ mesh(round(.50,.025,1.25,.015),leather,-.86,1.245,0,cockpitFrame);mesh(round(.09,.065,.21,.012),alloy,.26,1.18,0,cockpitFrame);
+ for(const z of [-.36,.36])mesh(round(.15,.016,.25,.006),leather,-.03,1.22,z,cockpitFrame);
+ function animate(state,dt){
+  steering.rotation.z=-(state.steer||0)*.85;
+  needles[0].rotation.x=2.35-Math.min(1,(state.rpm??900)/7500)*4.7;needles[1].rotation.x=2.35-Math.min(1,Math.abs(state.speed)/60)*4.7;
+  const phase=state.shift>0?Math.sin(Math.PI*(1-state.shift/.32)):0;shifter.rotation.z=phase*.22;
+  leftHand.position.set(-.21,1.025,.515);rightHand.position.set(-.21+phase*.01,1.025-phase*.055,.225-phase*.21);
+  leftHand.rotation.x=-(state.steer||0)*.5;rightHand.rotation.x=-(state.steer||0)*.5*(1-phase);
+  if(dashboardCanvas){const c=dashboardCanvas.getContext('2d');c.fillStyle='#07131d';c.fillRect(0,0,512,256);c.fillStyle='#b2eef1';c.font='bold 90px sans-serif';c.fillText(state.gear===-1?'R':String(state.gear??1),24,108);c.font='bold 52px sans-serif';c.fillText(String(Math.round(Math.abs(state.speed)*3.6)).padStart(3,'0'),170,97);c.font='22px sans-serif';c.fillText('km/h',178,129);c.fillText(`${Math.round(state.rpm??900)} RPM`,24,193);c.fillStyle=phase>0?'#ffb955':'#66c9c9';c.fillRect(24,216,Math.min(464,(state.rpm??900)/7500*464),9);dashboardTexture.needsUpdate=true;}
+ }
  const wheels=[];for(const x of [-1.28,1.32])for(const z of [-.96,.96]){const axle=new THREE.Group();axle.position.set(x,.37,z);parent.add(axle);const spin=new THREE.Group();axle.add(spin);
   const tire=mesh(new THREE.TorusGeometry(.27,.105,high?12:6,high?32:12),rubber,0,0,0,spin);tire.scale.z=1.30;
   const rim=mesh(new THREE.CylinderGeometry(.225,.225,.20,high?32:10),alloy,0,0,0,spin);rim.rotation.x=Math.PI/2;
@@ -48,5 +98,5 @@ export function buildRallyCar({high,paint,mesh,mat,parent}){
    mesh(round(.075,.16,.045,.015),tail,.12,.04,-Math.sign(z)*.09,axle);
   }wheels.push({steering:axle,spin,front:x>0});
  }
- return {parent,wheels,tail,canopy,interior,steering,body};
+ return {parent,wheels,tail,canopy,interior,steering,body,shifter,needles,animate,dashboardTexture};
 }

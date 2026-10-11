@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import {setupRally} from './games-rally.js';
 import {marbleBoardGeometry} from './track-geometry.js';
-import {createGameRenderer,createHighGameRenderer} from './game-renderer.js';
+import {createGameRenderer} from './game-renderer.js';
 import {clamp,MARBLE_COURSES,marblePath,marbleSurfaces,marbleStep,marbleStart,keepInFrame} from './game-mechanics.js';
 export function mount3D(canvas,{id,level=0,input,onFinish,onStatus,onGraphics,quality='light'}) {
  const options={id,level,input,onFinish,onStatus,onGraphics,quality};
- if(id==='rally'&&quality==='high')return createHighGameRenderer(canvas,onGraphics).then(renderer=>mountScene(canvas,options,renderer));
+ if(id==='rally'&&quality==='high')return import('./rally-babylon.js').then(({createRallyRenderer})=>createRallyRenderer(canvas,onGraphics)).then(renderer=>mountScene(canvas,options,renderer));
  return mountScene(canvas,options,createGameRenderer(canvas,quality,onGraphics));
 }
 function mountScene(canvas,{id,level,input,onFinish,onStatus,quality},renderer){
@@ -17,7 +17,7 @@ function mountScene(canvas,{id,level,input,onFinish,onStatus,quality},renderer){
  const teal=mat('#8de9df'),purple=mat('#b4a2ef'),stone=mat('#7b93bd'),green=mat('#abec9e'),pink=mat('#f691ba'),white=mat('#e6efff');
  function mesh(geometry,material,x=0,y=0,z=0,parent=scene){geometries.push(geometry);const m=new THREE.Mesh(geometry,material);m.position.set(x,y,z);m.castShadow=high;m.receiveShadow=high;parent.add(m);return m;}
  function box(x,y,z,w,h,d,material=stone){return mesh(new THREE.BoxGeometry(w,h,d),material,x,y,z);}
- let animation,last=0,t=0,paused=false,done=false,score=0,status='',redraw=true;
+ let loading=Boolean(renderer.ready),animation,last=0,t=0,paused=loading,done=false,score=0,status='',redraw=true;
  const p={x:0,y:.56,z:3,vx:0,vz:0,vy:0,speed:0,heading:Math.PI/2};
  const player=new THREE.Group();scene.add(player);let ball,course,segments,surfaces,crystals=[],taken=0,checkpoint={x:0,z:3,y:.56},falls=0,grounded=true;
  let rally,hazards=[],boostUntil=0,boostCooldown=0,hazardCooldown=0;
@@ -105,7 +105,9 @@ function mountScene(canvas,{id,level,input,onFinish,onStatus,quality},renderer){
    light.userData.followTarget.position.copy(center);light.position.copy(center).add(new THREE.Vector3(16,28,12));
   }
  }
- function loop(now){const dt=last?Math.min(.034,(now-last)/1000):0;last=now;if(!paused&&!done){update(dt);redraw=true;}if(redraw){try{renderer.render(scene,camera);}catch(error){finish(false,`Graphics stopped: ${error.message}. Retry or choose Lightweight graphics.`);}redraw=false;}animation=requestAnimationFrame(loop);}
+ function loop(now){const dt=last?Math.min(.034,(now-last)/1000):0;last=now;if(!paused&&!done){update(dt);redraw=true;}if(loading)redraw=true;if(redraw){try{renderer.render(scene,camera);}catch(error){finish(false,`Graphics stopped: ${error.message}. Retry or choose Lightweight graphics.`);}redraw=false;}animation=requestAnimationFrame(loop);}
  const contextLost=e=>{e.preventDefault();finish(false,'The graphics context was interrupted. Retry, or open local practice in your browser.');};canvas.addEventListener('webglcontextlost',contextLost);player.position.set(p.x,p.y,p.z);renderer.render(scene,camera);animation=requestAnimationFrame(loop);
- return {pause(value){paused=value;redraw=true;input.previousAction=Boolean(input.action);rally?.pause(input);},setMuted(){},dispose(){cancelAnimationFrame(animation);canvas.removeEventListener('webglcontextlost',contextLost);for(const g of new Set(geometries))g.dispose();for(const m of materials)m.dispose();for(const texture of textures)texture.dispose();renderer.dispose();}};
+ const controls={pause(value){paused=value;redraw=true;input.previousAction=Boolean(input.action);rally?.pause(input);},setMuted(){},dispose(){cancelAnimationFrame(animation);canvas.removeEventListener('webglcontextlost',contextLost);for(const g of new Set(geometries))g.dispose();for(const m of materials)m.dispose();for(const texture of textures)texture.dispose();renderer.dispose();}};
+ if(renderer.ready)return renderer.ready().then(()=>{loading=false;paused=false;last=0;return controls;},error=>{controls.dispose();throw error;});
+ return controls;
 }

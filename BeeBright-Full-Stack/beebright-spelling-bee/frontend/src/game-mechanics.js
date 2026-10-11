@@ -119,10 +119,10 @@ export function marbleStep(p,input,dt,surfaces,{jump=false,boost=false}={}){
 }
 
 export const RALLY_COURSES=[
- {name:'Harbor Circuit',width:14,scale:2.8,heights:[0,2,6,9,5,2,0,1,3,1],laps:2,theme:'harbor',points:[[28,0],[25,25],[0,34],[-27,23],[-38,-5],[-26,-30],[-6,-36],[7,-18],[23,-30],[37,-16]]},
- {name:'Canyon Switchback',width:13,scale:2.8,heights:[0,8,18,12,4,0,7,20,13,5,2,10,5],laps:2,theme:'canyon',points:[[30,0],[32,24],[9,29],[4,10],[-13,9],[-14,32],[-36,23],[-34,-20],[-14,-30],[-2,-10],[13,-15],[17,-33],[34,-25]]},
- {name:'Alpine Hairpins',width:13,scale:1,heights:[0,8,20,36,46,60,65,58,53,47,40,36,28,18,8,4,2,0,0],laps:2,theme:'alpine',mountains:[[-35,155,110,90],[155,115,145,80],[-170,95,135,85],[0,-180,90,80]],points:[[145,-100],[170,-35],[140,35],[80,60],[70,120],[0,150],[-65,110],[-35,70],[25,80],[30,40],[-40,25],[-115,55],[-150,0],[-135,-65],[-75,-90],[-45,-40],[15,-55],[55,-100],[80,-145]]},
- {name:'Midnight Metro',width:14,scale:2.8,heights:[0,2,6,4,0,0,10,15,8,2,0,0,3,0,5],laps:2,theme:'city',points:[[35,0],[34,28],[10,29],[8,12],[-10,12],[-12,32],[-34,28],[-36,4],[-20,2],[-20,-18],[-35,-20],[-25,-36],[3,-34],[7,-17],[32,-24]]},
+ {name:'Harbor Circuit',width:20,scale:2.8,heights:[0,2,6,9,5,2,0,1,3,1],laps:2,theme:'harbor',points:[[28,0],[25,25],[0,34],[-27,23],[-38,-5],[-26,-30],[-6,-36],[7,-18],[23,-30],[37,-16]]},
+ {name:'Canyon Switchback',width:18,scale:2.8,heights:[0,8,18,12,4,0,7,20,13,5,2,10,5],laps:2,theme:'canyon',points:[[30,0],[32,24],[9,29],[4,10],[-13,9],[-14,32],[-36,23],[-34,-20],[-14,-30],[-2,-10],[13,-15],[17,-33],[34,-25]]},
+ {name:'Alpine Hairpins',width:18,scale:1,heights:[0,8,20,36,46,60,65,58,53,47,40,36,28,18,8,4,2,0,0],laps:2,theme:'alpine',mountains:[[-35,155,110,90],[155,115,145,80],[-170,95,135,85],[0,-180,90,80]],points:[[145,-100],[170,-35],[140,35],[80,60],[70,120],[0,150],[-65,110],[-35,70],[25,80],[30,40],[-40,25],[-115,55],[-150,0],[-135,-65],[-75,-90],[-45,-40],[15,-55],[55,-100],[80,-145]]},
+ {name:'Midnight Metro',width:20,scale:2.8,heights:[0,2,6,4,0,0,10,15,8,2,0,0,3,0,5],laps:2,theme:'city',points:[[35,0],[34,28],[10,29],[8,12],[-10,12],[-12,32],[-34,28],[-36,4],[-20,2],[-20,-18],[-35,-20],[-25,-36],[3,-34],[7,-17],[32,-24]]},
 ];
 export function roadDistance(points,x,z){let best=Infinity;for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length],dx=b.x-a.x,dz=b.z-a.z,u=clamp(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz),0,1);best=Math.min(best,Math.hypot(x-a.x-dx*u,z-a.z-dz*u));}return best;}
 export function bridgeLanding(start,next,length){const tip=start+length;return tip>=next.x&&tip<=next.x+next.w;}

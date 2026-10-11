@@ -18,8 +18,11 @@
 /local/beebright_local/ui/
 /local/ui-source/
 **/dist-local/
+/racing-beta/export/
 
 /BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/install.sh
 
 /BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/study-catalog.json
 /BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local-changelog.md
+
+/local/THIRD_PARTY_BABYLON_LICENSE.txt
