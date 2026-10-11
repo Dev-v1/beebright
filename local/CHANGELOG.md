@@ -1,5 +1,10 @@
 # BeeBright releases
 
+## 2.6 bugfix
+
+- Clicking a multiple-choice word checks it immediately. The extra Check answer button is removed from this mode.
+- Correct or Incorrect appears on a raised panel in front of the dimmed choices, with the correct spelling above the selected spelling. Next word remains below the panel.
+
 ## 2.6
 
 - Origin hints show language paths without historical spellings, roots or cognates. Uncertain histories and compounds remain qualified instead of inventing a borrowing sequence.

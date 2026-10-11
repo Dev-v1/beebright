@@ -85,9 +85,10 @@ def test(w):
                 if mode=='Multiple Choice':
                     chosen=w.evaluate_js("document.querySelector('.choices button').innerText.substring(1).trim()")
                     w.evaluate_js("document.querySelector('.choices button').click()")
-                    w.evaluate_js("document.querySelector('.check-button').click()")
                     wait(w,"document.querySelector('.feedback') !== null")
+                    assert w.evaluate_js("document.querySelector('.check-button')===null && Array.from(document.querySelectorAll('.choices button')).every(b=>b.disabled)")
                     assert w.evaluate_js("document.querySelector('.choice-wrap > .feedback')!==null && document.querySelector('.feedback').compareDocumentPosition(document.querySelector('.choices')) & Node.DOCUMENT_POSITION_FOLLOWING")
+                    assert w.evaluate_js("(()=>{const panel=document.querySelector('.choice-wrap > .feedback'),choices=document.querySelector('.choices'),p=panel.getBoundingClientRect(),c=choices.getBoundingClientRect();return getComputedStyle(panel).position==='absolute' && Number(getComputedStyle(panel).zIndex)>0 && getComputedStyle(choices).opacity<1 && p.top<c.bottom && p.bottom>c.top && p.left<c.right && p.right>c.left;})()")
                     assert w.evaluate_js("['Correct','Incorrect'].includes(document.querySelector('.feedback strong').innerText) && document.querySelector('.correct-spelling').innerText.length>0")
                     assert w.evaluate_js("document.querySelectorAll('.feedback p')[0].innerText.startsWith('Correct spelling:') && document.querySelectorAll('.feedback p')[1].innerText.startsWith('Your choice:')")
                     assert w.evaluate_js("document.querySelector('.feedback em').innerText")==chosen
