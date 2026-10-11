@@ -8,7 +8,10 @@ def main():
     root=Path(getattr(sys,'_MEIPASS',Path(__file__).parent))/'dist'
     if not (root/'index.html').is_file():raise RuntimeError('Bundled racing interface is missing.')
     class Handler(http.server.SimpleHTTPRequestHandler):
-        def log_message(self,*args):pass
+        # Windows registry associations can otherwise serve JS as text/plain.
+        extensions_map={**http.server.SimpleHTTPRequestHandler.extensions_map,'.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json'}
+        def log_message(self,format,*values):
+            if args.self_test:print('Asset request:',format%values,flush=True)
         def do_GET(self):
             if self.path.split('?')[0].endswith('.py'):self.send_error(404);return
             super().do_GET()
@@ -20,6 +23,11 @@ def main():
     failure=[]
     def test():
         try:
+            # Validate the same HTTP asset paths consumed by the embedded browser.
+            import urllib.request
+            for file in (root/'assets').glob('*.js'):
+                with urllib.request.urlopen(url.rsplit('/',1)[0]+'/assets/'+file.name) as response:
+                    assert response.status==200 and 'javascript' in response.headers.get('Content-Type',''),file.name
             end=time.monotonic()+40
             while time.monotonic()<end:
                 try:
