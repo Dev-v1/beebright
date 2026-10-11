@@ -23,10 +23,13 @@ test('introductory Dash is slower and friendly platforms do not overlap spikes',
 test('marble paths supply continuous ramp support and real jump gaps',()=>{
  for(let level=0;level<3;level++){const path=marblePath(level);for(const s of path){const x=(s.a[0]+s.b[0])/2,z=(s.a[1]+s.b[1])/2,support=marbleSupport(path,x,z);if(s.gap)assert.equal(support,null);else assert.ok(Math.abs(support.height-(s.a[2]+s.b[2])/2)<1e-8);}}
 });
-test('marble turning pads support the ball past a join while leaving jump gaps open',()=>{
- for(let level=0;level<3;level++){const path=marblePath(level);
-  for(const s of path){const dx=s.b[0]-s.a[0],dz=s.b[1]-s.a[1],x=s.b[0]+dx/s.length*.75,z=s.b[1]+dz/s.length*.75,support=marbleSupport(path,x,z);assert.ok(support);assert.ok(support.height>=s.b[2]-.001);}
-  for(const s of path.filter(s=>s.gap))assert.equal(marbleSupport(path,(s.a[0]+s.b[0])/2,(s.a[1]+s.b[1])/2),null);
+test('marble joins share one exact edge with no overlaid turning boards',()=>{
+ for(let level=0;level<3;level++){const path=marblePath(level),surfaces=marbleSurfaces(path);
+  for(const point of path.slice(0,-1).map(s=>s.b)){const hit=marbleSupport(path,point[0],point[1]);assert.ok(hit);assert.ok(Math.abs(hit.height-point[2])<1e-8);}
+  for(const s of surfaces){const [a,b,c]=s.vertices,x=(a[0]+b[0]+c[0])/3,z=(a[2]+b[2]+c[2])/3;let inside=0;
+   for(const t of surfaces){const [a,b,c]=t.vertices,dx=x-a[0],dz=z-a[2],bx=b[0]-a[0],bz=b[2]-a[2],cx=c[0]-a[0],cz=c[2]-a[2],det=bx*cz-bz*cx,u=(dx*cz-dz*cx)/det,v=(bx*dz-bz*dx)/det;if(u>1e-7&&v>1e-7&&u+v<1-1e-7)inside++;}
+   assert.equal(inside,1,'each top interior is covered by one triangle');
+  }
  }
 });
 test('bowling rewards a pocket hit without giving every roll a strike',()=>{
@@ -102,9 +105,9 @@ test('marble landing prevents fast ramp tunnelling and never pulls a ball up fro
  const p={x:0,z:10,y:12,vx:0,vz:0,vy:-90};marbleStep(p,{},.2,surfaces);assert.ok(Math.abs((p.y-p.z*.2)/Math.hypot(1,.2)-MARBLE_RADIUS)<.00001);assert.equal(p.grounded,true);
  const below={x:0,z:10,y:1,vx:0,vz:0,vy:-1};marbleStep(below,{},.1,surfaces);assert.ok(below.y<1);assert.equal(below.grounded,false);
 });
-test('square pad corners are solid, and exposed edges and gap centers let the marble fall',()=>{
+test('exposed ribbon edges and gap centers let the marble fall',()=>{
  const path=[{a:[0,0,0],b:[0,20,0],length:20,width:4,gap:true,index:0}],surfaces=marbleSurfaces(path);
- assert.ok(marbleSupport(path,2.4,22.4)?.pad);assert.equal(marbleSupport(path,2.6,22.4),null);
+ assert.ok(marbleSupport(path,1.9,19.9));assert.equal(marbleSupport(path,2.1,19.9),null);assert.equal(marbleSupport(path,0,20.1),null);
  const edge={x:1.5,z:3,y:.55,vx:6,vz:0,vy:0};for(let i=0;i<60;i++)marbleStep(edge,{right:true},1/60,surfaces);assert.ok(edge.x>4);assert.ok(edge.y<0);assert.equal(edge.grounded,false);
  const gap={x:0,z:10,y:.55,vx:0,vz:0,vy:0};marbleStep(gap,{},.2,surfaces);assert.ok(gap.y<.4);assert.equal(gap.grounded,false);
 });
