@@ -141,6 +141,21 @@ The website has Sky Hopper, Sheep Escape, Gravity Flip, Pocket Bowling (five fra
 
 Three.js is MIT licensed; its license is included in the source ZIP. The two 3D games require WebGL 2. If unavailable, the six local 2D games still work. Graphics use low-poly meshes, no shadows, a 1.5x pixel-density cap and release GPU resources when leaving a game. The 3D engine loads only on demand. All original art and music are generated locally; there are no third-party music downloads.
 
+## Racing tracks (2.7)
+
+Neon Rally has ten tracks. Choose a track and 1-10 laps on its game card before pressing Play. The original Harbor Circuit, Canyon Switchback, Alpine Hairpins and Midnight Metro are joined by:
+
+| Track | Layout |
+|---|---|
+| Coastal Sprint | Wide, sweeping turns and long straights |
+| Red Mesa Run | Rolling canyon bends and alternating corners |
+| Pine Ridge | Forest climbs and flowing ridge turns |
+| Old Town Loop | A technical city circuit with tighter corners |
+| Summit Grand Prix | A long mountain circuit with a 70-metre climb |
+| Sunset Docks | Dockside bends and long waterfront approaches |
+
+All tracks support both graphics settings, four AI opponents and the cockpit/chase camera shortcut (R).
+
 ## Uninstall
 
 Close BeeBright and stop local browser practice with Ctrl+C, then run:
@@ -150,3 +165,4 @@ beebright uninstall
 ```
 
 This removes BeeBright, its private runtimes, terminal launcher, local saved progress and settings. Other Python installations, shared WebView2 and website account/progress remain. Back up your BeeBright `userdata` folder first if you want to retain progress. On Windows it is `%LOCALAPPDATA%\BeeBright\userdata`; on macOS/Linux it is `~/.local/share/BeeBright/userdata`.
+
