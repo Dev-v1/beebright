@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import {clamp} from './game-mechanics.js';
+import {rallyEnvironment} from './rally-scenery.js';
 export function mountainHeight(course,x,z){let h=-2;for(const [mx,mz,peak,radius] of course.mountains||[])h+=peak*Math.exp(-((x-mx)**2+(z-mz)**2)/(radius*radius));return h+Math.sin(x*.07)*Math.cos(z*.055)*3;}
-export function rallyTerrain(course,road,high){const alpine=course.theme==='alpine',extent=Math.max(...road.points.flatMap(p=>[Math.abs(p.x),Math.abs(p.z)])),size=Math.max(alpine?650:360,2*(extent+course.width/2+50)),geo=new THREE.PlaneGeometry(size,size,alpine?(high?128:64):1,alpine?(high?128:64):1);geo.rotateX(-Math.PI/2);const pos=geo.attributes.position,colors=[],grass=new THREE.Color('#657755'),rock=new THREE.Color('#858885'),snow=new THREE.Color('#e4e9e8');
+export function rallyTerrain(course,road,high){const alpine=course.theme==='alpine'||Boolean(course.mountains),style=rallyEnvironment(course),extent=Math.max(...road.points.flatMap(p=>[Math.abs(p.x),Math.abs(p.z)])),size=Math.max(alpine?650:360,2*(extent+course.width/2+50)),geo=new THREE.PlaneGeometry(size,size,alpine?(high?128:64):1,alpine?(high?128:64):1);geo.rotateX(-Math.PI/2);const pos=geo.attributes.position,colors=[],grass=new THREE.Color(style?.terrain?.[0]||'#657755'),rock=new THREE.Color(style?.terrain?.[1]||'#858885'),snow=new THREE.Color(style?.terrain?.[2]||'#e4e9e8');
  for(let k=0;k<pos.count;k++){const x=pos.getX(k),z=pos.getZ(k);let height=-1.2;
   if(alpine){let nearest=Infinity,roadY=0;for(let i=0;i<road.points.length;i++){const a=road.points[i],b=road.points[(i+1)%road.points.length],dx=b.x-a.x,dz=b.z-a.z,u=clamp(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz),0,1),d=(x-a.x-dx*u)**2+(z-a.z-dz*u)**2;if(d<nearest){nearest=d;roadY=a.y+(b.y-a.y)*u;}}
    // A road cutting through the mountains; keep the shoulder below the asphalt.

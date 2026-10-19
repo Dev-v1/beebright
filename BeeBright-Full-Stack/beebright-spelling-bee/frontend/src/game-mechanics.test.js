@@ -64,7 +64,7 @@ test('every full Dash course is completable across all four modes without losing
  }
 });
 test('Rally tracks differ and road proximity follows their curves, not an ellipse',()=>{
- assert.equal(RALLY_COURSES.length,10);assert.equal(new Set(RALLY_COURSES.map(c=>c.theme)).size,4);
+ assert.equal(RALLY_COURSES.length,12);assert.equal(new Set(RALLY_COURSES.map(c=>c.theme)).size,6);
  assert.equal(new Set(RALLY_COURSES.map(c=>c.name)).size,RALLY_COURSES.length);
  assert.equal(new Set(RALLY_COURSES.map(c=>JSON.stringify(c.points))).size,RALLY_COURSES.length);
  for(const c of RALLY_COURSES){const curve=new THREE.CatmullRomCurve3(c.points.map(([x,z])=>new THREE.Vector3(x,0,z)),true,'centripetal'),p=curve.getSpacedPoints(128).slice(0,-1);assert.ok(roadDistance(p,p[20].x,p[20].z)<.01);assert.ok(roadDistance(p,10000,10000)>c.width);assert.ok(curve.getLength()>150);}
