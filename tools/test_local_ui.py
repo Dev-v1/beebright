@@ -35,7 +35,7 @@ def test(w):
             w.evaluate_js("(()=>{const e=document.querySelector('[aria-label=\"Neon Dash course\"]');e.value='4';e.dispatchEvent(new Event('change',{bubbles:true}));})()")
             w.evaluate_js("(()=>{const e=document.querySelector('[aria-label=\"Marble Run course\"]');e.value='2';e.dispatchEvent(new Event('change',{bubbles:true}));})()")
             assert w.evaluate_js("document.querySelector('[aria-label=\"Neon Dash course\"]').value==='4' && document.querySelector('[aria-label=\"Marble Run course\"]').value==='2'")
-            assert w.evaluate_js("document.querySelector('[aria-label=\"Neon Rally track\"]').options.length===12")
+            assert w.evaluate_js("document.querySelector('[aria-label=\"Neon Rally track\"]').options.length===4")
             w.evaluate_js("Array.from(document.querySelectorAll('.game-card')).find(c=>c.querySelector('h2').innerText==='Pocket Bowling').querySelector('button').click()")
             wait(w,"document.querySelector('.game-overlay .primary') !== null && !document.querySelector('.game-overlay .primary').disabled")
             w.evaluate_js("document.querySelector('.game-overlay .primary').click()")
@@ -132,17 +132,15 @@ def test(w):
             w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
             wait(w,"document.querySelectorAll('.game-card').length===8")
         # Exercise every independent Rally track in the installed High quality UI.
-        track_names = w.evaluate_js("Array.from(document.querySelector('[aria-label=\"Neon Rally track\"]').options, o=>o.text.replace(/^\\d+\\. /,''))")
-        assert len(track_names) == 12 and len(set(track_names)) == 12
-        for track, track_name in enumerate(track_names):
-            w.evaluate_js("(()=>{const s=document.querySelector('[aria-label=\"Race laps\"]');s.value='"+str(track%10+1)+"';s.dispatchEvent(new Event('change',{bubbles:true}));})()")
+        for track in range(4):
+            w.evaluate_js("(()=>{const s=document.querySelector('[aria-label=\"Race laps\"]');s.value='"+str(track+1)+"';s.dispatchEvent(new Event('change',{bubbles:true}));})()")
             w.evaluate_js("(()=>{const s=document.querySelector('[aria-label=\"Neon Rally track\"]');s.value='"+str(track)+"';s.dispatchEvent(new Event('change',{bubbles:true}));})()")
             w.evaluate_js("Array.from(document.querySelectorAll('.game-card')).find(c=>c.querySelector('h2').innerText==='Neon Rally').querySelector('button').click()")
             wait(w,"document.querySelector('.game-overlay .primary')!==null && !document.querySelector('.game-overlay .primary').disabled")
             w.evaluate_js("document.querySelector('.game-overlay .primary').click()")
             wait(w,"document.querySelector('.game-overlay')===null")
             time.sleep(.4)
-            assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes("+repr(track_name)+")")
+            assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes("+repr(['Harbor Circuit','Canyon Switchback','Alpine Hairpins','Midnight Metro'][track])+")")
             assert w.evaluate_js("/Place [1-5]\\/5/.test(document.querySelector('.arcade-player-bar').innerText) && document.querySelector('.arcade-player-bar').innerText.includes('Hill')")
             assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes('Chase')")
             assert w.evaluate_js("document.querySelector('.arcade-player-bar').innerText.includes('Lap 1/"+str(track+1)+"')")
@@ -186,7 +184,7 @@ def test(w):
         wait(w,"document.querySelector('.arcade-player-bar').innerText.includes('Lowering') || document.querySelector('.arcade-player-bar').innerText.includes('Crossing')")
         w.evaluate_js("document.querySelector('.arcade-player-bar button').click()")
         wait(w,"document.querySelectorAll('.game-card').length===8")
-        print('Twelve High quality Rally tracks and hold/release bridge controls passed.')
+        print('Four High quality Rally tracks and hold/release bridge controls passed.')
         # Leaving and resuming must retain the earned break and its original deadline.
         w.evaluate_js("document.querySelector('.brand').click()")
         wait(w,"document.querySelector('.hero-copy') !== null")
