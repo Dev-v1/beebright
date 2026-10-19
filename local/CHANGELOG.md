@@ -1,4 +1,10 @@
-# BeeBright 2.6 fixed
+# BeeBright 2.7
+
+- Six new Neon Rally circuits: Coastal Sprint, Red Mesa Run, Pine Ridge, Old Town Loop, Summit Grand Prix, and Sunset Docks.
+- Ten selectable tracks, with 1-10 laps, chase and cockpit cameras, and Lightweight or High quality graphics.
+- Terrain expands to cover the larger circuits and their trackside scenery.
+
+## 2.6 fixed
 
 - Faster racing opponents with smooth committed overtaking.
 - Compact exterior windshield and a wider cockpit view.
@@ -113,3 +119,4 @@
 ## 1.8
 
 - Private Python 3.15 runtime, offline help, and one-command uninstall.
+

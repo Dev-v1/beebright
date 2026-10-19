@@ -123,6 +123,12 @@ export const RALLY_COURSES=[
  {name:'Canyon Switchback',width:18,scale:2.8,heights:[0,8,18,12,4,0,7,20,13,5,2,10,5],laps:2,theme:'canyon',points:[[30,0],[32,24],[9,29],[4,10],[-13,9],[-14,32],[-36,23],[-34,-20],[-14,-30],[-2,-10],[13,-15],[17,-33],[34,-25]]},
  {name:'Alpine Hairpins',width:18,scale:1,heights:[0,8,20,36,46,60,65,58,53,47,40,36,28,18,8,4,2,0,0],laps:2,theme:'alpine',mountains:[[-35,155,110,90],[155,115,145,80],[-170,95,135,85],[0,-180,90,80]],points:[[145,-100],[170,-35],[140,35],[80,60],[70,120],[0,150],[-65,110],[-35,70],[25,80],[30,40],[-40,25],[-115,55],[-150,0],[-135,-65],[-75,-90],[-45,-40],[15,-55],[55,-100],[80,-145]]},
  {name:'Midnight Metro',width:20,scale:2.8,heights:[0,2,6,4,0,0,10,15,8,2,0,0,3,0,5],laps:2,theme:'city',points:[[35,0],[34,28],[10,29],[8,12],[-10,12],[-12,32],[-34,28],[-36,4],[-20,2],[-20,-18],[-35,-20],[-25,-36],[3,-34],[7,-17],[32,-24]]},
+ {name:'Coastal Sprint',width:24,scale:1,heights:[1,3,6,8,7,4,1,0,0,1],laps:2,theme:'harbor',points:[[150,0],[145,65],[80,100],[-35,105],[-145,65],[-170,-10],[-120,-90],[-20,-105],[90,-90],[155,-55]]},
+ {name:'Red Mesa Run',width:20,scale:1,heights:[0,5,14,25,31,27,20,12,6,2,0,0],laps:2,theme:'canyon',points:[[160,0],[150,75],[75,120],[0,95],[-70,130],[-155,85],[-175,0],[-130,-75],[-55,-110],[10,-75],[80,-110],[150,-65]]},
+ {name:'Pine Ridge',width:20,scale:1,heights:[0,6,14,22,30,35,30,24,17,10,4,0],laps:2,theme:'alpine',mountains:[[-220,160,65,90],[190,205,78,95],[-205,-155,60,85],[50,-220,68,90]],points:[[140,-10],[130,65],[60,105],[-10,70],[-75,115],[-145,75],[-165,0],[-120,-80],[-40,-110],[25,-60],[95,-100],[150,-65]]},
+ {name:'Old Town Loop',width:20,scale:1,heights:[0,1,4,8,7,4,1,0,0,2,5,6,3,0],laps:2,theme:'city',points:[[150,0],[145,85],[65,110],[5,65],[-55,110],[-145,85],[-165,10],[-120,-25],[-145,-105],[-55,-120],[5,-70],[75,-115],[155,-95],[185,-40]]},
+ {name:'Summit Grand Prix',width:20,scale:1,heights:[0,8,20,35,50,63,70,62,52,42,32,22,12,4,0,0],laps:2,theme:'alpine',mountains:[[-240,160,140,100],[205,210,155,95],[-210,-180,125,100],[40,-245,130,90]],points:[[185,-60],[190,30],[145,105],[70,150],[-15,115],[-85,165],[-170,120],[-200,40],[-150,-20],[-200,-95],[-155,-170],[-65,-190],[0,-125],[70,-175],[150,-150],[205,-115]]},
+ {name:'Sunset Docks',width:22,scale:1,heights:[0,2,5,9,12,10,5,1,0,2,6,9,5,0],laps:2,theme:'harbor',points:[[160,-10],[150,70],[80,120],[0,90],[-80,125],[-160,70],[-175,-10],[-105,-50],[-155,-125],[-65,-150],[10,-105],[85,-150],[165,-110],[200,-65]]},
 ];
 export function roadDistance(points,x,z){let best=Infinity;for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length],dx=b.x-a.x,dz=b.z-a.z,u=clamp(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz),0,1);best=Math.min(best,Math.hypot(x-a.x-dx*u,z-a.z-dz*u));}return best;}
 export function bridgeLanding(start,next,length){const tip=start+length;return tip>=next.x&&tip<=next.x+next.w;}
@@ -169,3 +175,4 @@ export function keepInFrame(p,camera,z=7,marginX=1.25,marginY=.75){
  const ray=new V(x,y,.5).unproject(camera).sub(camera.position),factor=(z-camera.position.z)/ray.z;
  const bounded=camera.position.clone().addScaledVector(ray,factor);if(Math.abs(p.x-bounded.x)>.001)p.vx=0;if(Math.abs(p.y-bounded.y)>.001)p.vy=0;p.x=bounded.x;p.y=bounded.y;
 }
+
