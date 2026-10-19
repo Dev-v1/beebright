@@ -46,7 +46,7 @@ export async function createRallyRenderer(canvas,onGraphics){
   else if(image?.getContext){result=new DynamicTexture('instrument-screen',image,scene,true);dynamic.push(result);result.update(true);}
   if(result){result.wrapU=source.wrapS===1000?Texture.WRAP_ADDRESSMODE:Texture.CLAMP_ADDRESSMODE;result.wrapV=source.wrapT===1000?Texture.WRAP_ADDRESSMODE:Texture.CLAMP_ADDRESSMODE;result.uScale=source.repeat?.x??1;result.vScale=source.repeat?.y??1;textures.set(source,result);}return result;
  }
- function material(source){if(materials.has(source))return materials.get(source);const m=new PBRMaterial('gt-material',scene);m.albedoColor=color(source.color);m.metallic=source.metalness??0;m.roughness=source.roughness??.7;m.emissiveColor=color(source.emissive).scale(source.emissiveIntensity??0);m.alpha=source.opacity??1;m.backFaceCulling=source.side!==2;m.sideOrientation=Material.CounterClockWiseSideOrientation;m.useVertexColors=Boolean(source.vertexColors);m.albedoTexture=texture(source.map);m.emissiveTexture=texture(source.emissiveMap);m.bumpTexture=texture(source.bumpMap);if(m.bumpTexture)m.bumpTexture.level=source.bumpScale??.02;
+ function material(source){if(materials.has(source))return materials.get(source);const m=new PBRMaterial('gt-material',scene);m.albedoColor=color(source.color);m.metallic=source.metalness??0;m.roughness=source.roughness??.7;m.emissiveColor=color(source.emissive).scale(source.emissiveIntensity??0);m.alpha=source.opacity??1;m.fogEnabled=source.fog!==false;m.disableDepthWrite=source.depthWrite===false;m.backFaceCulling=source.side!==2;m.sideOrientation=Material.CounterClockWiseSideOrientation;m.useVertexColors=Boolean(source.vertexColors);m.albedoTexture=texture(source.map);m.emissiveTexture=texture(source.emissiveMap);m.bumpTexture=texture(source.bumpMap);if(m.bumpTexture)m.bumpTexture.level=source.bumpScale??.02;
   if(source.clearcoat){m.clearCoat.isEnabled=true;m.clearCoat.intensity=source.clearcoat;m.clearCoat.roughness=source.clearcoatRoughness??.12;}if(source.transparent){m.transparencyMode=PBRMaterial.PBRMATERIAL_ALPHABLEND;m.separateCullingPass=true;}materials.set(source,m);return m;
  }
  function convert(source,parent=null){let target;
@@ -68,3 +68,4 @@ export async function createRallyRenderer(canvas,onGraphics){
   scene.render();
  },dispose(){disposed=true;scene.dispose();engine.dispose();}};
 }
+
