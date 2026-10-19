@@ -32,7 +32,7 @@ test('rally progress unwraps forward and reverse at the line and rejects telepor
 test('four opponents drive every circuit uphill and through corners without leaving its road',()=>{
  for(const course of RALLY_COURSES){const road=rallyRoad(course),race=newRallyRace(road);assert.equal(race.opponents.length,4);
   for(let i=0;i<20000&&!race.opponents.every(c=>c.finished);i++)rallyStep(race,road,{},1/60);
-  assert.ok(race.opponents.every(c=>c.finished));assert.ok(race.opponents.every(c=>c.finishTime>=road.length*course.laps/(c.cruise*1.12)-1/60),'finishing time respects each rival\'s maximum cruise speed');assert.equal(race.finished,false,'AI finishing does not stop the player');
+  assert.ok(race.opponents.every(c=>c.finished));assert.ok(race.opponents.every(c=>c.finishTime>road.length*course.laps/40));assert.equal(race.finished,false,'AI finishing does not stop the player');
   for(const car of race.opponents){const hit=rallyProject(road,car.x,car.z);assert.ok(hit.distance<course.width/2);assert.ok(Math.abs(hit.y-car.y)<.2);}
  }
 });
@@ -54,7 +54,7 @@ test('marble board geometry has positive top normals and no duplicated triangle 
   geo.dispose();
  }
 });
-test('every race can be finished through every checkpoint with ordinary driving inputs',()=>{
+test('all four races can be finished through every checkpoint with ordinary driving inputs',()=>{
  for(const course of RALLY_COURSES){const road=rallyRoad(course),race=newRallyRace(road);let frames=0;
   while(!race.finished&&frames++<20000){const p=race.player,look=rallySample(road,p.travel+Math.max(8,p.speed*.4)),heading=Math.atan2(look.z-p.z,look.x-p.x),error=Math.atan2(Math.sin(heading-p.heading),Math.cos(heading-p.heading)),target=rallyCornerPlan(road,p.travel,38).speed;
    rallyStep(race,road,{up:p.speed<target,down:p.speed>target+1,right:error>.025,left:error<-.025},1/60);
@@ -91,22 +91,6 @@ test('grades blend continuously through every segment and the closed start-line 
  for(const course of RALLY_COURSES){const road=rallyRoad(course);
   for(const d of road.lengths){const a=rallySample(road,d-.00001),b=rallySample(road,d+.00001);assert.ok(Math.abs(a.grade-b.grade)<.00001);}
   for(let d=0;d<road.length;d+=1){const a=rallySample(road,d),b=rallySample(road,d+1);assert.ok(Math.abs(a.grade-b.grade)<.035,'no sudden incline steps');}
- }
-});
-
-test('new circuits have room between road sections and terrain under their full perimeter',()=>{
- for(const course of RALLY_COURSES.slice(4)){
-  const road=rallyRoad(course),terrain=rallyTerrain(course,road,false);terrain.computeBoundingBox();
-  const box=terrain.boundingBox;
-  for(let i=0;i<road.points.length;i++){
-   const p=road.points[i],margin=course.width/2+30;
-   assert.ok(p.x-margin>box.min.x&&p.x+margin<box.max.x&&p.z-margin>box.min.z&&p.z+margin<box.max.z,course.name+' has ground beyond its shoulders');
-   for(let j=i+1;j<road.points.length;j++){
-    const along=Math.min(road.lengths[j]-road.lengths[i],road.length-road.lengths[j]+road.lengths[i]);
-    if(along>course.width*3)assert.ok(Math.hypot(p.x-road.points[j].x,p.z-road.points[j].z)>course.width+8,course.name+' has no overlapping road sections');
-   }
-  }
-  terrain.dispose();
  }
 });
 test('rivals accelerate past 40 metres per second while retaining corner braking',()=>{

@@ -1,6 +1,8 @@
 # beebright
 Spelling Bee Practice Website
 
+Local code and releases are maintained exclusively in [Dev-v1/beebright-local](https://github.com/Dev-v1/beebright-local). Make desktop-only features and track changes there. Website download links forward to its published release.
+
 ## Local browser commands
 
 `beebright web` opens https://beebright.vercel.app/.
@@ -55,3 +57,4 @@ beebright uninstall
 ```
 
 This removes BeeBright, its private runtimes, terminal launcher, local saved progress and settings. Other Python installations, shared WebView2 and website account/progress remain. Back up your BeeBright `userdata` folder first if you want to retain progress. On Windows it is `%LOCALAPPDATA%\BeeBright\userdata`; on macOS/Linux it is `~/.local/share/BeeBright/userdata`.
+
