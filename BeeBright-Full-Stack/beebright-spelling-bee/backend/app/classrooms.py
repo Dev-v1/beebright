@@ -287,3 +287,15 @@ def revoke_device(request: Request, user: str = Depends(get_current_user_id)):
         with _connect() as db:
             db.execute("DELETE FROM desktop_sessions WHERE token_hash=%s", (token_hash(token),))
     return {"signed_out":True}
+
+@router.delete("/account")
+def delete_account_data(user: str = Depends(get_current_user_id)):
+    with _connect() as db:
+        db.execute("DELETE FROM desktop_sessions WHERE user_id=%s",(user,))
+        db.execute("DELETE FROM classroom_members WHERE user_id=%s",(user,))
+        db.execute("DELETE FROM classrooms WHERE owner_id=%s",(user,))
+        db.execute("DELETE FROM classroom_activity WHERE user_id=%s",(user,))
+        db.execute("DELETE FROM account_studio WHERE user_id=%s",(user,))
+        db.execute("DELETE FROM practice_progress WHERE clerk_user_id=%s",(user,))
+        db.execute("DELETE FROM word_list_requests WHERE clerk_user_id=%s",(user,))
+    return {"deleted":True}
