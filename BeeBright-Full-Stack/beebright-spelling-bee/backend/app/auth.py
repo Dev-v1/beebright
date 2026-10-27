@@ -31,10 +31,7 @@ def get_current_user_id(authorization: str | None = Header(default=None)) -> str
     except (jwt.PyJWTError, RuntimeError) as exc:
         raise HTTPException(status_code=401, detail="Your sign-in session is invalid or expired.") from exc
 
-    authorized_parties = {
-        settings.frontend_url.rstrip("/"),
-        "http://localhost:5173",
-    }
+    authorized_parties = set(settings.frontend_origins)
     authorized_party = str(claims.get("azp", "")).rstrip("/")
     if authorized_party and authorized_party not in authorized_parties:
         raise HTTPException(status_code=401, detail="This session was created by an unauthorized website.")
