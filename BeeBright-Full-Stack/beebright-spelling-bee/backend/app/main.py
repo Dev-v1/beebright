@@ -70,10 +70,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-allowed_origins = [
-    "http://localhost:5173",
-    settings.frontend_url.rstrip("/"),
-]
+allowed_origins = settings.frontend_origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(dict.fromkeys(origin for origin in allowed_origins if origin)),

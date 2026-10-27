@@ -1,0 +1,24 @@
+name: Backend domain checks
+on:
+  pull_request:
+    paths:
+      - 'BeeBright-Full-Stack/beebright-spelling-bee/backend/**'
+      - '.github/workflows/backend-domains.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'BeeBright-Full-Stack/beebright-spelling-bee/backend/**'
+      - '.github/workflows/backend-domains.yml'
+permissions:
+  contents: read
+jobs:
+  origins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: pip install fastapi==0.116.1 httpx==0.28.1 pydantic-settings==2.10.1 'PyJWT[crypto]==2.15.0'
+      - run: python -m unittest discover -s tests -p test_frontend_origins.py -v
+        working-directory: BeeBright-Full-Stack/beebright-spelling-bee/backend
