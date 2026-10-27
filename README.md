@@ -5,14 +5,22 @@ Local code and releases are maintained exclusively in [Dev-v1/beebright-local](h
 
 ## Local browser commands
 
-`beebright web` opens https://beebright.vercel.app/.
+`beebright web` opens the BeeBright website. Visit https://beebright.app/.
 
 `beebright create web` serves the offline edition at http://beebright.localhost:8765/. Keep the terminal open; Ctrl+C stops the server. No login or cloud features are required. See `local/README.md` for port fallback and source usage.
+
+## Install on Windows
+
+Run this in PowerShell:
+
+```powershell
+irm https://beebright.app/install.ps1 | iex
+```
 
 ## Install on macOS or Linux
 
 ```sh
-curl -fsSL https://beebright.vercel.app/install.sh | sh
+curl -fsSL https://beebright.app/install.sh | sh
 ```
 
 Open a new terminal and type `beebright`. The local UI opens in your browser, without login or cloud features. The installer manages its own Python 3.15 runtime. See `local/README.md` for platform details.
@@ -28,7 +36,7 @@ beebright --version
 beebright -version
 ```
 
-Each prints the installed release, such as `BeeBright 1.8`, without opening the app or accessing the internet. Run `beebright update` separately to get the latest version.
+Each prints the installed release, without opening the app or accessing the internet. Run `beebright update` separately to get the latest published release from [beebright-local](https://github.com/Dev-v1/beebright-local/releases/latest). The older beebright.vercel.app install URLs remain compatible.
 
 ## Commands
 
