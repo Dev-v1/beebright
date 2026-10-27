@@ -1,3 +1,4 @@
+import {accountRequest} from '../account-api.js';
 import { useRef, useState } from "react";
 import { useClerk, useReverification, useUser } from "@clerk/react";
 import {
@@ -78,7 +79,7 @@ export default function SettingsPage({ theme, setTheme, getToken, isAdmin, onAdm
     if (!window.confirm("Delete your BeeBright account and saved practice data permanently?")) return;
     await run("delete", async () => {
       const token = await getToken();
-      if (token) await deleteSavedProgress(token);
+      if (token) await accountRequest(getToken,"/api/account","DELETE");
       await deleteAccount();
       await signOut({ redirectUrl: "/sign-in" });
     });

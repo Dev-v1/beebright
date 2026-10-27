@@ -26,3 +26,7 @@
 /BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local-changelog.md
 
 /local/THIRD_PARTY_BABYLON_LICENSE.txt
+
+/BeeBright-Full-Stack/beebright-spelling-bee/frontend/public/local-release.json
+/test-deps/
+/test-temp/

@@ -21,6 +21,9 @@ def get_current_user_id(authorization: str | None = Header(default=None)) -> str
         raise HTTPException(status_code=401, detail="Sign in is required.")
 
     token = authorization.removeprefix("Bearer ").strip()
+    if token.startswith("bb_"):
+        from app.classrooms import device_user
+        return device_user(token)
     settings = get_settings()
     decode_options: dict = {"algorithms": ["RS256"], "options": {"verify_aud": False}}
     if settings.clerk_issuer_url.strip():

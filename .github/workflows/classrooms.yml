@@ -1,0 +1,42 @@
+name: Classrooms and cloud regression tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: bee
+          POSTGRES_PASSWORD: test-only-password
+          POSTGRES_DB: bee_test
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+        working-directory: BeeBright-Full-Stack/beebright-spelling-bee/backend
+      - run: python -m unittest discover -s tests -p 'test_classrooms.py' -v
+        working-directory: BeeBright-Full-Stack/beebright-spelling-bee/backend
+        env:
+          TEST_DATABASE_URL: postgresql://bee:test-only-password@localhost:5432/bee_test
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci
+        working-directory: BeeBright-Full-Stack/beebright-spelling-bee/frontend
+      - run: node --test src/*.test.js
+        working-directory: BeeBright-Full-Stack/beebright-spelling-bee/frontend
+      - run: npm run build
+        working-directory: BeeBright-Full-Stack/beebright-spelling-bee/frontend
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk

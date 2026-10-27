@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import Classrooms from '../Classrooms.jsx';
+import {accountRequest} from '../account-api.js';
+import { useCallback, useEffect, useState } from "react";
 import { ClerkLoaded, ClerkLoading, SignIn, SignUp, useAuth } from "@clerk/react";
 
 import App from "../App.jsx";
@@ -30,6 +32,9 @@ function useBrowserPath() {
 function RoutedApp() {
   const { isLoaded, isSignedIn, userId, getToken } = useAuth();
   const [path, navigate] = useBrowserPath();
+  const classroomCall = useCallback((...args)=>accountRequest(getToken,...args),[getToken]);
+  useEffect(()=>{const code=new URLSearchParams(window.location.search).get("connect");if(code&&/^[A-Z2-9]{8}$/.test(code))sessionStorage.setItem("beebright-connect-code",code);},[]);
+  useEffect(()=>{if(isLoaded&&isSignedIn&&sessionStorage.getItem("beebright-connect-code")&&path!=="/classrooms")navigate("/classrooms");},[isLoaded,isSignedIn,path]);
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light");
   const [isAdmin, setIsAdmin] = useState(false);
   const [accessLoaded, setAccessLoaded] = useState(false);
@@ -88,6 +93,8 @@ function RoutedApp() {
     );
   }
 
+  if (path === "/classrooms") return <Classrooms call={classroomCall} userId={userId} onBack={()=>navigate("/")} />;
+
   if (path === "/settings") {
     return <SettingsPage theme={theme} setTheme={setTheme} getToken={getToken} isAdmin={isAdmin} onAdmin={() => navigate("/admin")} onBack={() => navigate("/")} />;
   }
@@ -107,7 +114,8 @@ function RoutedApp() {
   if (path !== "/") window.history.replaceState({}, "", "/");
 
   return (
-    <App
+    <App key={userId}
+      onClassrooms={()=>navigate("/classrooms")}
       userId={userId}
       getToken={getToken}
       theme={theme}

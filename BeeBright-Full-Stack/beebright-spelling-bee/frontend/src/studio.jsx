@@ -1,3 +1,5 @@
+import {accountRequest} from './account-api.js';
+import {mergeAccountStudio} from './account-core.js';
 import {useEffect,useRef,useState} from 'react';
 import {desktopRequest,desktopSpeak} from './local-api.js';
 import {FEATURES,normalizeStudio,freshStudio,shuffle,dailyWords,summary,achievements,missedWords,LANGUAGES,originMatches,PAIRS,pairWords,choicesFor} from './studio-core.js';
@@ -6,14 +8,48 @@ import {sentenceHint} from './hints.js';
 import {speakBrowser} from './speech.js';
 
 const request=(path,method='GET',value)=>desktopRequest('/api/studio'+path,{method,...(value===undefined?{}:{body:JSON.stringify(value)})});
-export function useStudio(userId,localMode) {
+export function useStudio(userId,localMode,getToken) {
   const [data,setData]=useState(freshStudio),[ready,setReady]=useState(false),[error,setError]=useState('');
-  const ref=useRef(data), queue=useRef(Promise.resolve());const key='beebright-studio-v2:'+userId;
-  useEffect(()=>{let cancelled=false;setReady(false);const load=localMode?request(''):Promise.resolve().then(()=>JSON.parse(localStorage.getItem(key)||'null'));load.then(v=>{if(!cancelled){ref.current=normalizeStudio(v);setData(ref.current);setReady(true);}}).catch(e=>{if(!cancelled){setError(e.message);setReady(true);}});return()=>{cancelled=true;};},[key,localMode]);
-  function change(update){const next=normalizeStudio(typeof update==='function'?update(ref.current):update);ref.current=next;setData(next);if(localMode){queue.current=queue.current.catch(()=>{}).then(()=>request('','PUT',next)).catch(e=>setError('Could not save practice tools: '+e.message));}else try{localStorage.setItem(key,JSON.stringify(next));}catch(e){setError('Could not save practice tools: '+e.message);} }
+  const ref=useRef(data), queue=useRef(Promise.resolve()),dirty=useRef(false),active=useRef(0);
+  const key='beebright-studio-v2:'+userId;
+  useEffect(()=>{
+    let cancelled=false;const generation=++active.current;setReady(false);setError('');dirty.current=false;
+    async function load(){
+      let value;
+      try{
+        value=localMode?await request(''):JSON.parse(localStorage.getItem(key)||'null');
+        if(!localMode){
+          try{const remote=await accountRequest(getToken,'/api/account/studio');value={...mergeAccountStudio(remote,value||{}),favorites:remote.favorites??value?.favorites??[]};}
+          catch(e){if(!cancelled)setError('Cloud unavailable: '+e.message+' Changes will retry while this page is open.');}
+        }
+        if(!cancelled&&generation===active.current){ref.current=normalizeStudio(value);setData(ref.current);setReady(true);if(!localMode)dirty.current=true;}
+      }catch(e){if(!cancelled){ref.current=freshStudio();setData(ref.current);setError('Could not load practice tools: '+e.message);}}
+    }
+    load();
+    const timer=setInterval(()=>{if(!localMode&&dirty.current)flush();},15000);
+    return()=>{cancelled=true;active.current++;clearInterval(timer);};
+  },[key,localMode]);
+  function flush(){
+    if(localMode||!dirty.current)return queue.current;
+    const snapshot=ref.current,generation=active.current;
+    dirty.current=false;
+    queue.current=queue.current.catch(()=>{}).then(async()=>{
+      if(generation!==active.current)return;
+      await accountRequest(getToken,'/api/account/studio','PUT',{data:snapshot});
+      if(generation===active.current)setError('');
+    }).catch(e=>{if(generation===active.current){dirty.current=true;setError('Cloud save pending: '+e.message);}});
+    return queue.current;
+  }
+  function change(update){
+    if(!ready)return;
+    const next=normalizeStudio(typeof update==='function'?update(ref.current):update);
+    ref.current=next;setData(next);
+    if(localMode){queue.current=queue.current.catch(()=>{}).then(()=>request('','PUT',next)).catch(e=>setError('Could not save practice tools: '+e.message));}
+    else try{localStorage.setItem(key,JSON.stringify(next));dirty.current=true;flush();}catch(e){setError('Could not save practice tools: '+e.message);}
+  }
   function record(word,correct,level,listId,kind){change(s=>({...s,events:[...s.events,{id:crypto.randomUUID(),word,correct,level,listId,kind,at:Date.now()}]}));}
   function favorite(word){change(s=>({...s,favorites:s.favorites.includes(word)?s.favorites.filter(w=>w!==word):[...s.favorites,word]}));}
-  return {userId,data,ready,error,change,record,favorite,flush:()=>queue.current};
+  return {userId,data,ready,error,change,record,favorite,flush:()=>localMode?queue.current:flush()};
 }
 function download(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 export function PracticeTools({feature,setFeature,studio,localMode,getToken,onStart,onClose}) {
