@@ -165,7 +165,7 @@ def create_class(payload: ClassName, user: str = Depends(get_current_user_id)):
 
 @router.post("/classrooms/join")
 def join_class(payload: JoinClass, request: Request, user: str = Depends(get_current_user_id)):
-    rate_limit(request, "join")
+    rate_limit(request, "join:"+user)
     with _connect() as db:
         row = db.execute("SELECT id,owner_id FROM classrooms WHERE code=%s FOR UPDATE", (payload.code.strip().upper(),)).fetchone()
         if not row:
@@ -252,7 +252,7 @@ def save_studio(payload: StudioPayload, user: str = Depends(get_current_user_id)
 
 @router.post("/devices/start", status_code=201)
 def start_device(request: Request):
-    rate_limit(request,"device",10)
+    rate_limit(request,"device",240)
     token = "bb_" + secrets.token_urlsafe(32)
     code = "".join(secrets.choice(ALPHABET) for _ in range(8))
     with _connect() as db:
@@ -266,7 +266,7 @@ def approve_device(payload: DeviceCode, request: Request, user: str = Depends(ge
     # A desktop credential cannot approve another desktop credential.
     if request.headers.get("authorization","").startswith("Bearer bb_"):
         raise HTTPException(403, "Approve this request in the website.")
-    rate_limit(request,"approve")
+    rate_limit(request,"approve:"+user)
     with _connect() as db:
         row = db.execute("""UPDATE desktop_sessions SET user_id=%s,expires_at=NOW()+INTERVAL '30 days'
          WHERE code=%s AND user_id IS NULL AND expires_at>NOW() RETURNING code""", (user,payload.code)).fetchone()

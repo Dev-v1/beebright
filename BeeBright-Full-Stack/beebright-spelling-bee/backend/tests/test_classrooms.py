@@ -108,7 +108,9 @@ class ClassroomIntegrationTests(unittest.TestCase):
     def test_pairing_rate_limit_and_blank_class_names(self):
         self.assertEqual(self.call("POST","/api/classrooms",json={"name":"   "}).status_code,422)
         c._attempts.clear()
-        for _ in range(10): self.assertEqual(self.client.post("/api/devices/start").status_code,201)
+        from collections import deque
+        import time
+        c._attempts["device:testclient"]=deque([time.monotonic()]*240)
         self.assertEqual(self.client.post("/api/devices/start").status_code,429)
         c._attempts.clear()
 
