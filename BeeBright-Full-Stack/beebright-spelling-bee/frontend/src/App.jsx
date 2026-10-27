@@ -1,3 +1,4 @@
+import {useActivity} from './activity.js';
 import { PracticeTools, useStudio } from "./studio.jsx";
 import { breakAfter } from "./arcade-core.js";
 import { practiceSetSize, prepareChoiceWords } from "./studio-core.js";
@@ -58,8 +59,8 @@ function labelForLevel(key) {
   return ({ one_bee: "One Bee", two_bee: "Two Bee", three_bee: "Three Bee", random: "Random" })[key] || key;
 }
 
-function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMode = false, inactive = false }) {
-  const studio = useStudio(userId, localMode);
+function App({ cloudEnabled=false, onClassrooms, userId, getToken, isAdmin, onOpenSettings, onRequestList, localMode = false, inactive = false }) {
+  const studio = useStudio(userId, localMode, getToken);
   const [feature, setFeature] = useState(() => localMode ? new URLSearchParams(window.location.search).get('feature') || '' : '');
   const [practiceContext, setPracticeContext] = useState(null);
   const [breakState, setBreakState] = useState(null);
@@ -116,6 +117,8 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   const saveQueueRef = useRef(Promise.resolve());
   const sessionKey = `${SESSION_KEY}:${userId}`;
 
+  const [cloudSaveError,setCloudSaveError]=useState("");
+  useActivity({enabled: !localMode || Boolean(cloudEnabled),getToken,screen,mode,level,answered:index,correct,source:localMode?"local":"web",inactive});
   const current = words[index];
   const setSize = practiceSetSize(wordListId);
   const currentWord = current?.word || "";
@@ -182,11 +185,12 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
       saveQueueRef.current = saveQueueRef.current.catch(() => {}).then(async () => {
         const token = await getToken();
         if (token) await saveProgress(token, session);
-      }).catch(() => {});
+      }).then(()=>setCloudSaveError("")).catch(() => setCloudSaveError("Cloud save pending. Keep this page open and reconnect; your browser copy is saved."));
     };
     if (localMode) persist();
     else saveTimerRef.current = window.setTimeout(persist, 350);
-    return () => window.clearTimeout(saveTimerRef.current);
+    const retry=window.setInterval(persist,15000);
+    return () => {window.clearTimeout(saveTimerRef.current);window.clearInterval(retry);};
   }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, getToken, sessionKey, localMode, practiceContext, duelScore, breakState]);
 
   useEffect(() => {
@@ -363,9 +367,10 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
 
   return (
     <main className="app-shell">
+      {(studio.error||cloudSaveError)&&<p role="status">{studio.error||cloudSaveError}</p>}
       <header className="topbar">
         <button className="brand" onClick={() => setScreen("home")}><span>bee</span>bright</button>
-        <div className="top-actions"><button className="settings-button" onClick={() => { setFeature(''); setScreen('tools'); }}>Practice tools</button>{!localMode && <a href="/download.html" className="settings-button">Desktop app</a>}<div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
+        <div className="top-actions">{onClassrooms && <button className="settings-button" onClick={onClassrooms}>Classrooms</button>}<button className="settings-button" onClick={() => { setFeature(''); setScreen('tools'); }}>Practice tools</button>{!localMode && <a href="/download.html" className="settings-button">Desktop app</a>}<div className="top-tag">SPELL WITH CONFIDENCE <span className="top-dot" /></div>{isAdmin && <span className="admin-badge"><ShieldCheck size={14} /> Admin</span>}<button className="settings-button" onClick={onOpenSettings}><Settings size={17} /> Settings</button></div>
       </header>
 
       {localMode && screen === 'arcade-preview' && <Suspense fallback={<section className="page-width"><p>Opening your game menu…</p></section>}><Arcade localMode preview inactive={inactive} scores={studio.data.games} onScore={() => {}} /></Suspense>}

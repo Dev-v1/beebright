@@ -59,6 +59,8 @@ logger = logging.getLogger(__name__)
 async def lifespan(_: FastAPI):
     try:
         initialize_database()
+        from app.classrooms import initialize
+        initialize()
     except Exception:
         logger.exception("Neon database initialization failed; public practice routes remain available.")
     yield
@@ -69,6 +71,9 @@ app = FastAPI(
     description="Backend API for the BeeBright spelling bee practice site.",
     lifespan=lifespan,
 )
+
+from app.classrooms import router as classroom_router
+app.include_router(classroom_router)
 
 allowed_origins = settings.frontend_origins
 app.add_middleware(
@@ -290,7 +295,7 @@ async def import_pdf(
 ):
     if file.content_type not in {"application/pdf", "application/octet-stream"}:
         raise HTTPException(status_code=415, detail="Please upload a PDF file.")
-    payload = await file.read()
+    payload = await file.read(15 * 1024 * 1024 + 1)
     if len(payload) > 15 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="PDF must be 15 MB or smaller.")
     try:
