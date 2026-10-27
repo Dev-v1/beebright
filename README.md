@@ -46,7 +46,7 @@ Run `beebright help` for descriptions of every command. Help and version checks 
 
 The website and local edition share daily challenges, review, mock bees, sprints, custom sessions, origins, word pairs, favorites, printable worksheets, duels, statistics and achievements. Open **Practice tools** from the main navigation. Local terminal commands also provide player profiles, backup/restore, reminders, diagnostics and release notes. See [the local command reference](local/README.md#beebright-20-commands).
 
-Statistics and favorites on the website are per-account browser data. Existing session cloud saves remain supported. The local edition keeps everything on the computer and does not need an account.
+Statistics, favorites, high scores and saved sessions on the website save with your account, with a browser copy for interrupted connections. The local edition starts in local-only mode without an account; version 2.7.5 adds optional account login, automatic cloud saving and classrooms.
 
 ## Break arcade (2.1)
 
