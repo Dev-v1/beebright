@@ -34,7 +34,7 @@ function RoutedApp() {
   const [path, navigate] = useBrowserPath();
   const classroomCall = useCallback((...args)=>accountRequest(getToken,...args),[getToken]);
   useEffect(()=>{const code=new URLSearchParams(window.location.search).get("connect");if(code&&/^[A-Z2-9]{8}$/.test(code))sessionStorage.setItem("beebright-connect-code",code);},[]);
-  useEffect(()=>{if(isLoaded&&isSignedIn&&sessionStorage.getItem("beebright-connect-code")&&path!=="/classrooms")navigate("/classrooms");},[isLoaded,isSignedIn,path]);
+  useEffect(()=>{if(isLoaded&&isSignedIn&&sessionStorage.getItem("beebright-connect-code")&&path!=="/classrooms")navigate("/classrooms");},[isLoaded,isSignedIn]);
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light");
   const [isAdmin, setIsAdmin] = useState(false);
   const [accessLoaded, setAccessLoaded] = useState(false);
