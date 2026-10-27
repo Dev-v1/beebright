@@ -10,16 +10,16 @@ import {speakBrowser} from './speech.js';
 const request=(path,method='GET',value)=>desktopRequest('/api/studio'+path,{method,...(value===undefined?{}:{body:JSON.stringify(value)})});
 export function useStudio(userId,localMode,getToken) {
   const [data,setData]=useState(freshStudio),[ready,setReady]=useState(false),[error,setError]=useState('');
-  const ref=useRef(data), queue=useRef(Promise.resolve()),dirty=useRef(false),active=useRef(0);
+  const ref=useRef(data), queue=useRef(Promise.resolve()),dirty=useRef(false),active=useRef(0),remoteReady=useRef(false);
   const key='beebright-studio-v2:'+userId;
   useEffect(()=>{
-    let cancelled=false;const generation=++active.current;setReady(false);setError('');dirty.current=false;
+    let cancelled=false;const generation=++active.current;setReady(false);setError('');dirty.current=false;remoteReady.current=false;
     async function load(){
       let value;
       try{
         value=localMode?await request(''):JSON.parse(localStorage.getItem(key)||'null');
         if(!localMode){
-          try{const remote=await accountRequest(getToken,'/api/account/studio');value={...mergeAccountStudio(remote,value||{}),favorites:remote.favorites??value?.favorites??[]};}
+          try{const remote=await accountRequest(getToken,'/api/account/studio');remoteReady.current=true;value={...mergeAccountStudio(remote,value||{}),favorites:remote.favorites??value?.favorites??[]};}
           catch(e){if(!cancelled)setError('Cloud unavailable: '+e.message+' Changes will retry while this page is open.');}
         }
         if(!cancelled&&generation===active.current){ref.current=normalizeStudio(value);setData(ref.current);setReady(true);if(!localMode)dirty.current=true;}
@@ -35,7 +35,7 @@ export function useStudio(userId,localMode,getToken) {
     dirty.current=false;
     queue.current=queue.current.catch(()=>{}).then(async()=>{
       if(generation!==active.current)return;
-      await accountRequest(getToken,'/api/account/studio','PUT',{data:snapshot});
+      await accountRequest(getToken,'/api/account/studio','PUT',{data:snapshot,merge_favorites:!remoteReady.current});
       if(generation===active.current)setError('');
     }).catch(e=>{if(generation===active.current){dirty.current=true;setError('Cloud save pending: '+e.message);}});
     return queue.current;
