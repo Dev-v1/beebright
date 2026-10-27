@@ -118,7 +118,7 @@ function App({ cloudEnabled=false, onClassrooms, userId, getToken, isAdmin, onOp
   const sessionKey = `${SESSION_KEY}:${userId}`;
 
   const [cloudSaveError,setCloudSaveError]=useState("");
-  useActivity({enabled: !localMode || Boolean(cloudEnabled),getToken,screen,mode,level,answered:index,correct,source:localMode?"local":"web",inactive});
+  useActivity({enabled: !localMode || Boolean(cloudEnabled),getToken,screen,mode,level,answered:index+(feedback?1:0),correct,source:localMode?"local":"web",inactive});
   const current = words[index];
   const setSize = practiceSetSize(wordListId);
   const currentWord = current?.word || "";
