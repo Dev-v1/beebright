@@ -1,1 +1,32 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BeeBright Local</title><style>body{font:18px system-ui;background:#fffaf0;color:#1e293b;max-width:800px;margin:8vh auto;padding:24px}code{display:block;background:#f8c94c;padding:24px;border-radius:16px;overflow:auto}a{color:#775200}h1{font-size:44px}</style><h1>🐝 BeeBright on your laptop</h1><p>A native desktop app with all three 2027 Bee levels. No login or cloud progress. Practice offline using your computer’s voice.</p><p>Run this in Windows PowerShell (Windows x64):</p><code>irm https://beebright.vercel.app/install.ps1 | iex</code><p>After installation, type <strong>beebright</strong>. Each launch checks for updates; if you’re offline, it opens your installed version. Updates preserve your progress.</p><p><a href="https://github.com/Dev-v1/beebright-local">View source and license</a> · <a href="https://github.com/Dev-v1/beebright-local/releases/latest">Download source ZIP</a> · <a href="/">Practice online</a></p><p>CC BY-NC-SA 4.0. Third-party dictionary attribution is included with the hints.</p></html>
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BeeBright Local</title>
+<style>body{font:18px system-ui;background:#fffaf0;color:#1e293b;max-width:800px;margin:8vh auto;padding:24px}code{display:block;background:#f8c94c;padding:24px;border-radius:16px;overflow:auto}a{color:#775200}h1{font-size:44px}</style>
+<h1>🐝 BeeBright on your laptop</h1>
+<h2 id="release-name">Latest BeeBright Local release</h2>
+<p>All three 2027 Bee levels and twelve racing tracks. No login or cloud progress. Practice offline using your computer’s voice.</p>
+<h2>Windows</h2>
+<p>Run this in PowerShell (Windows x64):</p>
+<code>irm https://beebright.app/install.ps1 | iex</code>
+<h2>macOS or Linux</h2>
+<p>Run this in Terminal:</p>
+<code>curl -fsSL https://beebright.app/install.sh | sh</code>
+<p>After installation, open a new terminal and type <strong>beebright</strong>. Windows opens the desktop app; macOS and Linux open offline practice in your browser. Keep that terminal open while practicing.</p>
+<p>Updates install published releases from beebright-local and preserve your progress. Run <strong>beebright update</strong> to update or <strong>beebright --version</strong> to check your installed version. The older beebright.vercel.app install commands also continue to work.</p>
+<p><a href="https://github.com/Dev-v1/beebright-local">View source and license</a> · <a href="https://github.com/Dev-v1/beebright-local/releases/latest">Latest release and downloads</a> · <a href="/">Practice online</a></p>
+<p>CC BY-NC-SA 4.0. Third-party dictionary attribution is included with the hints.</p>
+<script type="module">
+for (const url of ["https://api.github.com/repos/Dev-v1/beebright-local/releases/latest", "/local-release.json"]) {
+  try {
+    const response = await fetch(url, {signal: AbortSignal.timeout(8000)});
+    if (!response.ok) throw new Error("Release unavailable");
+    const release = await response.json();
+    if (!release.name || release.draft || release.prerelease) throw new Error("Invalid release");
+    document.getElementById("release-name").textContent = release.name;
+    break;
+  } catch { /* The bundled metadata remains available when GitHub is unavailable. */ }
+}
+</script>
+</html>

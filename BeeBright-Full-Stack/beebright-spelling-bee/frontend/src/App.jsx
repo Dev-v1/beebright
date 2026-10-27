@@ -3,7 +3,6 @@ import { breakAfter } from "./arcade-core.js";
 import { practiceSetSize, prepareChoiceWords } from "./studio-core.js";
 import { languageOrigin } from "./origins.js";
 import { speakBrowser } from "./speech.js";
-import release from '../../../../local/release.json';
 import { desktopSpeak } from "./local-api.js";
 import { hideSpelling, sentenceHint } from "./hints.js";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
@@ -68,7 +67,26 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
   const [remaining, setRemaining] = useState(null);
   const [duelScore, setDuelScore] = useState([0, 0]);
   const [installPlatform, setInstallPlatform] = useState("windows");
-  const installCommands = { windows: "irm https://beebright.vercel.app/install.ps1 | iex", macos: "curl -fsSL https://beebright.vercel.app/install.sh | sh", linux: "curl -fsSL https://beebright.vercel.app/install.sh | sh" };
+  const [localReleaseName, setLocalReleaseName] = useState("Latest BeeBright Local release");
+  useEffect(() => {
+    if (localMode) return;
+    let cancelled = false;
+    async function loadRelease() {
+      for (const url of ["https://api.github.com/repos/Dev-v1/beebright-local/releases/latest", "/local-release.json"]) {
+        try {
+          const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
+          if (!response.ok) throw new Error("Release unavailable");
+          const latest = await response.json();
+          if (!latest.name || latest.draft || latest.prerelease) throw new Error("Invalid release");
+          if (!cancelled) setLocalReleaseName(latest.name);
+          return;
+        } catch { /* Use bundled published-release metadata when GitHub is unavailable. */ }
+      }
+    }
+    loadRelease();
+    return () => { cancelled = true; };
+  }, [localMode]);
+  const installCommands = { windows: "irm https://beebright.app/install.ps1 | iex", macos: "curl -fsSL https://beebright.app/install.sh | sh", linux: "curl -fsSL https://beebright.app/install.sh | sh" };
   const [screen, setScreen] = useState(() => localMode && feature === "arcade-preview" ? "arcade-preview" : feature ? "tools" : "home");
   const [mode, setMode] = useState("choice");
   const [levels, setLevels] = useState([]);
@@ -374,7 +392,7 @@ function App({ userId, getToken, isAdmin, onOpenSettings, onRequestList, localMo
             <button onClick={() => setScreen("setup")}>Choose your mode <ArrowRight size={17} /></button>
             <div><span>✓ Learn as you go</span><span>✓ Progress saved</span></div>
           </aside>
-          {!localMode && <section className="terminal-download"><p className="eyebrow">PRACTICE ON YOUR COMPUTER</p><h3>BeeBright {release.version}</h3><p>The latest terminal release. Practice locally with no account.</p><label htmlFor="install-platform">Your operating system</label><select id="install-platform" value={installPlatform} onChange={(event) => setInstallPlatform(event.target.value)}><option value="windows">Windows · PowerShell</option><option value="macos">macOS · Terminal</option><option value="linux">Linux · Terminal</option></select><code>{installCommands[installPlatform]}</code><p>{installPlatform === "windows" ? "Paste into PowerShell, then type beebright." : "Paste into Terminal, open a new terminal, then type beebright. Practice opens in your browser."}</p></section>}
+          {!localMode && <section className="terminal-download"><p className="eyebrow">PRACTICE ON YOUR COMPUTER</p><h3>{localReleaseName}</h3><p>The latest terminal release. Practice locally with no account.</p><label htmlFor="install-platform">Your operating system</label><select id="install-platform" value={installPlatform} onChange={(event) => setInstallPlatform(event.target.value)}><option value="windows">Windows · PowerShell</option><option value="macos">macOS · Terminal</option><option value="linux">Linux · Terminal</option></select><code>{installCommands[installPlatform]}</code><p>{installPlatform === "windows" ? "Paste into PowerShell, then type beebright." : "Paste into Terminal, open a new terminal, then type beebright. Practice opens in your browser."}</p></section>}
           </div>
 
           <div className="mode-grid">
