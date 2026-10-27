@@ -299,3 +299,30 @@ def delete_account_data(user: str = Depends(get_current_user_id)):
         db.execute("DELETE FROM practice_progress WHERE clerk_user_id=%s",(user,))
         db.execute("DELETE FROM word_list_requests WHERE clerk_user_id=%s",(user,))
     return {"deleted":True}
+
+class AccountProgress(BaseModel):
+    session: dict | None = None
+    base_revision: str | None = Field(default=None,max_length=80)
+
+
+@router.get("/account/progress")
+def account_progress(user: str = Depends(get_current_user_id)):
+    with _connect() as db:
+        row=db.execute("SELECT session_data,updated_at FROM practice_progress WHERE clerk_user_id=%s",(user,)).fetchone()
+    return {"session":row[0] or None if row else None,"revision":row[1].isoformat() if row else None}
+
+
+@router.put("/account/progress")
+def account_save_progress(payload: AccountProgress,user: str = Depends(get_current_user_id)):
+    if len(json.dumps(payload.session).encode())>150000:
+        raise HTTPException(413,"Saved practice data is too large.")
+    with _connect() as db:
+        db.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s,1))",(user,))
+        row=db.execute("SELECT updated_at FROM practice_progress WHERE clerk_user_id=%s FOR UPDATE",(user,)).fetchone()
+        revision=row[0].isoformat() if row else None
+        if revision!=payload.base_revision:
+            raise HTTPException(409,"Progress changed on another device. Reload cloud progress or explicitly choose to keep this computer's progress in Settings.")
+        saved=db.execute("""INSERT INTO practice_progress(clerk_user_id,session_data) VALUES(%s,%s::jsonb)
+         ON CONFLICT(clerk_user_id) DO UPDATE SET session_data=EXCLUDED.session_data,updated_at=NOW()
+         RETURNING updated_at""",(user,json.dumps(payload.session or {}))).fetchone()
+    return {"revision":saved[0].isoformat()}

@@ -174,6 +174,7 @@ function App({ cloudEnabled=false, onClassrooms, userId, getToken, isAdmin, onOp
 
   useEffect(() => {
     if (!["practice", "break"].includes(screen) || !words.length) return;
+    let stoppedSaving=false;
     const session = {
       mode, level, wordListId, setOffset, shuffleSeed, words: words.map(({hint, ...word}) => level === "pairs" ? {...word, hint} : word), index, correct, streak, bestStreak, answer, feedback, revealed, practiceContext, duelScore, breakState,
     };
@@ -183,14 +184,16 @@ function App({ cloudEnabled=false, onClassrooms, userId, getToken, isAdmin, onOp
     window.clearTimeout(saveTimerRef.current);
     const persist = () => {
       saveQueueRef.current = saveQueueRef.current.catch(() => {}).then(async () => {
+        if(stoppedSaving)return;
         const token = await getToken();
+        if(stoppedSaving)return;
         if (token) await saveProgress(token, session);
       }).then(()=>setCloudSaveError("")).catch(() => setCloudSaveError("Cloud save pending. Keep this page open and reconnect; your browser copy is saved."));
     };
     if (localMode) persist();
     else saveTimerRef.current = window.setTimeout(persist, 350);
     const retry=window.setInterval(persist,15000);
-    return () => {window.clearTimeout(saveTimerRef.current);window.clearInterval(retry);};
+    return () => {stoppedSaving=true;window.clearTimeout(saveTimerRef.current);window.clearInterval(retry);};
   }, [screen, mode, level, wordListId, setOffset, shuffleSeed, words, index, correct, streak, bestStreak, answer, feedback, revealed, getToken, sessionKey, localMode, practiceContext, duelScore, breakState]);
 
   useEffect(() => {

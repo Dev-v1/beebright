@@ -118,18 +118,25 @@ export function updateAdminWordListRequest(token, requestId, status) {
   }));
 }
 
-export function getSavedProgress(token) {
-  return request("/api/progress", authorizedOptions(token));
+const progressRevisions = new Map();
+function accountKey(token) {
+  try { return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).sub; }
+  catch { throw new Error('Your sign-in session is invalid. Sign in again.'); }
 }
-
-export function saveProgress(token, session) {
-  return request("/api/progress", authorizedOptions(token, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ session }),
-  }));
+export async function getSavedProgress(token) {
+  if (import.meta.env.VITE_LOCAL_APP === "true") return request("/api/progress",authorizedOptions(token));
+  const result=await request("/api/account/progress",authorizedOptions(token));
+  progressRevisions.set(accountKey(token),result.revision);
+  return result;
 }
-
+export async function saveProgress(token, session) {
+  if (import.meta.env.VITE_LOCAL_APP === "true") return request("/api/progress",authorizedOptions(token,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({session})}));
+  const key=accountKey(token);
+  if(!progressRevisions.has(key))await getSavedProgress(token);
+  const result=await request("/api/account/progress",authorizedOptions(token,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({session,base_revision:progressRevisions.get(key)})}));
+  progressRevisions.set(key,result.revision);
+}
 export function deleteSavedProgress(token) {
-  return request("/api/progress", authorizedOptions(token, { method: "DELETE" }));
+  if (import.meta.env.VITE_LOCAL_APP === "true") return request("/api/progress",authorizedOptions(token,{method:"DELETE"}));
+  return saveProgress(token,null);
 }

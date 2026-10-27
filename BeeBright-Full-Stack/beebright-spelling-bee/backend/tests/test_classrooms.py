@@ -31,6 +31,10 @@ class ClassroomIntegrationTests(unittest.TestCase):
         cls.connection=patch.object(c,"_connect",lambda:psycopg.connect(os.environ["TEST_DATABASE_URL"]))
         cls.connection.start()
         c.initialize()
+        from app.database import CREATE_PROGRESS_TABLE_SQL,CREATE_REQUESTS_TABLE_SQL
+        with c._connect() as db:
+            db.execute(CREATE_PROGRESS_TABLE_SQL)
+            db.execute(CREATE_REQUESTS_TABLE_SQL)
         cls.app=FastAPI()
         cls.app.include_router(c.router)
         def user(x_test_user: str = Header(default="")):
@@ -107,3 +111,28 @@ class ClassroomIntegrationTests(unittest.TestCase):
         for _ in range(10): self.assertEqual(self.client.post("/api/devices/start").status_code,201)
         self.assertEqual(self.client.post("/api/devices/start").status_code,429)
         c._attempts.clear()
+
+    def test_progress_conflict_prevents_silent_cross_device_overwrite(self):
+        initial=self.call("GET","/api/account/progress",self.student).json()
+        self.assertIsNone(initial["revision"])
+        first=self.call("PUT","/api/account/progress",self.student,json={"session":{"words":[{"word":"bee"}],"index":0},"base_revision":None})
+        self.assertEqual(first.status_code,200,first.text)
+        conflict=self.call("PUT","/api/account/progress",self.student,json={"session":{"words":[{"word":"sky"}]},"base_revision":None})
+        self.assertEqual(conflict.status_code,409)
+        self.assertEqual(self.call("GET","/api/account/progress",self.student).json()["session"]["words"][0]["word"],"bee")
+        self.assertIsNone(self.call("GET","/api/account/progress",self.other).json()["session"])
+        cleared=self.call("PUT","/api/account/progress",self.student,json={"session":None,"base_revision":first.json()["revision"]})
+        self.assertEqual(cleared.status_code,200)
+        self.assertIsNone(self.call("GET","/api/account/progress",self.student).json()["session"])
+
+    def test_account_deletion_revokes_devices_and_cleans_membership(self):
+        c._attempts.clear()
+        room=self.call("POST","/api/classrooms",json={"name":"Delete account test"}).json()
+        pair=self.client.post("/api/devices/start").json()
+        self.call("POST","/api/devices/approve",json={"code":pair["code"]})
+        self.call("PUT","/api/account/studio",json={"data":{"favorites":["bee"]}})
+        deleted=self.call("DELETE","/api/account")
+        self.assertEqual(deleted.status_code,200,deleted.text)
+        with self.assertRaises(HTTPException):c.device_user(pair["token"])
+        self.assertEqual(self.call("GET","/api/classrooms").json(),[])
+        self.assertEqual(self.call("GET","/api/account/studio").json(),{})
