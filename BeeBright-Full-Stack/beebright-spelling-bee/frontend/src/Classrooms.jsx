@@ -19,9 +19,9 @@ export default function Classrooms({call,userId,onBack,isDesktop=false}) {
   <section className="settings-content" style={{display:'block',maxWidth:1000,margin:'auto',padding:24}}>
     <p>Anyone with an account can create a classroom. Joining shares your BeeBright screen, practice mode, level, session answer count and score with that classroom's teacher while cloud mode is active. Display names are chosen by students. Local-only activity is not shared.</p>
     {notice&&<p role="status">{notice}</p>}
-    {!isDesktop&&<article className="settings-card"><h2>Connect the local app</h2><p>Only approve a code shown by your own BeeBright app. It gives that computer access to your account for 30 days.</p>
-    <label>Device code<input value={deviceCode} maxLength={8} onChange={e=>setDeviceCode(e.target.value.toUpperCase())}/></label>
-    <button disabled={busy||deviceCode.length!==8} onClick={()=>action(async()=>{await call('/api/devices/approve','POST',{code:deviceCode});sessionStorage.removeItem('beebright-connect-code');setDeviceCode('');setNotice('Computer connected. Return to the local app.');})}>Approve my computer</button></article>}
+    {!isDesktop&&<article className="settings-card"><h2>Connect BeeBright Local</h2><p>Only connect if you just started sign-in from your own BeeBright app. This gives that computer access to your account for 30 days.</p>
+    {deviceCode ? <p>Your sign-in link is ready. No device code needs to be copied.</p> : <p>Open BeeBright on your computer and choose Sign in with Clerk, or run beebright login, to start.</p>}
+    <button disabled={busy||deviceCode.length!==8} onClick={()=>action(async()=>{await call('/api/devices/approve','POST',{code:deviceCode});sessionStorage.removeItem('beebright-connect-code');setDeviceCode('');setNotice('Computer connected. Return to the local app.');})}>Connect this computer</button></article>}
     <div className="settings-grid">
       <form className="settings-card" onSubmit={e=>{e.preventDefault();action(async()=>{await call('/api/classrooms','POST',{name});setName('')})}}>
       <h2>Create a classroom</h2><label>Classroom name<input value={name} required maxLength={80} onChange={e=>setName(e.target.value)}/></label><button disabled={busy}>Create classroom</button></form>
