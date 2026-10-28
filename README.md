@@ -36,7 +36,7 @@ beebright --version
 beebright -version
 ```
 
-Each prints the installed release, without opening the app or accessing the internet. Run `beebright update` separately to get the latest published release from [beebright-local](https://github.com/Dev-v1/beebright-local/releases/latest). The older beebright.vercel.app install URLs remain compatible.
+Each prints the installed release, without opening the app or accessing the internet. Run `beebright update` separately to get the latest published release from [beebright-local](https://github.com/Dev-v1/beebright-local/releases/latest). Older install URLs remain compatible.
 
 ## Commands
 
