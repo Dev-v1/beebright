@@ -22,6 +22,26 @@ export function rallyProject(road,x,z){let closest=null,distance=Infinity;
   if(d<distance){distance=d;closest={...f,lateral:(x-f.x)*-f.tz+(z-f.z)*f.tx,distance:d};}
  }return closest;
 }
+// The driveable surface includes asphalt, the verge, a sloping embankment and
+// the actual rendered terrain. Off-road cars must not inherit road elevation.
+export function rallySurfaceHeight(road,x,z){
+ const f=rallyProject(road,x,z),edge=road.width/2;
+ if(f.distance<=edge)return f.y;
+ const verge=f.y-.08*THREE.MathUtils.smoothstep(f.distance,edge,edge+.5);
+ if(f.distance<=edge+3)return verge;
+ const ground=road.groundHeight?.(x,z)??f.y-.8;
+ return THREE.MathUtils.lerp(verge,ground,THREE.MathUtils.smoothstep(f.distance,edge+3,edge+9));
+}
+export function rallySurfacePose(road,p){
+ const f=rallyProject(road,p.x,p.z);p.offRoad=f.distance>road.width/2;
+ if(f.distance<road.width/2-2.5){p.y=f.y;p.grade=f.grade*Math.cos(p.heading-f.heading);p.crossGrade=f.grade*Math.sin(f.heading-p.heading);return p;}
+ const forward={x:Math.cos(p.heading)*1.3,z:Math.sin(p.heading)*1.3},side={x:-Math.sin(p.heading)*.96,z:Math.cos(p.heading)*.96};
+ const heights=[];for(const a of [-1,1])for(const b of [-1,1])heights.push(rallySurfaceHeight(road,p.x+a*forward.x+b*side.x,p.z+a*forward.z+b*side.z));
+ p.y=heights.reduce((a,b)=>a+b,0)/4;
+ p.grade=((heights[2]+heights[3])-(heights[0]+heights[1]))/5.2;
+ p.crossGrade=((heights[1]+heights[3])-(heights[0]+heights[2]))/3.84;
+ return p;
+}
 export function rallyProgress(previous,next,length,maxTravel){let delta=next-previous;delta-=Math.round(delta/length)*length;return Math.abs(delta)<=maxTravel?delta:0;}
 // Curvature ahead limits speed by lateral grip and available braking distance.
 export function rallyCornerPlan(road,travel,cruise,grip=8.5){let target=cruise,turn=0;const now=rallySample(road,travel),bend=rallySample(road,travel+14);turn=angle(bend.heading-now.heading);
@@ -46,12 +66,18 @@ export function newRallyRace(road){const start=rallySample(road,0,0),player={...
  for(const car of opponents)Object.assign(car,rallySample(road,car.travel,car.lane));
  return {player,opponents,time:0,place:1,finished:false};
 }
-function drive(p,input,h,onRoad,grade){const throttle=Number(Boolean(input.up)),brake=Number(Boolean(input.down));
+function drive(p,input,h,grade,offRoad){const throttle=Number(Boolean(input.up)),brake=Number(Boolean(input.down));
  p.speed-=grade*9.81*h;
  if(throttle)p.speed+=9.5*h;
  if(brake)p.speed-=p.speed>0?15*h:5*h;
  if(!throttle&&!brake)p.speed*=Math.exp(-.32*h);
- p.speed=clamp(p.speed,-8,onRoad?42:11);if(!onRoad)p.speed*=Math.exp(-1.7*h);
+ p.speed=clamp(p.speed,-8,42);
+ if(offRoad>0){
+  // Ease toward a modestly lower top speed; never snap to a grass speed cap.
+  const surfaceLimit=42-4.5*offRoad;
+  if(p.speed>surfaceLimit)p.speed-=Math.min(p.speed-surfaceLimit,((throttle?9.5:0)+1.25*offRoad)*h);
+  if(!throttle&&!brake)p.speed*=Math.exp(-.06*offRoad*h);
+ }
  const steering=Number(Boolean(input.right))-Number(Boolean(input.left));p.steer+=(steering-p.steer)*Math.min(1,h*10);
  p.heading+=p.steer*h*2*clamp(p.speed/9,-1,1)/(1+Math.abs(p.speed)*.022);
  p.x+=Math.cos(p.heading)*p.speed*h;p.z+=Math.sin(p.heading)*p.speed*h;
@@ -59,11 +85,12 @@ function drive(p,input,h,onRoad,grade){const throttle=Number(Boolean(input.up)),
 export function rallyStep(race,road,input,dt){
  const steps=Math.max(1,Math.ceil(dt*90)),h=dt/steps,p=race.player,finish=road.length*road.laps;
  for(let n=0;n<steps;n++){
-  race.time+=h;let f=rallyProject(road,p.x,p.z),onRoad=f.distance<road.width/2;
-  drive(p,input,h,onRoad,f.grade*Math.cos(p.heading-f.heading));f=rallyProject(road,p.x,p.z);p.y=f.y;
+  race.time+=h;let f=rallyProject(road,p.x,p.z);
+  const offRoad=THREE.MathUtils.smoothstep(f.distance,road.width/2,road.width/2+3);
+  drive(p,input,h,p.grade??f.grade*Math.cos(p.heading-f.heading),offRoad);f=rallyProject(road,p.x,p.z);
   const delta=rallyProgress(p.previous,f.progress,road.length,Math.abs(p.speed)*h+1);
   if(f.distance<road.width/2){p.travel+=delta;const next=(p.gates+1)*road.length/12;if(p.travel>=next&&p.travel-next<road.length/12*.5)p.gates++;}
-  p.previous=f.progress;p.grade=f.grade*Math.cos(p.heading-f.heading);
+  p.previous=f.progress;
   for(const car of race.opponents){if(car.finished){car.finishAge=(car.finishAge??0)+h;car.travel+=car.speed*h;Object.assign(car,rallySample(road,car.travel,car.lane));continue;}
    const now=rallySample(road,car.travel),plan=rallyCornerPlan(road,car.travel,car.cruise,11.5),traffic=[{...p,lane:f.lateral},...race.opponents.filter(other=>other!==car&&!other.finished)];
    let target=plan.speed*1.12,lane=plan.lane;car.passCooldown=Math.max(0,car.passCooldown-h);
@@ -90,6 +117,7 @@ export function rallyStep(race,road,input,dt){
   for(const car of race.opponents){if(car.finished)continue;const dx=p.x-car.x,dz=p.z-car.z,d=Math.hypot(dx,dz),radius=2.5;if(d<radius&&d>1e-6){const overlap=radius-d;p.x+=dx/d*overlap*.65;p.z+=dz/d*overlap*.65;car.lane=clamp(car.lane-(dx/d*-f.tz+dz/d*f.tx)*overlap*.35,-road.width/2+1.5,road.width/2-1.5);
     const closing=p.speed*Math.cos(p.heading-car.heading)-car.speed;if(closing>0){p.speed-=closing*.45;car.speed+=closing*.2;}}
   }
+  rallySurfacePose(road,p);
   race.place=1+race.opponents.filter(car=>car.finished||car.travel>p.travel).length;
   if(p.travel>=finish&&p.gates>=road.laps*12){race.finished=true;break;}
  }
