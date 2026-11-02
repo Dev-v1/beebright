@@ -1,4 +1,4 @@
-"""Public, ephemeral five-car races hosted by the API process."""
+"""Public five-car room coordinator. Physics runs on the host browser."""
 import asyncio
 import json
 import math
@@ -25,6 +25,9 @@ class Room:
         self.phase = 'lobby'
         self.started = 0
         self.task = None
+        self.elapsed = 0.
+        self.last_snapshot = time.monotonic()
+        self.host_timeout = 30
         self.cars = [dict(slot=i, name='Bot '+str(i+1), bot=True, distance=0., lane=(i-2)*2.8, speed=0., steer=0., headingError=0., finished=False, finishTime=None, ready=True) for i in range(5)]
 
     def join(self, ws, name):
@@ -44,6 +47,8 @@ class Room:
         self.cars[slot].update(bot=True, ready=True, name='Bot '+str(slot+1))
         if self.host == slot:
             self.host = next(iter(self.members), None)
+            self.last_snapshot = time.monotonic()
+            self.host_timeout = 30
 
     def start(self, slot):
         if slot != self.host:
@@ -60,76 +65,85 @@ class Room:
         now = time.monotonic()
         return dict(type='state', code=self.code, host=self.host, track=self.track, laps=self.laps,
                     phase=self.phase, countdown=max(0, math.ceil(self.started-now)) if self.phase=='countdown' else 0,
-                    time=max(0, now-self.started) if self.started else 0, cars=self.cars)
+                    time=self.elapsed, cars=self.cars, inputs={str(i):m['input'] if now-m['last']<1 else {} for i,m in self.members.items()})
 
     async def broadcast(self):
-        data = json.dumps(self.state())
+        state = self.state()
         async def send(member):
             try:
-                await asyncio.wait_for(member['ws'].send_text(data), .3)
+                payload={**state}
+                if member is not self.members.get(self.host):
+                    payload.pop('inputs',None)
+                await asyncio.wait_for(member['ws'].send_json(payload), .3)
             except Exception:
                 pass
         await asyncio.gather(*(send(m) for m in list(self.members.values())))
 
-    def step(self, dt, elapsed):
-        track = TRACKS[self.track]
-        length, width = track['length'], track['width']
-        finish = length*self.laps
-        for car in self.cars:
-            if car['finished']:
-                continue
-            member = self.members.get(car['slot'])
-            keys = member['input'] if member and time.monotonic()-member['last']<1 else {}
-            bend = track['bends'][int(car['distance']%length/length*len(track['bends']))%len(track['bends'])]
-            if car['bot']:
-                target = max(12, 34-abs(bend)*240)+(car['slot']%2)
-                car['speed'] += max(-12*dt, min(8*dt, target-car['speed']))
-                lane = math.sin(elapsed*.35+car['slot'])*width*.18
-                car['steer'] = max(-1, min(1, (lane-car['lane'])*.6))
-            else:
-                car['steer'] = int(bool(keys.get('right')))-int(bool(keys.get('left')))
-                car['speed'] += ((10 if keys.get('up') else 0)-(16 if keys.get('down') and car['speed']>0 else 6 if keys.get('down') else 0))*dt
-                if not keys.get('up') and not keys.get('down'):
-                    car['speed'] *= math.exp(-.35*dt)
-                car['speed'] = max(-7, min(38, car['speed']))
-                if abs(car['lane'])>width/2:
-                    car['speed'] *= math.exp(-.55*dt)
-            if car['bot']:
-                car['lane'] = max(-width, min(width, car['lane']+car['steer']*max(3, abs(car['speed']))*.28*dt))
-                advance=car['speed']*dt
-            else:
-                car['headingError'] += car['steer']*dt*2*max(-1,min(1,car['speed']/9))/(1+abs(car['speed'])*.022)
-                advance=car['speed']*math.cos(car['headingError'])*dt
-                car['headingError'] -= bend*advance
-                car['headingError'] = math.atan2(math.sin(car['headingError']),math.cos(car['headingError']))
-                car['lane'] = max(-width, min(width, car['lane']+car['speed']*math.sin(car['headingError'])*dt))
-            car['distance'] = max(0, min(finish, car['distance']+advance))
-            if car['distance'] >= finish:
-                car.update(finished=True, finishTime=round(elapsed, 3), speed=0.)
-        for i, a in enumerate(self.cars):
-            for b in self.cars[i+1:]:
-                if not a['finished'] and not b['finished'] and abs(a['distance']-b['distance'])<3 and abs(a['lane']-b['lane'])<1.7:
-                    if a['distance']>=b['distance']:
-                        b['speed'] = min(b['speed'], a['speed'])
-                    else:
-                        a['speed'] = min(a['speed'], b['speed'])
+    def accept_snapshot(self, slot, payload):
+        if slot != self.host:
+            raise ValueError('Only the host can send race positions.')
+        if self.phase != 'racing':
+            return
+        elapsed=payload.get('time')
+        if type(elapsed) not in (int,float) or not math.isfinite(elapsed) or not self.elapsed-.001<=elapsed<=601:
+            raise ValueError('Invalid race time.')
+        cars=payload.get('cars')
+        if not isinstance(cars,list) or len(cars)!=5:
+            raise ValueError('A race must have five cars.')
+        fields=('x','y','z','heading','speed','distance','lane','gates','previous','grade','crossGrade','gear','rpm','shift','travel')
+        required=('x','y','z','heading','speed','distance')
+        updates=[]
+        for i,raw in enumerate(cars):
+            if not isinstance(raw,dict) or type(raw.get('slot'))!=int or raw['slot']!=i:
+                raise ValueError('Invalid racer slot.')
+            pose={}
+            for key in fields:
+                if key in raw:
+                    value=raw[key]
+                    if type(value) not in (int,float) or not math.isfinite(value) or abs(value)>1000000:
+                        raise ValueError('Invalid car position.')
+                    pose[key]=value
+            if any(key not in pose for key in required) or abs(pose['speed'])>150:
+                raise ValueError('Invalid car position.')
+            finished=raw.get('finished') is True
+            finish_time=raw.get('finishTime')
+            if finished:
+                if type(finish_time) not in (int,float) or not math.isfinite(finish_time) or not 0<=finish_time<=elapsed+.05:
+                    raise ValueError('Invalid finish time.')
+            pose.update(finished=finished,finishTime=finish_time if finished else None)
+            updates.append(pose)
+        for car,pose in zip(self.cars,updates):
+            car.update(pose)
+        self.elapsed=max(self.elapsed,elapsed)
+        self.last_snapshot=time.monotonic()
+        self.host_timeout=10
+        if all(c['finished'] for c in self.cars):
+            self.phase='finished'
 
     async def run(self):
-        previous = time.monotonic()
         try:
-            while self.members:
-                now = time.monotonic()
-                dt = min(.1, now-previous)
-                previous = now
-                if now>=self.started:
-                    self.phase = 'racing'
-                    self.step(dt, now-self.started)
-                    if all(c['finished'] for c in self.cars) or now-self.started>=600:
-                        self.phase = 'finished'
-                await self.broadcast()
-                if self.phase=='finished':
-                    return
-                await asyncio.sleep(.05)
+            while self.members and self.phase!='finished':
+                now=time.monotonic()
+                changed=False
+                if self.phase=='countdown':
+                    if now>=self.started:
+                        self.phase='racing'
+                        self.last_snapshot=now
+                    changed=True
+                elif self.phase=='racing':
+                    if now-self.started>=600:
+                        self.phase='finished'
+                        changed=True
+                    elif now-self.last_snapshot>self.host_timeout:
+                        successor=next((i for i,m in self.members.items() if i!=self.host and m['ready']),None)
+                        if successor is not None:
+                            self.host=successor
+                            self.last_snapshot=now
+                            self.host_timeout=30
+                            changed=True
+                if changed:
+                    await self.broadcast()
+                await asyncio.sleep(.1)
         except asyncio.CancelledError:
             pass
 
@@ -167,6 +181,8 @@ async def rally_socket(ws: WebSocket):
         if len(first)>1024:
             raise ValueError('Request too large.')
         data = json.loads(first)
+        if data.get('protocol')!=2:
+            raise ValueError('Please refresh the games page to use laptop-hosted races.')
         for key, old in list(ROOMS.items()):
             if not old.members or time.monotonic()-old.created>3600:
                 if old.task:
@@ -194,7 +210,7 @@ async def rally_socket(ws: WebSocket):
         window, count = time.monotonic(), 0
         while time.monotonic()-room.created<3600:
             raw = await asyncio.wait_for(ws.receive_text(), 35)
-            if len(raw)>1024:
+            if len(raw)>8192:
                 raise ValueError('Request too large.')
             now = time.monotonic()
             if now-window>1:
@@ -206,6 +222,18 @@ async def rally_socket(ws: WebSocket):
             if data.get('type')=='input':
                 room.members[slot]['input'] = {k:data.get(k) is True for k in ('up','down','left','right')}
                 room.members[slot]['last'] = now
+                owner=room.members.get(room.host)
+                if owner:
+                    try:
+                        await asyncio.wait_for(owner['ws'].send_json(dict(type='controls',slot=slot,keys=room.members[slot]['input'])),.3)
+                    except Exception:
+                        pass
+            elif data.get('type')=='host_snapshot':
+                try:
+                    room.accept_snapshot(slot,data)
+                    await room.broadcast()
+                except ValueError as exc:
+                    await ws.send_json(dict(type='error',message=str(exc)))
             elif data.get('type')=='ready':
                 room.members[slot]['ready'] = True
                 room.cars[slot]['ready'] = True

@@ -105,7 +105,7 @@ function mountScene(canvas,{id,level,laps,input,onFinish,onStatus,quality,networ
    light.userData.followTarget.position.copy(center);light.position.copy(center).add(new THREE.Vector3(16,28,12));
   }
  }
- function loop(now){const dt=last?Math.min(.034,(now-last)/1000):0;last=now;if(!paused&&!done){update(dt);redraw=true;}if(loading)redraw=true;if(redraw){try{renderer.render(scene,camera);}catch(error){finish(false,`Graphics stopped: ${error.message}. Retry or choose Lightweight graphics.`);}redraw=false;}animation=requestAnimationFrame(loop);}
+ function loop(now){const dt=last?Math.min(network ? .5 : .034,(now-last)/1000):0;last=now;if(!paused&&!done){update(dt);redraw=true;}if(loading)redraw=true;if(redraw){try{renderer.render(scene,camera);}catch(error){finish(false,`Graphics stopped: ${error.message}. Retry or choose Lightweight graphics.`);}redraw=false;}animation=requestAnimationFrame(loop);}
  const contextLost=e=>{e.preventDefault();finish(false,'The graphics context was interrupted. Retry, or open local practice in your browser.');};canvas.addEventListener('webglcontextlost',contextLost);player.position.set(p.x,p.y,p.z);renderer.render(scene,camera);animation=requestAnimationFrame(loop);
  const controls={pause(value){paused=value;redraw=true;input.previousAction=Boolean(input.action);rally?.pause(input);},setMuted(){},dispose(){cancelAnimationFrame(animation);canvas.removeEventListener('webglcontextlost',contextLost);for(const g of new Set(geometries))g.dispose();for(const m of materials)m.dispose();for(const texture of textures)texture.dispose();renderer.dispose();}};
  if(renderer.ready)return renderer.ready().then(()=>{loading=false;paused=false;last=0;return controls;},error=>{controls.dispose();throw error;});

@@ -17,10 +17,18 @@ function frame(road,i,u,lateral=0){const a=road.points[i],b=road.points[(i+1)%ro
 export function rallySample(road,distance,lateral=0){const d=((distance%road.length)+road.length)%road.length;let lo=0,hi=road.points.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(road.lengths[mid+1]<d)lo=mid+1;else hi=mid;}
  return frame(road,lo,(d-road.lengths[lo])/(road.lengths[lo+1]-road.lengths[lo]),lateral);
 }
-export function rallyProject(road,x,z){let closest=null,distance=Infinity;
- for(let i=0;i<road.points.length;i++){const a=road.points[i],b=road.points[(i+1)%road.points.length],dx=b.x-a.x,dz=b.z-a.z,u=clamp(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz),0,1),f=frame(road,i,u),d=Math.hypot(x-f.x,z-f.z);
+function projectCandidates(road,x,z){
+ const size=24;
+ if(!road.projectGrid){const grid=new Map();for(let i=0;i<road.points.length;i++){const a=road.points[i],b=road.points[(i+1)%road.points.length];for(let gx=Math.floor(Math.min(a.x,b.x)/size);gx<=Math.floor(Math.max(a.x,b.x)/size);gx++)for(let gz=Math.floor(Math.min(a.z,b.z)/size);gz<=Math.floor(Math.max(a.z,b.z)/size);gz++){const key=gx+':'+gz;if(!grid.has(key))grid.set(key,[]);grid.get(key).push(i);}}road.projectGrid=grid;}
+ const ix=Math.floor(x/size),iz=Math.floor(z/size),found=new Set();
+ for(let gx=ix-1;gx<=ix+1;gx++)for(let gz=iz-1;gz<=iz+1;gz++)for(const i of road.projectGrid.get(gx+':'+gz)||[])found.add(i);
+ return [...found].sort((a,b)=>a-b);
+}
+export function rallyProject(road,x,z,exhaustive=false){let closest=null,distance=Infinity;
+ const candidates=exhaustive?road.points.map((_,i)=>i):projectCandidates(road,x,z);
+ for(const i of candidates){const a=road.points[i],b=road.points[(i+1)%road.points.length],dx=b.x-a.x,dz=b.z-a.z,u=clamp(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz),0,1),f=frame(road,i,u),d=Math.hypot(x-f.x,z-f.z);
   if(d<distance){distance=d;closest={...f,lateral:(x-f.x)*-f.tz+(z-f.z)*f.tx,distance:d};}
- }return closest;
+ }if(!exhaustive&&distance>=24)return rallyProject(road,x,z,true);return closest;
 }
 // The driveable surface includes asphalt, the verge, a sloping embankment and
 // the actual rendered terrain. Off-road cars must not inherit road elevation.
@@ -91,15 +99,15 @@ export function rallyStep(race,road,input,dt){
   const delta=rallyProgress(p.previous,f.progress,road.length,Math.abs(p.speed)*h+1);
   if(f.distance<road.width/2){p.travel+=delta;const next=(p.gates+1)*road.length/12;if(p.travel>=next&&p.travel-next<road.length/12*.5)p.gates++;}
   p.previous=f.progress;
-  for(const car of race.opponents){if(car.finished){car.finishAge=(car.finishAge??0)+h;car.travel+=car.speed*h;Object.assign(car,rallySample(road,car.travel,car.lane));continue;}
-   const now=rallySample(road,car.travel),plan=rallyCornerPlan(road,car.travel,car.cruise,11.5),traffic=[{...p,lane:f.lateral},...race.opponents.filter(other=>other!==car&&!other.finished)];
+  for(const car of race.opponents){if(car.human)continue;if(car.finished){car.finishAge=(car.finishAge??0)+h;car.travel+=car.speed*h;Object.assign(car,rallySample(road,car.travel,car.lane));continue;}
+   const now=rallySample(road,car.travel),plan=rallyCornerPlan(road,car.travel,car.cruise,11.5),traffic=[{...p,lane:f.lateral},...race.opponents.filter(other=>other!==car&&(!other.finished||race.solidFinish))];
    let target=plan.speed*1.12,lane=plan.lane;car.passCooldown=Math.max(0,car.passCooldown-h);
    if(car.pass){car.pass.age+=h;const other=car.pass.other;
     if(car.pass.age>2.5&&(car.travel>other.travel+9||car.pass.age>8)){car.pass=null;car.passCooldown=1.5;}
     else lane=car.pass.lane;
    }
    const blocker=traffic.find(other=>other.travel-car.travel>0&&other.travel-car.travel<Math.max(12,car.speed*.8)&&Math.abs(other.lane-car.lane)<2.3);
-   if(blocker&&!car.pass&&car.passCooldown===0){const choices=[-4.5,4.5].sort((a,b)=>Math.abs(a-car.lane)-Math.abs(b-car.lane));
+   if(blocker&&!car.pass&&car.passCooldown===0){const choices=(race.solidFinish?[-road.width/2+1.5,-4.5,4.5,road.width/2-1.5]:[-4.5,4.5]).sort((a,b)=>Math.abs(a-car.lane)-Math.abs(b-car.lane));
     const clear=choices.find(candidate=>traffic.every(other=>Math.abs(other.travel-car.travel)>12||Math.abs(other.lane-candidate)>2.35));
     if(clear!==undefined){lane=clear;car.pass={lane,other:blocker.index===undefined?p:blocker,age:0};}else target=Math.min(target,Math.max(0,blocker.speed-1));
    }
@@ -114,7 +122,7 @@ export function rallyStep(race,road,input,dt){
    if(car.travel>=finish){car.finished=true;car.finishTime=race.time;}
   }
   rallyTransmission(p,h);
-  for(const car of race.opponents){if(car.finished)continue;const dx=p.x-car.x,dz=p.z-car.z,d=Math.hypot(dx,dz),radius=2.5;if(d<radius&&d>1e-6){const overlap=radius-d;p.x+=dx/d*overlap*.65;p.z+=dz/d*overlap*.65;car.lane=clamp(car.lane-(dx/d*-f.tz+dz/d*f.tx)*overlap*.35,-road.width/2+1.5,road.width/2-1.5);
+  for(const car of (race.skipCollisions?[]:race.opponents)){if(car.finished)continue;const dx=p.x-car.x,dz=p.z-car.z,d=Math.hypot(dx,dz),radius=2.5;if(d<radius&&d>1e-6){const overlap=radius-d;p.x+=dx/d*overlap*.65;p.z+=dz/d*overlap*.65;car.lane=clamp(car.lane-(dx/d*-f.tz+dz/d*f.tx)*overlap*.35,-road.width/2+1.5,road.width/2-1.5);
     const closing=p.speed*Math.cos(p.heading-car.heading)-car.speed;if(closing>0){p.speed-=closing*.45;car.speed+=closing*.2;}}
   }
   rallySurfacePose(road,p);
