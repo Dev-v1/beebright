@@ -27,6 +27,7 @@ class Room:
         self.task = None
         self.elapsed = 0.
         self.last_snapshot = time.monotonic()
+        self.host_timeout = 30
         self.cars = [dict(slot=i, name='Bot '+str(i+1), bot=True, distance=0., lane=(i-2)*2.8, speed=0., steer=0., headingError=0., finished=False, finishTime=None, ready=True) for i in range(5)]
 
     def join(self, ws, name):
@@ -46,6 +47,8 @@ class Room:
         self.cars[slot].update(bot=True, ready=True, name='Bot '+str(slot+1))
         if self.host == slot:
             self.host = next(iter(self.members), None)
+            self.last_snapshot = time.monotonic()
+            self.host_timeout = 30
 
     def start(self, slot):
         if slot != self.host:
@@ -113,6 +116,7 @@ class Room:
             car.update(pose)
         self.elapsed=max(self.elapsed,elapsed)
         self.last_snapshot=time.monotonic()
+        self.host_timeout=10
         if all(c['finished'] for c in self.cars):
             self.phase='finished'
 
@@ -130,11 +134,12 @@ class Room:
                     if now-self.started>=600:
                         self.phase='finished'
                         changed=True
-                    elif now-self.last_snapshot>5:
+                    elif now-self.last_snapshot>self.host_timeout:
                         successor=next((i for i,m in self.members.items() if i!=self.host and m['ready']),None)
                         if successor is not None:
                             self.host=successor
                             self.last_snapshot=now
+                            self.host_timeout=30
                             changed=True
                 if changed:
                     await self.broadcast()

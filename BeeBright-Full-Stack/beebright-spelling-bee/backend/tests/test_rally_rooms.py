@@ -1,4 +1,5 @@
 import time
+import asyncio
 import unittest
 from contextlib import ExitStack
 from fastapi import FastAPI
@@ -76,4 +77,22 @@ class RoomTests(unittest.TestCase):
         packet=pose_packet(20)
         for c in packet['cars']:c.update(finished=True,finishTime=19.)
         r.accept_snapshot(0,packet);self.assertEqual(r.phase,'finished')
+    def test_slow_worker_startup_and_unresponsive_host_takeover(self):
+        async def scenario():
+            r=Room(0,1);r.join(None,'A');r.join(None,'B');r.phase='racing';r.started=time.monotonic()
+            for member in r.members.values():member['ready']=True
+            r.last_snapshot=time.monotonic()-8
+            task=asyncio.create_task(r.run())
+            try:
+                await asyncio.sleep(.12);self.assertEqual(r.host,0)
+                r.last_snapshot=time.monotonic()-31
+                await asyncio.sleep(.12);self.assertEqual(r.host,1)
+                self.assertEqual(r.host_timeout,30)
+                r.accept_snapshot(1,pose_packet());self.assertEqual(r.host_timeout,10)
+                r.last_snapshot=time.monotonic()-11
+                await asyncio.sleep(.12);self.assertEqual(r.host,0)
+                self.assertEqual(r.cars[1]['x'],8);self.assertEqual(r.elapsed,1)
+            finally:
+                task.cancel();await task
+        asyncio.run(scenario())
 if __name__=='__main__':unittest.main()
