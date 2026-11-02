@@ -30,13 +30,18 @@ export function createGameRenderer(canvas,quality,onGraphics=()=>{}) {
    if(!object.isMesh||!object.visible||object.userData.softwareHidden||!object.geometry?.attributes.position)return;
    for(let parent=object.parent;parent;parent=parent.parent)if(!parent.visible)return;
    const pos=object.geometry.attributes.position,index=object.geometry.index;
-   const color=(Array.isArray(object.material)?object.material[0]:object.material).color.clone().convertLinearToSRGB();
+   const material=Array.isArray(object.material)?object.material[0]:object.material,color=material.color.clone(),vertexColors=material.vertexColors?object.geometry.attributes.color:null;
    const count=index?index.count:pos.count;
-   for(let i=0;i<count;i+=3){const vertices=[];
-    for(let j=0;j<3;j++){const n=index?index.getX(i+j):i+j;vertices.push(new THREE.Vector3().fromBufferAttribute(pos,n).applyMatrix4(object.matrixWorld).project(camera));}
-    if(vertices.some(v=>!Number.isFinite(v.x)||v.z< -1||v.z>1))continue;
+   for(let i=0;i<count;i+=3){let vertices=[];const tint=new THREE.Color(0,0,0);
+    for(let j=0;j<3;j++){const n=index?index.getX(i+j):i+j;vertices.push(new THREE.Vector3().fromBufferAttribute(pos,n).applyMatrix4(object.matrixWorld).applyMatrix4(camera.matrixWorldInverse));if(vertexColors){tint.r+=vertexColors.getX(n)/3;tint.g+=vertexColors.getY(n)/3;tint.b+=vertexColors.getZ(n)/3;}}
+    // Clip triangles crossing the camera plane, so the nearby ground never
+    // disappears when a large terrain triangle extends behind the car.
+    const clipped=[];for(let j=0;j<vertices.length;j++){const a=vertices[j],b=vertices[(j+1)%vertices.length],inside=a.z<=-camera.near,nextInside=b.z<=-camera.near;if(inside)clipped.push(a);if(inside!==nextInside)clipped.push(a.clone().lerp(b,(-camera.near-a.z)/(b.z-a.z)));}
+    vertices=clipped.map(v=>v.applyMatrix4(camera.projectionMatrix));
+    if(vertices.length<3||vertices.some(v=>!Number.isFinite(v.x))||vertices.every(v=>v.z>1))continue;
     const shade=.65+.25*Math.abs(Math.sin(i*.19));
-    triangles.push({v:vertices,z:vertices.reduce((s,v)=>s+v.z,0)/3,color:`rgb(${Math.round(color.r*255*shade)} ${Math.round(color.g*255*shade)} ${Math.round(color.b*255*shade)})`});
+    const paint=color.clone();if(vertexColors)paint.multiply(tint);paint.convertLinearToSRGB();
+    triangles.push({v:vertices,z:vertices.reduce((s,v)=>s+v.z,0)/vertices.length,color:`rgb(${Math.round(paint.r*255*shade)} ${Math.round(paint.g*255*shade)} ${Math.round(paint.b*255*shade)})`});
    }
   });
   triangles.sort((a,b)=>b.z-a.z);

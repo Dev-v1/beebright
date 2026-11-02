@@ -1,3 +1,4 @@
+import {interpolatedCars,separateCars} from './host-rally.js';
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {RALLY_COURSES,clamp} from './game-mechanics.js';
@@ -91,7 +92,21 @@ export function setupRally({scene,camera,light,high,level,laps,network,player,me
  }
  const p=race.player;camera.position.set(p.x-Math.cos(p.heading)*10,p.y+5.3,p.z-Math.sin(p.heading)*10);render(0);
  return {player:p,road,race,view,pause(input){view.previous=Boolean(input.camera);},update(input,dt){rallyViewStep(view,input.camera);race.input=input;
-   if(network){const snap=network.current;if(snap){const own=snap.cars.find(c=>c.slot===network.slot),others=snap.cars.filter(c=>c.slot!==network.slot);[own,...others].forEach((c,i)=>{if(!c)return;const target=i===0?race.player:race.opponents[i-1];Object.assign(target,rallySample(road,c.distance,c.lane),{heading:rallySample(road,c.distance,c.lane).heading+(c.headingError||0),speed:c.speed,steer:c.steer,travel:c.distance,gates:Math.floor(c.distance/road.length*12),finished:c.finished,finishAge:0});});race.time=snap.time;race.place=[...snap.cars].sort((a,b)=>(a.finishTime??Infinity)-(b.finishTime??Infinity)||b.distance-a.distance||a.slot-b.slot).findIndex(c=>c.slot===own.slot)+1;}render(dt);notify(snap?.phase==='countdown'?'Starting in '+snap.countdown:('Place '+race.place+'/5 · '+Math.round(Math.abs(p.speed)*3.6)+' km/h'));return;}
+   if(network){
+    const snap=network.current;
+    if(snap){
+     const visuals=(network.localVisual?.cars||interpolatedCars(network,performance.now())).map(c=>({...c}));
+     if(visuals.every(c=>Number.isFinite(c.x)))separateCars(visuals);
+     const own=visuals.find(c=>c.slot===network.slot),others=visuals.filter(c=>c.slot!==network.slot);
+     [own,...others].forEach((c,i)=>{if(!c)return;const target=i===0?race.player:race.opponents[i-1];
+      const frame=Number.isFinite(c.x)?c:rallySample(road,c.distance,c.lane);
+      Object.assign(target,frame,{speed:c.speed,steer:c.steer,travel:c.distance,gates:c.gates??Math.floor(c.distance/road.length*12),finished:c.finished,finishAge:0});
+     });
+     race.time=network.localVisual?.time??snap.time;
+     race.place=[...snap.cars].sort((a,b)=>(a.finishTime??Infinity)-(b.finishTime??Infinity)||b.distance-a.distance||a.slot-b.slot).findIndex(c=>c.slot===network.slot)+1;
+    }
+    render(dt);notify('Place '+race.place+'/5 · '+Math.round(Math.abs(p.speed)*3.6)+' km/h');return;
+   }
    rallyStep(race,road,input,dt);render(dt);
    const lap=Math.min(road.laps,Math.floor(Math.max(0,p.travel)/road.length)+1),speed=p.speed<-.2?'REVERSE':Math.round(Math.abs(p.speed)*3.6)+' km/h';
    notify(`${p.offRoad?'Get back on the track · ':''}${course.name} · ${view.cockpit?'Cockpit':'Chase'} · Place ${race.place}/5 · Lap ${lap}/${road.laps} · ${speed} · Gear ${p.gear===-1?'R':p.gear??1} · ${race.time.toFixed(1)}s · Hill ${Math.round(p.y)}m`);
