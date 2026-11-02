@@ -1,0 +1,54 @@
+const {chromium}=require('../.ui-test/node_modules/playwright');
+const {spawn}=require('node:child_process');
+const fs=require('node:fs'),assert=require('node:assert/strict');
+(async()=>{
+ const child=spawn(process.env.PYTHON||'python',['tools/test_public_arcade_server.py'],{env:process.env,windowsHide:true});
+ let browser;
+ child.stderr.on('data',v=>process.stderr.write(v));
+ try{
+  let ready=false;
+  for(let n=0;n<100;n++){try{if((await fetch('http://127.0.0.1:5173')).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,150));}
+  assert(ready,'Fixture did not start');
+  browser=await chromium.launch({headless:true});
+  const a=await browser.newContext(),b=await browser.newContext();
+  const host=await a.newPage(),guest=await b.newPage(),errors=[];
+  for(const p of [host,guest])p.on('pageerror',e=>errors.push(e.message));
+  await host.goto('http://127.0.0.1:5173');
+  await host.getByRole('heading',{name:/Find your rhythm/}).waitFor();
+  await host.getByRole('button',{name:'Sign in',exact:true}).waitFor();
+  await host.getByRole('button',{name:'Sign up',exact:true}).waitFor();
+  fs.mkdirSync('test-output/public-arcade',{recursive:true});
+  await host.screenshot({path:'test-output/public-arcade/home.png',fullPage:true});
+  await host.getByRole('button',{name:'Arcade',exact:true}).click();
+  await host.getByRole('heading',{name:'The BeeBright arcade',exact:true}).waitFor();
+  await host.getByRole('heading',{name:'Sky Hopper',exact:true}).waitFor();
+  await host.getByLabel('Your racing name',{exact:true}).fill('Host driver');
+  await host.getByRole('button',{name:'Create room',exact:true}).click();
+  await host.getByRole('button',{name:'Start race (U)',exact:true}).waitFor();
+  const code=(await host.locator('.rally-rooms strong').first().textContent()).match(/[A-F0-9]{8}/)[0];
+  assert.equal(await host.locator('.room-roster small').filter({hasText:/^Bot$/}).count(),4);
+  await guest.goto('http://127.0.0.1:5173/games');
+  await guest.getByLabel('Your racing name',{exact:true}).fill('Guest friend');
+  await guest.getByLabel('Join code',{exact:true}).fill(code.toLowerCase());
+  await guest.getByRole('button',{name:'Join room',exact:true}).click();
+  await guest.getByText('Guest friend (you)',{exact:true}).waitFor();
+  assert.equal(await guest.locator('.room-roster small').filter({hasText:/^Bot$/}).count(),3);
+  await guest.keyboard.press('u');
+  await host.getByRole('button',{name:'Start race (U)',exact:true}).waitFor();
+  await host.waitForFunction(()=>[...document.querySelectorAll('button')].find(b=>b.textContent==='Start race (U)')?.disabled===false);
+  await host.keyboard.press('u');
+  await host.getByText(/Race in progress/).waitFor({timeout:15000});
+  await guest.getByText(/Race in progress/).waitFor({timeout:15000});
+  await host.getByLabel('Multiplayer Neon Rally race',{exact:true}).waitFor();
+  await host.keyboard.down('ArrowUp');await new Promise(r=>setTimeout(r,1600));await host.keyboard.up('ArrowUp');
+  await host.locator('.rally-rooms').screenshot({path:'test-output/public-arcade/race.png',animations:'disabled'});
+  await guest.getByRole('button',{name:'Leave room',exact:true}).click();
+  await host.waitForFunction(()=>[...document.querySelectorAll('.room-roster small')].filter(e=>e.textContent==='Bot').length===4);
+  await guest.setViewportSize({width:390,height:844});
+  assert.equal(await guest.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Phone arcade overflows');
+  await guest.screenshot({path:'test-output/public-arcade/phone.png',fullPage:true});
+  await host.getByRole('button',{name:'Leave room',exact:true}).click();
+  assert.deepEqual(errors,[]);
+  console.log('Public home, guest arcade, two independent browsers, five racer slots, host U start, shared race and bot replacement passed.');
+ }finally{await browser?.close();child.kill();}
+})().catch(e=>{console.error(e);process.exitCode=1;});

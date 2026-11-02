@@ -74,6 +74,8 @@ app = FastAPI(
 
 from app.classrooms import router as classroom_router
 app.include_router(classroom_router)
+from app.rally_rooms import router as rally_router
+app.include_router(rally_router)
 
 allowed_origins = settings.frontend_origins
 app.add_middleware(

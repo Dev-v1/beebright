@@ -1,0 +1,39 @@
+.public-page { min-height:100vh; color:var(--ink); background:var(--cream); }
+.public-nav { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:24px max(24px,calc((100vw - 1160px)/2)); border-bottom:1px solid var(--line); background:var(--paper); flex-wrap:wrap; }
+.public-nav nav,.public-actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.public-page button { min-height:44px; border-radius:999px; padding:11px 21px; cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; line-height:1.5; border:1px solid var(--line); background:var(--paper); color:var(--ink); }
+.public-page button.primary { background:var(--yellow); color:#17333a; border-color:var(--yellow); }
+.public-page button:disabled { opacity:.55; cursor:wait; }
+.public-page button:focus-visible,.public-page input:focus-visible,.public-page select:focus-visible { outline:3px solid var(--yellow); outline-offset:3px; }
+.public-nav .brand { border:0; padding:0; background:none; border-radius:0; font-size:25px; }
+.public-home { max-width:1160px; padding:0 24px; margin:auto; }
+.public-hero { max-width:830px; padding:90px 0 64px; }
+.public-hero h1 { margin:20px 0; font:400 clamp(40px,6vw,70px)/1.07 'Libre Caslon Display',Georgia,serif; letter-spacing:-.025em; }
+.public-hero > p:not(.eyebrow) { max-width:630px; font-size:17px; line-height:1.8; color:var(--muted); }
+.public-hero .public-actions { margin-top:28px; }
+.public-hero p.public-caption { font-size:12px; margin-top:18px; }
+.public-feature-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; }
+.public-feature-grid article { border:1px solid var(--line); border-radius:24px; padding:26px; background:var(--paper); }
+.public-feature-grid h2 { font-size:19px; margin:0 0 12px; }
+.public-feature-grid p { color:var(--muted); font-size:14px; line-height:1.8; margin:0; }
+.public-home footer { padding:42px 0; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; color:var(--muted); font-size:13px; }
+.public-home a { color:var(--ink); }
+.public-games-heading,.rally-rooms { max-width:1100px; margin:40px auto; padding:0 24px; }
+.public-games-heading h1 { font:400 48px/1.1 'Libre Caslon Display',Georgia,serif; margin:15px 0; }
+.public-games-heading p,.rally-rooms p { color:var(--muted); line-height:1.7; }
+.rally-rooms { padding:32px; border:1px solid var(--line); border-radius:28px; background:var(--paper); }
+.rally-rooms h2 { font:400 34px/1.2 'Libre Caslon Display',Georgia,serif; margin:12px 0; }
+.rally-rooms label { display:grid; gap:8px; margin:18px 0; font-size:13px; font-weight:600; max-width:420px; }
+.rally-rooms input,.rally-rooms select { width:100%; min-height:46px; border-radius:14px; padding:12px; border:1px solid var(--line); background:var(--cream); color:var(--ink); font:inherit; font-size:16px; }
+.room-forms { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.room-forms form { padding:22px; border-radius:20px; border:1px solid var(--line); }
+.room-forms h3 { margin:0; }
+.room-roster { list-style:none; padding:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+.room-roster li { display:grid; gap:8px; padding:16px; background:var(--cream); border-radius:16px; overflow-wrap:anywhere; }
+.room-roster small { color:var(--muted); }
+.room-canvas { width:100%; aspect-ratio:16/9; min-height:230px; overflow:hidden; border-radius:20px; background:#10182d; }
+.room-canvas canvas { display:block; width:100%; height:100%; }
+@media(max-width:760px) { .public-feature-grid { grid-template-columns:1fr 1fr; } .public-hero { padding-top:48px; } .room-forms { grid-template-columns:1fr; } .rally-rooms { margin:24px 14px; padding:22px; } .public-nav { padding:18px; } }
+@media(max-width:460px) { .public-feature-grid { grid-template-columns:1fr; } .public-nav { gap:10px; } .public-nav nav { gap:6px; } .public-nav nav button { padding:10px 12px; } }
+
+.rally-rooms .public-actions button { touch-action:none; }
