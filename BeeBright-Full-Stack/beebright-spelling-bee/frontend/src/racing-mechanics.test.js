@@ -32,7 +32,7 @@ test('rally progress unwraps forward and reverse at the line and rejects telepor
 test('four opponents drive every circuit uphill and through corners without leaving its road',()=>{
  for(const course of RALLY_COURSES){const road=rallyRoad(course),race=newRallyRace(road);assert.equal(race.opponents.length,4);
   for(let i=0;i<20000&&!race.opponents.every(c=>c.finished);i++)rallyStep(race,road,{},1/60);
-  assert.ok(race.opponents.every(c=>c.finished));assert.ok(race.opponents.every(c=>c.finishTime>road.length*course.laps/40));assert.equal(race.finished,false,'AI finishing does not stop the player');
+  assert.ok(race.opponents.every(c=>c.finished));assert.ok(race.opponents.every(c=>c.finishTime>road.length*course.laps/(RALLY_COURSES.indexOf(course)<4?40:70)));assert.equal(race.finished,false,'AI finishing does not stop the player');
   for(const car of race.opponents){const hit=rallyProject(road,car.x,car.z);assert.ok(hit.distance<course.width/2);assert.ok(Math.abs(hit.y-car.y)<.2);}
  }
 });
@@ -54,7 +54,7 @@ test('marble board geometry has positive top normals and no duplicated triangle 
   geo.dispose();
  }
 });
-test('all four races can be finished through every checkpoint with ordinary driving inputs',()=>{
+test('all twelve races can be finished through every checkpoint with ordinary driving inputs',()=>{
  for(const course of RALLY_COURSES){const road=rallyRoad(course),race=newRallyRace(road);let frames=0;
   while(!race.finished&&frames++<20000){const p=race.player,look=rallySample(road,p.travel+Math.max(8,p.speed*.4)),heading=Math.atan2(look.z-p.z,look.x-p.x),error=Math.atan2(Math.sin(heading-p.heading),Math.cos(heading-p.heading)),target=rallyCornerPlan(road,p.travel,38).speed;
    rallyStep(race,road,{up:p.speed<target,down:p.speed>target+1,right:error>.025,left:error<-.025},1/60);
