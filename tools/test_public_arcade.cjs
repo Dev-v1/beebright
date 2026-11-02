@@ -12,8 +12,11 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
   browser=await chromium.launch({headless:true});
   const a=await browser.newContext(),b=await browser.newContext();
   for(const context of [a,b])await context.addInitScript(()=>{
+    window.__workerTrace={created:0,initialized:0,poses:0,sent:0};
+    const NativeWorker=window.Worker;
+    window.Worker=class extends NativeWorker {constructor(...args){super(...args);window.__workerTrace.created++;this.addEventListener('message',()=>window.__workerTrace.poses++);}postMessage(value,...args){if(value.type==='init')window.__workerTrace.initialized++;return super.postMessage(value,...args);}};
     const Native=window.WebSocket;
-    window.WebSocket=class extends Native {constructor(...args){super(...args);this.addEventListener('message',e=>{try{const state=JSON.parse(e.data);if(state.type==='state')window.__raceState=state;}catch{}});}};
+    window.WebSocket=class extends Native {constructor(...args){super(...args);this.addEventListener('message',e=>{try{const state=JSON.parse(e.data);if(state.type==='state')window.__raceState=state;}catch{}});}send(value){if(JSON.parse(value).type==='host_snapshot')window.__workerTrace.sent++;return super.send(value);}};
   });
   const host=await a.newPage(),guest=await b.newPage(),errors=[];
   for(const p of [host,guest])p.on('pageerror',e=>errors.push(e.message));
@@ -50,7 +53,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
   await host.keyboard.down('ArrowUp');await new Promise(r=>setTimeout(r,1600));await host.keyboard.up('ArrowUp');
   await host.screenshot({path:'test-output/public-arcade/race.png',animations:'disabled'});
   await guest.waitForFunction(()=>window.__raceState?.cars.some(c=>Number.isFinite(c.x)),{},{timeout:15000}).catch(async e=>{
-   console.error('Race diagnostics',JSON.stringify({errors,host:await host.evaluate(()=>({state:window.__raceState,alerts:[...document.querySelectorAll('[role="alert"]')].map(e=>e.textContent)})),guest:await guest.evaluate(()=>window.__raceState)}));throw e;
+   console.error('Race diagnostics',JSON.stringify({errors,host:await host.evaluate(()=>({worker:window.__workerTrace,state:window.__raceState,alerts:[...document.querySelectorAll('[role="alert"]')].map(e=>e.textContent)})),guest:await guest.evaluate(()=>({worker:window.__workerTrace,state:window.__raceState}))}));throw e;
   });
   const before=await guest.evaluate(()=>window.__raceState);
   assert.ok(before.cars.some(c=>Number.isFinite(c.x)),'Host worker did not send world poses');
