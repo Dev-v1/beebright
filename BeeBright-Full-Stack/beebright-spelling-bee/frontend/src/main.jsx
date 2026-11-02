@@ -1,3 +1,4 @@
+import {HomePage,GamesPage} from './PublicPages.jsx';
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ClerkProvider } from "@clerk/react";
@@ -8,6 +9,9 @@ import "./styles.css";
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 function MissingClerkConfiguration() {
+  const onNavigate=path=>window.location.assign(path);
+  if(window.location.pathname==='/')return <HomePage signedIn={false} onNavigate={onNavigate}/>;
+  if(window.location.pathname==='/games')return <GamesPage signedIn={false} onNavigate={onNavigate}/>;
   return (
     <main className="configuration-page">
       <div>

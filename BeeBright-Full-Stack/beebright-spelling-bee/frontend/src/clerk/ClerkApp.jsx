@@ -1,3 +1,5 @@
+import {publicRoute} from '../public-route.js';
+import {HomePage,GamesPage} from '../PublicPages.jsx';
 import Classrooms from '../Classrooms.jsx';
 import {accountRequest} from '../account-api.js';
 import { useCallback, useEffect, useState } from "react";
@@ -67,13 +69,16 @@ function RoutedApp() {
     return () => { cancelled = true; };
   }, [getToken, isLoaded, isSignedIn, userId]);
 
+  const publicPage=publicRoute(path,Boolean(isSignedIn));
+  if(publicPage==='games') return <GamesPage signedIn={Boolean(isSignedIn)} onNavigate={navigate}/>;
+  if(publicPage==='home') return <HomePage signedIn={false} onNavigate={navigate}/>;
   if (!isLoaded) return <main className="auth-loading">Preparing your spelling studio…</main>;
 
   if (!isSignedIn) {
     // The public BeeBright URL is the sign-up entry point. Clerk restores an
     // existing session before this branch runs, so returning users still go
     // directly to their practice dashboard without seeing an auth form.
-    const signingUp = path === "/" || path.startsWith("/sign-up");
+    const signingUp = path.startsWith("/sign-up");
     return (
       <main className="auth-page">
         <button className="brand auth-brand" onClick={() => navigate("/")}><span>bee</span>bright</button>
@@ -116,6 +121,7 @@ function RoutedApp() {
 
   return (
     <App key={userId}
+      onGames={()=>navigate("/games")}
       onClassrooms={()=>navigate("/classrooms")}
       userId={userId}
       getToken={getToken}
@@ -128,11 +134,4 @@ function RoutedApp() {
   );
 }
 
-export default function ClerkApp() {
-  return (
-    <>
-      <ClerkLoading><main className="auth-loading">Loading BeeBright…</main></ClerkLoading>
-      <ClerkLoaded><RoutedApp /></ClerkLoaded>
-    </>
-  );
-}
+export default function ClerkApp() { return <RoutedApp/>; }
