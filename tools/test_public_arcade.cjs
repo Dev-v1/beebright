@@ -48,7 +48,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
   await guest.getByText(/Race in progress/).waitFor({timeout:15000});
   await host.getByLabel('Multiplayer Neon Rally race',{exact:true}).waitFor();
   await host.keyboard.down('ArrowUp');await new Promise(r=>setTimeout(r,1600));await host.keyboard.up('ArrowUp');
-  await host.locator('.rally-rooms').screenshot({path:'test-output/public-arcade/race.png',animations:'disabled'});
+  await host.screenshot({path:'test-output/public-arcade/race.png',animations:'disabled'});
   const before=await guest.evaluate(()=>window.__raceState);
   assert.ok(before.cars.some(c=>Number.isFinite(c.x)),'Host worker did not send world poses');
   const cadence=await host.evaluate(()=>new Promise(resolve=>{let frames=0,start=performance.now();function tick(now){frames++;if(now-start>=1200)resolve(Math.round(frames*1000/(now-start)));else requestAnimationFrame(tick);}requestAnimationFrame(tick);}));
