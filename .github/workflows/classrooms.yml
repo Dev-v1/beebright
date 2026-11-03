@@ -21,7 +21,7 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements.txt
         working-directory: BeeBright-Full-Stack/beebright-spelling-bee/backend
-      - run: python -m unittest discover -s tests -p 'test_classrooms.py' -v
+      - run: python -m pytest tests -q
         working-directory: BeeBright-Full-Stack/beebright-spelling-bee/backend
         env:
           TEST_DATABASE_URL: postgresql://bee:test-only-password@localhost:5432/bee_test
