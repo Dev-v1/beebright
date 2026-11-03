@@ -61,7 +61,7 @@ class BoundaryTests(unittest.IsolatedAsyncioTestCase):
     async def test_dictionary_audio_share_a_bounded_rate_budget(self):
         for path in ['/api/dictionary/bee','/api/pronunciation/bee']:
             self.assertEqual((await self.request(path,method='GET'))[0]['status'],200)
-        result=await self.request('/api/pronunciation/sky',method='GET')
+        result=await self.request('/api/pronunciation/sky',method='GET',headers=[(b'x-forwarded-for',b'spoofed-client')])
         self.assertEqual(result[0]['status'],429)
         self.assertIn(b'retry-after',dict(result[0]['headers']))
         self.assertEqual((await self.request('/api/health',method='GET'))[0]['status'],200)
