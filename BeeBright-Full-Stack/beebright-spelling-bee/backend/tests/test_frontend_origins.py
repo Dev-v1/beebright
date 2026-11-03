@@ -83,6 +83,18 @@ class FrontendOriginTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertNotIn("access-control-allow-origin", response.headers)
 
+    def test_missing_expiry_expired_or_wrong_issuer_tokens_cannot_authenticate(self):
+        with patch.object(auth,'get_settings',return_value=self.settings):
+            auth._public_key.cache_clear()
+            try:
+                for overrides in [dict(exp=None),dict(exp=int(time.time())-60),dict(iss='https://other.clerk.test'),dict(sub=None)]:
+                    with self.assertRaises(HTTPException):
+                        auth.get_current_user_id('Bearer '+self.token('https://www.beebright.app',**overrides))
+                claims=dict(sub='test-user',iss=self.settings.clerk_issuer_url,azp='https://www.beebright.app')
+                with self.assertRaises(HTTPException):auth.get_current_user_id('Bearer '+jwt.encode(claims,self.private_key,algorithm='RS256'))
+                with self.assertRaises(HTTPException):auth.get_current_user_id('Bearer '+'a'*8193)
+            finally:auth._public_key.cache_clear()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -24,6 +24,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
   await host.getByRole('heading',{name:/Find your rhythm/}).waitFor();
   await host.getByRole('button',{name:'Sign in',exact:true}).waitFor();
   await host.getByRole('button',{name:'Sign up',exact:true}).waitFor();
+  assert.equal(await host.getByRole('link',{name:'Scripps National Spelling Bee',exact:true}).getAttribute('href'),'https://spellingbee.com/study-list');
   fs.mkdirSync('test-output/public-arcade',{recursive:true});
   await host.screenshot({path:'test-output/public-arcade/home.png',fullPage:true});
   await host.getByRole('button',{name:'Arcade',exact:true}).click();

@@ -9,6 +9,8 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
+from app.security import SecurityMiddleware
 
 from app.config import get_settings
 from app.auth import get_current_admin_user_id, get_current_user_id, is_admin_user
@@ -78,6 +80,7 @@ from app.rally_rooms import router as rally_router
 app.include_router(rally_router)
 
 allowed_origins = settings.frontend_origins
+app.add_middleware(SecurityMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(dict.fromkeys(origin for origin in allowed_origins if origin)),
@@ -301,9 +304,9 @@ async def import_pdf(
     if len(payload) > 15 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="PDF must be 15 MB or smaller.")
     try:
-        parsed = parse_pdf(payload)
+        parsed = await run_in_threadpool(parse_pdf,payload)
     except Exception as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+        raise HTTPException(status_code=422, detail="The PDF could not be read. Upload a valid word-list PDF.") from exc
 
     clean_title = title.strip() or (file.filename or "Imported word list").removesuffix(".pdf")
     if len(clean_title) > 120:

@@ -21,17 +21,19 @@ def get_current_user_id(authorization: str | None = Header(default=None)) -> str
         raise HTTPException(status_code=401, detail="Sign in is required.")
 
     token = authorization.removeprefix("Bearer ").strip()
+    if not token or len(token)>8192:
+        raise HTTPException(status_code=401, detail="Your sign-in session is invalid or expired.")
     if token.startswith("bb_"):
         from app.classrooms import device_user
         return device_user(token)
     settings = get_settings()
-    decode_options: dict = {"algorithms": ["RS256"], "options": {"verify_aud": False}}
+    decode_options: dict = {"algorithms": ["RS256"], "options": {"verify_aud": False,"require":["exp","sub"]}}
     if settings.clerk_issuer_url.strip():
         decode_options["issuer"] = settings.clerk_issuer_url.rstrip("/")
 
     try:
         claims = jwt.decode(token, _public_key(), **decode_options)
-    except (jwt.PyJWTError, RuntimeError) as exc:
+    except (jwt.PyJWTError, RuntimeError, TypeError, ValueError, OverflowError) as exc:
         raise HTTPException(status_code=401, detail="Your sign-in session is invalid or expired.") from exc
 
     authorized_parties = set(settings.frontend_origins)
