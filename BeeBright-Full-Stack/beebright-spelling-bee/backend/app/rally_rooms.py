@@ -90,7 +90,7 @@ class Room:
         cars=payload.get('cars')
         if not isinstance(cars,list) or len(cars)!=5:
             raise ValueError('A race must have five cars.')
-        fields=('x','y','z','heading','speed','distance','lane','gates','previous','grade','crossGrade','gear','rpm','shift','travel')
+        fields=('x','y','z','heading','speed','steer','distance','lane','gates','previous','grade','crossGrade','gear','rpm','shift','travel')
         required=('x','y','z','heading','speed','distance')
         updates=[]
         for i,raw in enumerate(cars):
@@ -103,7 +103,7 @@ class Room:
                     if type(value) not in (int,float) or not math.isfinite(value) or abs(value)>1000000:
                         raise ValueError('Invalid car position.')
                     pose[key]=value
-            if any(key not in pose for key in required) or abs(pose['speed'])>150:
+            if any(key not in pose for key in required) or abs(pose['speed'])>150 or abs(pose.get('steer',0))>1:
                 raise ValueError('Invalid car position.')
             finished=raw.get('finished') is True
             finish_time=raw.get('finishTime')

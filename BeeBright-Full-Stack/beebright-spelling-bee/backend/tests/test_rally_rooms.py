@@ -77,6 +77,16 @@ class RoomTests(unittest.TestCase):
         packet=pose_packet(20)
         for c in packet['cars']:c.update(finished=True,finishTime=19.)
         r.accept_snapshot(0,packet);self.assertEqual(r.phase,'finished')
+    def test_steering_is_relayed_and_preserved_during_host_takeover(self):
+        r=Room(0,1);r.join(None,'Host');r.join(None,'Guest');r.phase='racing'
+        packet=pose_packet();packet['cars'][1]['steer']=-.7
+        r.accept_snapshot(0,packet)
+        self.assertEqual(r.state()['cars'][1]['steer'],-.7)
+        r.leave(0)
+        self.assertEqual(r.state()['cars'][1]['steer'],-.7)
+        invalid=pose_packet(2);invalid['cars'][1]['steer']=2
+        with self.assertRaises(ValueError):r.accept_snapshot(1,invalid)
+        self.assertEqual(r.cars[1]['steer'],-.7)
     def test_slow_worker_startup_and_unresponsive_host_takeover(self):
         async def scenario():
             r=Room(0,1);r.join(None,'A');r.join(None,'B');r.phase='racing';r.started=time.monotonic()

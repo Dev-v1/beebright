@@ -90,6 +90,20 @@ class ClassroomIntegrationTests(unittest.TestCase):
         self.assertEqual(len(self.call("GET","/api/account/studio",self.student).json()["events"]),1)
         self.assertEqual(self.call("GET","/api/account/studio",self.other).json(),{})
         self.assertEqual(self.call("PUT","/api/account/studio",json={"data":{"events":"bad"}}).status_code,422)
+    def test_existing_student_can_update_name_in_full_classroom(self):
+        c._attempts.clear()
+        room=self.call('POST','/api/classrooms',json={'name':'Full classroom'}).json()
+        members=[(room['id'],self.student,'Original name')]+[(room['id'],self.student+'_'+str(i),'Student '+str(i)) for i in range(199)]
+        with c._connect() as db:
+            with db.cursor() as cursor:
+                cursor.executemany('INSERT INTO classroom_members(class_id,user_id,display_name) VALUES(%s,%s,%s)',members)
+        response=self.call('POST','/api/classrooms/join',self.student,json={'code':room['code'],'display_name':'Updated name'})
+        self.assertEqual(response.status_code,200,response.text)
+        self.assertEqual(self.call('POST','/api/classrooms/join',self.other,json={'code':room['code'],'display_name':'New student'}).status_code,400)
+        rows=self.call('GET',f"/api/classrooms/{room['id']}/students").json()
+        self.assertEqual(len(rows),200)
+        self.assertEqual(next(row for row in rows if row['user_id']==self.student)['name'],'Updated name')
+        self.call('DELETE',f"/api/classrooms/{room['id']}")
 
     def test_pairing_requires_browser_approval_expires_and_revokes(self):
         c._attempts.clear()
