@@ -8,7 +8,7 @@ export function mergeAccountStudio(old={},incoming={}) {
 
 export async function restoreAccountBackup(backup,{getToken,saveProgress,deleteSavedProgress,studio,storage,userId}) {
   if(!studio.ready)throw new Error('Practice tools are still loading. Try restoring again in a moment.');
-  if(backup?.app!=='BeeBright browser backup'||backup.format!==1||!backup.studio)throw new Error('Choose a BeeBright browser backup.');
+  if(backup?.app!=='BeeBright browser backup'||backup.format!==1||!backup.studio||typeof backup.studio!=='object'||Array.isArray(backup.studio))throw new Error('Choose a BeeBright browser backup.');
   const session=backup.session;
   if(session&&(!Array.isArray(session.words)||!session.words.length||session.words.length>150||!session.words.every(w=>typeof w?.word==='string'&&w.word.length<=80)||!Number.isInteger(session.index)||session.index<0||session.index>=session.words.length))throw new Error('Invalid saved practice session.');
   const token=await getToken();

@@ -29,9 +29,11 @@ test('restoring a backup without a session clears the old session after saving t
  assert.deepEqual(calls,['delete','studio']);assert.equal(saved.size,0);
 });
 test('invalid, signed-out or not-yet-loaded restores cannot alter account data',async()=>{
- for(const kind of ['invalid','signedOut','loading']){
+ for(const kind of ['invalid','invalidStudio','arrayStudio','signedOut','loading']){
   const {calls,options}=restoreFixture();let value=backup;
   if(kind==='invalid')value={...backup,session:{...backup.session,index:-1}};
+  if(kind==='invalidStudio')value={...backup,studio:'damaged data'};
+  if(kind==='arrayStudio')value={...backup,studio:[]};
   if(kind==='signedOut')options.getToken=async()=>null;
   if(kind==='loading')options.studio.ready=false;
   await assert.rejects(restoreAccountBackup(value,options));assert.deepEqual(calls,[]);
