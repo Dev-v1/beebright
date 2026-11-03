@@ -172,7 +172,7 @@ def join_class(payload: JoinClass, request: Request, user: str = Depends(get_cur
             raise HTTPException(404, "Classroom code not found.")
         if row[1] == user:
             raise HTTPException(400, "You already teach this classroom.")
-        if db.execute("SELECT COUNT(*) FROM classroom_members WHERE class_id=%s", (row[0],)).fetchone()[0] >= 200:
+        if db.execute("SELECT COUNT(*) FROM classroom_members WHERE class_id=%s AND user_id<>%s", (row[0],user)).fetchone()[0] >= 200:
             raise HTTPException(400, "This classroom is full.")
         db.execute("""INSERT INTO classroom_members(class_id,user_id,display_name) VALUES(%s,%s,%s)
          ON CONFLICT(class_id,user_id) DO UPDATE SET display_name=EXCLUDED.display_name""", (row[0],user,payload.display_name))
