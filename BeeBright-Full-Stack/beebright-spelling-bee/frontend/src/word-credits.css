@@ -1,0 +1,4 @@
+.word-credits { max-width:1100px; margin:32px auto 0; padding:20px 24px 28px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; line-height:1.7; }
+.word-credits p { margin:0 0 6px; }
+.word-credits a { color:var(--ink); text-decoration:underline; }
+.public-home .word-credits { display:block; padding:20px 24px 28px; font-size:12px; }

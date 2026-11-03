@@ -74,7 +74,13 @@ def test_every_study_word_has_complete_offline_hints_without_answer_leaks(word, 
         pytest.fail('Study list hints must not depend on a dictionary network call')
     monkeypatch.setattr('app.services.merriam_webster.httpx.Client', no_network)
     lookup_word.cache_clear()
-    response = client.get('/api/dictionary/' + word)
+    # Each parameterized validation is an independent client. Shared-client
+    # throttling is checked separately by the security boundary tests.
+    word_client = TestClient(app, client=('study-'+word,50000))
+    try:
+        response = word_client.get('/api/dictionary/' + word)
+    finally:
+        word_client.close()
     assert response.status_code == 200
     result = response.json()
     assert result['word'] == word and result['found']

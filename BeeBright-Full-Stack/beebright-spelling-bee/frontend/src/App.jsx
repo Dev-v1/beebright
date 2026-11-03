@@ -1,3 +1,4 @@
+import WordCredits from "./WordCredits.jsx";
 import {useActivity} from './activity.js';
 import { PracticeTools, useStudio } from "./studio.jsx";
 import { breakAfter } from "./arcade-core.js";
@@ -516,6 +517,7 @@ function App({ cloudEnabled=false, onGames, onClassrooms, userId, getToken, isAd
           <button className="text-button center-button" onClick={() => setScreen("setup")}>Choose another mode</button>
         </section>
       )}
+      {!localMode && <WordCredits/>}
     </main>
   );
 }

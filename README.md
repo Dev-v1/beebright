@@ -1,6 +1,8 @@
 # beebright
 Spelling Bee Practice Website
 
+Built-in study-word selections credit the [Scripps National Spelling Bee](https://spellingbee.com/study-list), including *2024 Words of the Champions*. BeeBright is independent and is not affiliated with or endorsed by Scripps. See [study-material attribution](ATTRIBUTION.md) for sources and ownership notices; the code license does not relicense third-party study materials.
+
 Local code and releases are maintained exclusively in [Dev-v1/beebright-local](https://github.com/Dev-v1/beebright-local). Make desktop-only features and track changes there. Website download links forward to its published release.
 
 ## Local browser commands
