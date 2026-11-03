@@ -13,6 +13,8 @@ Report suspected vulnerabilities privately to the repository owner. Do not post 
 
 ## Regression checks
 
+The privileged review bot only runs for same-repository pull requests authored by owners, members or collaborators. It checks out the trusted base commit without persisted Git credentials, not the pull-request head. Public issue comments cannot trigger it. Third-party Actions are pinned to immutable commits. Fork and other untrusted contributions still run ordinary read-only tests and need human review.
+
 CI runs all backend tests against disposable Postgres, frontend tests and builds, browser multiplayer tests, CodeQL and dependency audits. Python dependencies are checked with pinned PyPA pip-audit; JavaScript dependencies are checked with npm audit. Fix identified vulnerabilities rather than adding blanket audit exclusions.
 
 No production secrets belong in Git or browser bundles. Store backend secrets in Render and only frontend publishable configuration in Vercel. A tracked-file pattern scan supplements these controls; it does not prove that no secret has ever existed. Rotate any credential suspected of exposure.
